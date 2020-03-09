@@ -1,4 +1,10 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## If you want to code again
+Install babelrc
+Install materialUI
+Install leaflet, Markercluster (npm install leaflet.markercluster)
+Instal lazy-loading image npx create-react-app progressive-images
+
 
 ## Available Scripts
 
