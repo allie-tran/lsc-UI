@@ -1,5 +1,5 @@
 import React, { useState, Suspense, lazy } from 'react'
-import Map from "./Map";
+import Map from "../redux/Map-cnt";
 import Bar from "../redux/AppBar-cnt";
 import SaveSection from '../redux/Save-cnt'
 const ImageGrid = lazy(() => import("../redux/Images-cnt"));

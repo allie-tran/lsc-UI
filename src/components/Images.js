@@ -47,7 +47,7 @@ const IMAGE_WIDTH = 1024
 const IMAGE_HEIGHT = 768
 const RESIZE_FACTOR = 6
 
-const ImageGrid = ({ height, maxwidth, open, collection }) => {
+const ImageGrid = ({ height, maxwidth, open, collection, setScene }) => {
     const classes = gridStyles({ open });
     const [scenes, setScenes] = useState([]);
     const { promiseInProgress } = usePromiseTracker();
@@ -64,6 +64,10 @@ const ImageGrid = ({ height, maxwidth, open, collection }) => {
             setScenes(res.data.results);
         }));
     }, [collection]);
+
+    useEffect(() => {
+        setScene(scenes)
+    }, [scenes])
 
     let ITEM_WIDTH = IMAGE_WIDTH / RESIZE_FACTOR * 2.5
     const width = open ? maxwidth * 0.7 : maxwidth * 0.9;

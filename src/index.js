@@ -8,6 +8,7 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Provider } from 'react-redux'
 import configureStore from "./redux/configureStore";
 import 'react-virtualized/styles.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
 
 const theme = createMuiTheme({
