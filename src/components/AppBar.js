@@ -1,40 +1,55 @@
 import React from 'react'
-import {AppBar, Typography, IconButton} from '@material-ui/core/';
-import {SearchBar} from "./SearchBar";
-import {makeStyles} from "@material-ui/core/styles";
+import AppBar from '@material-ui/core/AppBar';
+import IconButton from '@material-ui/core/IconButton'
+import SearchBar from "./SearchBar";
+import { makeStyles } from "@material-ui/core/styles";
 import KeyboardReturnRoundedIcon from '@material-ui/icons/KeyboardReturnRounded';
 
 const useStyles = makeStyles(theme => ({
     appBar: {
         position: 'fixed',
         display: 'flex',
-        justifyContent: 'space-around',
+        justifyContent: 'space-evenly',
         alignItems: 'center',
         flexDirection: 'row',
-        width: props=>props.open?"80%": "97%",
+        width: props => props.open ? "80%" : "97%",
         height: 60,
         backgroundColor: "#212121",
         top: 0, left: 0,
         zIndex: 4
     },
     icon: {
-        padding:10,
-        marginRight:10,
+        padding: 10,
+        marginRight: 10,
         backgroundColor: "#FF6584",
     }
 }));
 
-export const Bar = (props) => {
-    const classes = useStyles(props);
+const Bar = ({ open, getImages }) => {
+    const classes = useStyles({ open });
+
+    const submitQuery = () => {
+        let query = {
+            before: document.getElementById("Before:").value,
+            beforewhen: document.getElementById("Before:-when").value,
+            current: document.getElementById("Main things:").value,
+            after: document.getElementById("After:").value,
+            afterwhen: document.getElementById("After:-when").value
+        };
+        console.log(query)
+        window.scrollTo(0, 0);
+        getImages(query);
+    };
+
     return (
         <AppBar position="static" className={classes.appBar}>
-            <SearchBar type="Before:"/>
-            <SearchBar type="Main things:"/>
-            <SearchBar type="After:"/>
+            <SearchBar type="Before:" submitQuery={submitQuery} />
+            <SearchBar type="Main things:" submitQuery={submitQuery} />
+            <SearchBar type="After:" submitQuery={submitQuery} />
             <IconButton size="small" className={classes.icon}>
-                <KeyboardReturnRoundedIcon/>
+                <KeyboardReturnRoundedIcon onClick={submitQuery} />
             </IconButton>
         </AppBar>
-
     )
 };
+export default Bar;
