@@ -76,10 +76,11 @@ const ImageGrid = ({ height, maxwidth, open, collection, setScene }) => {
 
     const Cell = memo(({ columnIndex, rowIndex, style }) => {
         if (rowIndex * maxItemsPerRow + columnIndex < scenes.length) {
+            const index = rowIndex * maxItemsPerRow + columnIndex
             return (
                 <Suspense fallback={<div style={style}></div>}>
                     <div style={{ ...style, display: 'flex', justifyContent: 'center' }}>
-                        <Event style={style} scene={scenes[rowIndex * maxItemsPerRow + columnIndex]} />
+                        <Event index={index} style={style} scene={scenes[index]} />
                     </div>
                 </Suspense>
             )

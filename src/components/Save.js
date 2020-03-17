@@ -59,7 +59,7 @@ const SaveSection = ({ open, saved, removeScene }) => {
 
             <div className={classes.imageContainer}>
                 {saved.map((scene, index) =>
-                    <Thumbnail group={scene} scale={0.7} index={index} />
+                    <Thumbnail saved group={scene} scale={0.7} index={index} />
                 )}
             </div>
         </div>

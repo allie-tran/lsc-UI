@@ -59,7 +59,7 @@ const thumbnailStyles = makeStyles(theme => ({
     }
 }));
 
-const Thumbnail = ({ group, scale, saveScene, removeScene, index }) => {
+const Thumbnail = ({ group, scale, saveScene, removeScene, index, saved, sendToMap }) => {
     const classes = thumbnailStyles({ scale });
     const [open, setOpen] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -67,6 +67,7 @@ const Thumbnail = ({ group, scale, saveScene, removeScene, index }) => {
     const openEvent = event => {
         console.log("Clicked");
         setOpen(true);
+        sendToMap(index)
         setAnchorEl(event.currentTarget);
     };
 
@@ -76,7 +77,7 @@ const Thumbnail = ({ group, scale, saveScene, removeScene, index }) => {
     };
 
     const AddRemove = () => {
-        if (index === undefined) {
+        if (saved === undefined) {
             return [<BookmarkBorderRoundedIcon fontSize="small" className={classes.saveButton} onClick={() => saveScene(group)} />,
             <CheckRoundedIcon fontSize="small" className={classes.submitButton} />]
         }
@@ -100,7 +101,7 @@ const Thumbnail = ({ group, scale, saveScene, removeScene, index }) => {
             //     src={"LSC_DATA/" + group[0]}
             //     className={classes.image}
             //     onClick={openEvent} />
-            // <AddRemove /></div>, 
+            // <AddRemove /></div>,
             <Popover
                 open={open}
                 anchorReference="anchorPosition"

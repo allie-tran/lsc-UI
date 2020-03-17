@@ -35,7 +35,7 @@ const EventPopover = ({ group, closeEvent }) => {
                         <Image
                             className={classes.img}
                             image={image}
-                            scale={6.0}
+                            scale={4.5}
                             onEscapeKeyDown={closeEvent.bind(this)}
                         />
                     </Grid>
