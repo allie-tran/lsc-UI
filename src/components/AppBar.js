@@ -32,7 +32,7 @@ const Bar = ({ open, getImages }) => {
         let query = {
             before: document.getElementById("Before:").value,
             beforewhen: document.getElementById("Before:-when").value,
-            current: document.getElementById("Main things:").value,
+            current: document.getElementById("Find:").value,
             after: document.getElementById("After:").value,
             afterwhen: document.getElementById("After:-when").value
         };
@@ -44,7 +44,7 @@ const Bar = ({ open, getImages }) => {
     return (
         <AppBar position="static" className={classes.appBar}>
             <SearchBar type="Before:" submitQuery={submitQuery} />
-            <SearchBar type="Main things:" submitQuery={submitQuery} />
+            <SearchBar type="Find:" submitQuery={submitQuery} />
             <SearchBar type="After:" submitQuery={submitQuery} />
             <IconButton size="small" className={classes.icon}>
                 <KeyboardReturnRoundedIcon onClick={submitQuery} />

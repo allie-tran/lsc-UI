@@ -1,11 +1,14 @@
-import { GET_ALL_IMAGES, SET_SCENE } from '../actions/search'
+import { GET_ALL_IMAGES, SET_SCENE, NEXT_SCENE, CLEAR_NEXT_SCENE} from '../actions/search'
 import axios from 'axios'
 
 const initialState = {
     collection: new Promise((resolve, reject) => {
         resolve({ "data": { "results": [] } })
     }),
-    scenes: []
+    scenes: [],
+    nextSceneRespone: new Promise((resolve, reject) => {
+        resolve({ "data": { "timeline": [] } })
+    })
 };
 
 export default function (state = initialState, action) {
@@ -23,6 +26,24 @@ export default function (state = initialState, action) {
         return {
             ...state,
             scenes: action.scenes
+        }
+    }
+    else if (action.type === NEXT_SCENE) {
+        const response = axios.post(
+            'http://localhost:8000/api/timeline/',
+            { "images": action.images,
+              "timeline_type": action.timeline_type },
+            { headers: { 'Content-Type': 'application/json' } });
+        return {
+            ...state,
+            nextSceneRespone: response
+        }
+    }
+    else if (action.type === CLEAR_NEXT_SCENE) {
+        return {
+            ...state,
+            nextSceneRespone: new Promise((resolve, reject) => {
+                              resolve({ "data": { "timeline": [] } })})
         }
     }
     return state

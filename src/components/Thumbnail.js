@@ -9,7 +9,7 @@ const IMAGE_WIDTH = 1024
 const IMAGE_HEIGHT = 768
 const RESIZE_FACTOR = 6
 
-const EventPopover = lazy(() => import('./EventPopover'));
+const EventPopover = lazy(() => import('../redux/EventPopover-cnt'));
 
 const thumbnailStyles = makeStyles(theme => ({
     image: {
@@ -56,24 +56,30 @@ const thumbnailStyles = makeStyles(theme => ({
         "&:hover": {
             backgroundColor: "#FF6584",
         }
+    },
+    popover: {
+        width: props => props.open ? "80%" : "98%"
     }
 }));
 
-const Thumbnail = ({ group, scale, saveScene, removeScene, index, saved, sendToMap }) => {
-    const classes = thumbnailStyles({ scale });
-    const [open, setOpen] = useState(false);
+const Thumbnail = ({ group, scale, saveScene, removeScene, index, saved, sendToMap, open, clearNextEvents, position }) => {
+    const classes = thumbnailStyles({ scale, open });
+    const [openPopover, setOpenPopover] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
 
     const openEvent = event => {
         console.log("Clicked");
-        setOpen(true);
-        sendToMap(index)
+        setOpenPopover(true);
+        if (saved === undefined){
+            sendToMap(index)
+        }
         setAnchorEl(event.currentTarget);
     };
 
     const closeEvent = () => {
-        setOpen(false);
+        setOpenPopover(false);
         setAnchorEl(null);
+        clearNextEvents()
     };
 
     const AddRemove = () => {
@@ -103,7 +109,7 @@ const Thumbnail = ({ group, scale, saveScene, removeScene, index, saved, sendToM
             //     onClick={openEvent} />
             // <AddRemove /></div>,
             <Popover
-                open={open}
+                open={openPopover}
                 anchorReference="anchorPosition"
                 anchorPosition={{ top: 0, left: 0 }}
                 anchorOrigin={{
@@ -116,9 +122,10 @@ const Thumbnail = ({ group, scale, saveScene, removeScene, index, saved, sendToM
                 }}
                 onBackdropClick={closeEvent}
                 onEscapeKeyDown={closeEvent}
+                className={classes.popover}
             >
                 <Suspense fallback={<div>Loading...</div>}>
-                    <EventPopover closeEvent={closeEvent} group={group} />
+                    <EventPopover closeEvent={closeEvent} group={group} position={position} />
                 </Suspense>
             </Popover>])
     }

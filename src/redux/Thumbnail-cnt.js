@@ -1,4 +1,5 @@
 import { connect } from 'react-redux'
+import { clearNextEvents } from './actions/search'
 import { saveScene, removeScene } from './actions/save'
 import { sendToMap } from './actions/select'
 import Thumbnail from '../components/Thumbnail'
@@ -6,7 +7,8 @@ import Thumbnail from '../components/Thumbnail'
 const mapDispatchToProps = {
     saveScene,
     removeScene,
-    sendToMap
+    sendToMap,
+    clearNextEvents
 };
 
 export default connect(

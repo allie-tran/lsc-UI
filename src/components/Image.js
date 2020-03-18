@@ -1,8 +1,6 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { makeStyles } from '@material-ui/styles'
-import Popover from "@material-ui/core/Popover";
 import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button"
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 const IMAGE_WIDTH = 1024
@@ -23,21 +21,11 @@ const imageStyles = makeStyles(theme => ({
     },
     card: {
         width: props => IMAGE_WIDTH / RESIZE_FACTOR * props.scale,
-        height: props => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale,
         display: "flex",
         flexDirection: "column",
         position: "relative",
         marginTop: 10,
-        marginBottom: 10
-    },
-    detailed: {
-        width: "100%",
-        height: 650,
-        position: "relative",
-        display: "flex",
-        alignItems: "center",
-        backgroundColor: "#272727",
-        flexDirection: "column"
+        marginBottom: 0
     },
     paper: {
         padding: theme.spacing(1),
@@ -67,22 +55,24 @@ const imageStyles = makeStyles(theme => ({
         "&:hover": {
             backgroundColor: "#FF6584",
         }
+    },
+    info: {
+        paddingLeft: 5
     }
 }));
 
-const Image = ({ image, scale, saveScene }) => {
+const Image = ({ image, scale, saveScene, info, onClick}) => {
     const classes = imageStyles({ scale });
     return (
-        <div>
-            <div className={classes.card}>
-                <img
-                    alt={image}
-                    src={"LSC_DATA/" + image}
-                    className={classes.image} />
-                <BookmarkBorderRoundedIcon fontSize="small" className={classes.saveButton} onClick={() => saveScene([image])} />,
-                <CheckRoundedIcon fontSize="small" className={classes.submitButton} />
-            </div>
-            <Typography>{image}</Typography>
+        <div className={classes.card}>
+            <img
+                alt={image}
+                src={"LSC_DATA/" + image}
+                className={classes.image}
+                onClick={onClick} />
+            <BookmarkBorderRoundedIcon fontSize="small" className={classes.saveButton} onClick={() => saveScene([image])} />
+            <CheckRoundedIcon fontSize="small" className={classes.submitButton} />
+            {info? <Typography classname={classes.info}>{image}</Typography>: null}
         </div>
     );
 };

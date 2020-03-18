@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
     searchBar: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
-        width: props => props.type === "Main things:" ? "75%" : "50%",
+        width: props => props.type === "Find:" ? "100%" : "55%",
         height: 40,
         backgroundColor: "#3B3B3B",
         borderRadius: "15px"
@@ -48,7 +48,7 @@ const SearchBar = ({ open, type, submitQuery }) => {
     };
 
     const Time = () => {
-        if (type !== "Main things:") {
+        if (type !== "Find:") {
             return ([
                 <Typography>when</Typography>,
                 <FilledInput id={type + "-when"}
@@ -72,7 +72,7 @@ const SearchBar = ({ open, type, submitQuery }) => {
             <Typography>{type}</Typography>
             <FilledInput id={type}
                 variant="filled"
-                autoFocus={type === "Main things:"}
+                autoFocus={type === "Find:"}
                 className={classes.searchBar}
                 disableUnderline={true}
                 inputProps={{ className: classes.input }}
