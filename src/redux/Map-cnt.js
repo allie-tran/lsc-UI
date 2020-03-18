@@ -1,4 +1,5 @@
 import { connect } from 'react-redux'
+import {setQueryBound} from './actions/search'
 import Map from '../components/Map'
 
 
@@ -9,7 +10,12 @@ function mapStateToProps(state) {
     }
 }
 
+const mapDispatchToProps = {
+    setQueryBound
+};
+
+
 export default connect(
     mapStateToProps,
-    null
+    mapDispatchToProps
 )(Map);

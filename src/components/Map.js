@@ -46,7 +46,7 @@ var subIcon = new L.Icon({
     });
 
 
-const Map = ({ open, submitRegion, scenes, selected, changeStatus }) => {
+const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound }) => {
     const classes = useStyles({ open });
     const [center, setCenter] = useState(selected === null ? [53.384811, -6.263190] : selected);
     const [bounds, setBounds] = useState(null);
@@ -172,6 +172,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus }) => {
         if (bounds === null) {
             return
         }
+        setQueryBound(bounds)
         if (boundLine.current !== null) {
             map.current.removeLayer(boundLine.current)
         }

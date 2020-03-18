@@ -1,4 +1,4 @@
-import { GET_ALL_IMAGES, SET_SCENE, NEXT_SCENE, CLEAR_NEXT_SCENE} from '../actions/search'
+import { GET_ALL_IMAGES, SET_SCENE, NEXT_SCENE, CLEAR_NEXT_SCENE, SET_BOUND} from '../actions/search'
 import axios from 'axios'
 
 const initialState = {
@@ -8,14 +8,21 @@ const initialState = {
     scenes: [],
     nextSceneRespone: new Promise((resolve, reject) => {
         resolve({ "data": { "timeline": [] } })
-    })
+    }),
+    bounds: null
 };
 
 export default function (state = initialState, action) {
-    if (action.type === GET_ALL_IMAGES) {
+    if (action.type === SET_BOUND) {
+        return {
+            ...state,
+            bounds: action.bounds
+        }
+    }
+    else if (action.type === GET_ALL_IMAGES) {
         const response = axios.post(
             'http://localhost:8000/api/image/',
-            { "query": action.query },
+            { "query": action.query, "gps_bounds": state.bounds },
             { headers: { 'Content-Type': 'application/json' } });
         return {
             ...state,
