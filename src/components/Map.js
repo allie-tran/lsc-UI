@@ -38,15 +38,17 @@ var mainIcon = new L.Icon({
     popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
     });
 
-var subIcon = new L.Icon({
-    iconUrl: 'pinkicon48.png',
-    iconSize:     [48, 48], // size of the icon
-    iconAnchor:   [24, 42], // point of the icon which will correspond to marker's location
-    popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
-    });
+var subIcon = L.Icon.extend({
+    options:{
+        iconUrl: 'pinkicon48.png',
+        iconSize:     [48, 48], // size of the icon
+        iconAnchor:   [24, 42], // point of the icon which will correspond to marker's location
+        popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
+    }
+});
 
 
-const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound }) => {
+const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound, selectMarkers }) => {
     const classes = useStyles({ open });
     const [center, setCenter] = useState(selected === null ? [53.384811, -6.263190] : selected);
     const [bounds, setBounds] = useState(null);
@@ -100,19 +102,24 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
                 polygonOptions: {weight: 1, opacity:0.5}
             });
 
-            scenes.forEach((scene) => {
+            scenes.forEach((scene, index) => {
                 if (scene.gps !== null) {
                     if (first_location === null) {
                         first_location = [scene.gps[1][0].lat.toPrecision(PRECISION), scene.gps[1][0].lon.toPrecision(PRECISION)]
                     }
-                    clustersMain.current.addLayer(L.marker([scene.gps[1][0].lat.toPrecision(PRECISION),
-                                                            scene.gps[1][0].lon.toPrecision(PRECISION)],
-                                                            {icon: subIcon}))
+                    var marker = L.marker([scene.gps[1][0].lat.toPrecision(PRECISION),
+                                           scene.gps[1][0].lon.toPrecision(PRECISION)],
+                                          {icon: new subIcon({index: index}),
+                                           attribution: index.toString()})
+                    marker.on('click', e => selectMarkers([e.target.options.icon.options.index]))
+                    clustersMain.current.addLayer(marker)
                 }
             })
             map.current.addLayer(clustersMain.current);
             clustersMain.current.on('clusterclick', function (a) {
                 a.layer.zoomToBounds();
+                selectMarkers(a.layer.getAllChildMarkers().map(marker=>parseInt(marker.getAttribution())))
+
             });
             map.current.flyTo(first_location, 13)
         }

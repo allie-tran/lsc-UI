@@ -21,7 +21,10 @@ const thumbnailStyles = makeStyles(theme => ({
         marginBottom: 10,
         position: "relative",
         borderRadius: 2,
-        border: "1px solid #E6E6E6"
+        border: props => props.highlight? "3px solid #FF6584": "1px solid #E6E6E6",
+        transform: props => props.highlight? "scale(1.3)": "none",
+        zIndex: props => props.highlight? 1: "none",
+        boxShadow: props => props.highlight? "3px 3px 3px rgba(0, 0, 0, 0.5)" : "none"
     },
     row: {
         display: "flex",
@@ -33,37 +36,39 @@ const thumbnailStyles = makeStyles(theme => ({
         flexDirection: "column",
         position: "relative",
         marginTop: 10,
-        marginBottom: 10
+        marginBottom: 10,
+        marginLeft: 2,
+        marginRight: 2
     },
     saveButton: {
         position: "absolute",
-        left: props => IMAGE_WIDTH / RESIZE_FACTOR * props.scale - 25,
-        top: props => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale - 50,
+        left: props => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * (props.highlight? 1.15: 1) - 25,
+        top: props => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * (props.highlight? 1.15: 1) - 50,
         color: "#fff",
         backgroundColor: "rgba(255, 255, 255, 0.5)",
         borderRadius: 3,
         "&:hover": {
             backgroundColor: "#FF6584",
-        }
+        },
+        zIndex: props => props.highlight? 2: "none"
     },
     submitButton: {
         position: "absolute",
-        left: props => IMAGE_WIDTH / RESIZE_FACTOR * props.scale - 25,
-        top: props => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale - 25,
+        left: props => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * (props.highlight? 1.15: 1) - 25,
+        top: props => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * (props.highlight? 1.15: 1) - 25,
         color: "#fff",
         backgroundColor: "rgba(255, 255, 255, 0.5)",
         borderRadius: 3,
         "&:hover": {
             backgroundColor: "#FF6584",
-        }
-    },
-    popover: {
-        width: props => props.open ? "80%" : "98%"
+        },
+        zIndex: props => props.highlight? 2: "none"
     }
 }));
 
-const Thumbnail = ({ group, scale, saveScene, removeScene, index, saved, sendToMap, open, clearNextEvents, position }) => {
-    const classes = thumbnailStyles({ scale, open });
+const Thumbnail = ({ group, scale, saveScene, removeScene, index, saved, sendToMap, open, clearNextEvents, position, markersSelected }) => {
+    const highlight = markersSelected.includes(index) && saved === undefined && position === "current"
+    const classes = thumbnailStyles({ scale, open, highlight });
     const [openPopover, setOpenPopover] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
 

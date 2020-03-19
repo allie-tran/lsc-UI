@@ -4,6 +4,10 @@ import { saveScene, removeScene } from './actions/save'
 import { sendToMap } from './actions/select'
 import Thumbnail from '../components/Thumbnail'
 
+function mapStateToProps(state) {
+    return { markersSelected: state.select.markersSelected }
+}
+
 const mapDispatchToProps = {
     saveScene,
     removeScene,
@@ -12,6 +16,6 @@ const mapDispatchToProps = {
 };
 
 export default connect(
-    null,
+    mapStateToProps,
     mapDispatchToProps
 )(Thumbnail);

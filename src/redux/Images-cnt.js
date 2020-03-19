@@ -4,7 +4,8 @@ import ImageGrid from '../components/Images'
 
 
 function mapStateToProps(state) {
-    return { collection: state.search.collection }
+    return { collection: state.search.collection,
+             markersSelected: state.select.markersSelected }
 }
 
 const mapDispatchToProps = {
@@ -15,4 +16,3 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(ImageGrid);
-

@@ -58,7 +58,7 @@ const IMAGE_WIDTH = 1024
 const IMAGE_HEIGHT = 768
 const RESIZE_FACTOR = 6.5
 
-const ImageGrid = ({ height, maxwidth, open, collection, setScene }) => {
+const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelected }) => {
     const classes = gridStyles({ open, height });
     const [scenes, setScenes] = useState([]);
     const [bottom, setBottom] = useState(false);
@@ -87,6 +87,16 @@ const ImageGrid = ({ height, maxwidth, open, collection, setScene }) => {
         setBottom(scenes.length / maxItemsPerRow == 4)
     }, [scenes])
 
+    useEffect(() => {
+        if (markersSelected.length > 0) {
+            const index = markersSelected[0]
+            gridRef.current.scrollToItem({
+                columnIndex: index % maxItemsPerRow,
+                rowIndex: Math.round(index / maxItemsPerRow),
+                align: "center"
+            })
+        }
+    }, [markersSelected])
 
     const Cell = memo(({ columnIndex, rowIndex, style }) => {
         if (rowIndex * maxItemsPerRow + columnIndex < scenes.length) {
