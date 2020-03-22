@@ -77,11 +77,10 @@ const thumbnailStyles = makeStyles(theme => ({
 
 const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved, sendToMap,
                      open, clearNextEvents, position, markersSelected, last,
-                     disableOnClickOutside, enableOnClickOutside, selectMarkers}) => {
+                     setRef, selectMarkers}) => {
     const [highlight, setHighlight] = useState(false)
     const classes = thumbnailStyles({hidden, scale, open, last, saved});
     const [openPopover, setOpenPopover] = useState(false);
-    const ref = React.useRef(null)
 
     const handleClickOutside = () => {
         setTimeout(() => highlight.current = false, 50)
@@ -100,7 +99,6 @@ const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved,
             setHighlight(newHighlight)
         }
     }, [markersSelected])
-    useOnClickOutside(ref, () => {console.log('clicked outside'); selectMarkers([])}, highlight);
 
     const closeEvent = () => {
         setOpenPopover(false);
@@ -120,7 +118,7 @@ const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved,
     const ImageCard = () => {
         if (saved === undefined) {
             return (<div className={classes.card}>
-                        <img ref={ref}
+                        <img ref={setRef}
                             alt={group[0]}
                             src={"LSC_DATA/" + group[0]}
                             className={clsx(classes.image, {[classes.highlight]: highlight})}
@@ -166,30 +164,5 @@ const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved,
         return <div className={classes.card} />;
     }
 };
-
-function useOnClickOutside(ref, handler, highlight) {
-  useEffect(
-    () => {
-        if (highlight) {
-            const listener = event => {
-            // Do nothing if clicking ref's element or descendent elements
-            if (!ref.current || ref.current.contains(event.target)) {
-            return;
-            }
-            handler(event);
-            };
-
-            document.addEventListener('mousedown', listener);
-            document.addEventListener('touchstart', listener);
-
-            return () => {
-                document.removeEventListener('mousedown', listener);
-                document.removeEventListener('touchstart', listener);
-            };
-        }
-    },
-    [ref, handler]
-  );
-}
 
 export default Thumbnail;

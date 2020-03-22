@@ -18,8 +18,7 @@ export default function (state = initialState, action) {
         }
     }
     else if (action.type === SELECT_MARKERS) {
-        console.log(action.indices)
-        console.log(state.markersSelected)
+        action.indices.sort((a, b) => a - b)
         if (action.indices.length === state.markersSelected.length && action.indices.every(function(value, index) { return value === state.markersSelected[index]})){
             if (state.currentMarker === action.indices.length - 1) {
                 return {
@@ -38,7 +37,7 @@ export default function (state = initialState, action) {
             ...state,
             markersSelected: action.indices,
             currentMarker: action.indices.length > 0? 0: -1,
-            selected: action.indices.length > 0? action.indices[0]: null
+            selected: action.indices.length > 0? action.indices[0] : null
         }
     }
     else if (action.type === RESET) {

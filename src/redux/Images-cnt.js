@@ -1,5 +1,7 @@
 import { connect } from 'react-redux'
 import { setScene, setQueryBound } from './actions/search'
+import {resetSelection} from './actions/select'
+
 import ImageGrid from '../components/Images'
 
 
@@ -10,7 +12,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-    setScene, setQueryBound
+    setScene, setQueryBound, resetSelection
 };
 
 export default connect(

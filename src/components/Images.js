@@ -57,12 +57,20 @@ const IMAGE_WIDTH = 1024
 const IMAGE_HEIGHT = 768
 const RESIZE_FACTOR = 6.5
 
-const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelected, currentMarker, setQueryBound }) => {
+const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelected, currentMarker, setQueryBound, resetSelection}) => {
     const classes = gridStyles({ open, height });
     const [scenes, setScenes] = useState([]);
     const [bottom, setBottom] = useState(false);
     const { promiseInProgress } = usePromiseTracker();
     const gridRef = React.createRef();
+    const highlightRef = React.createRef([]);
+
+    const setRef = (index) => {
+        if (highlightRef.current === null){
+            highlightRef.current = []
+        }
+        highlightRef.current.push(index)
+    }
 
     let ITEM_WIDTH = IMAGE_WIDTH / RESIZE_FACTOR * 2.5
     const width = open ? maxwidth * 0.8 : maxwidth * 0.97;
@@ -102,6 +110,8 @@ const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelect
     // eslint-disable-next-line
     }, [markersSelected, currentMarker])
 
+    useOnClickOutside(highlightRef, () => {console.log('clicked outside'); resetSelection()});
+
     const Cell = memo(({ columnIndex, rowIndex, style }) => {
         if (rowIndex * maxItemsPerRow + columnIndex < scenes.length) {
             const index = rowIndex * maxItemsPerRow + columnIndex
@@ -111,7 +121,7 @@ const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelect
                                   justifyContent: 'center',
                                   alignItems: "center",
                                   backgroundColor: rowIndex % 2 !== 0? "none": "rgba(0, 0, 0, 0.15)"}}>
-                        <Event index={index} style={style} scene={scenes[index]} open={open} />
+                        <Event setRef={setRef} index={index} style={style} scene={scenes[index]} open={open} />
                     </div>
                 </Suspense>
             )
@@ -160,5 +170,28 @@ const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelect
         )
     }
 };
+
+function useOnClickOutside(ref, handler) {
+  useEffect(
+    () => {
+            const listener = event => {
+            // Do nothing if clicking ref's element or descendent elements
+            if (!ref.current || ref.current.includes(event.target)) {
+            return;
+            }
+            handler(event);
+            };
+
+            document.addEventListener('mousedown', listener);
+            document.addEventListener('touchstart', listener);
+
+            return () => {
+                document.removeEventListener('mousedown', listener);
+                document.removeEventListener('touchstart', listener);
+            };
+    },
+    [ref, handler]
+  );
+}
 
 export default ImageGrid;

@@ -138,6 +138,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
             }
 
             let path = []
+            console.log(selected)
             for (let i = 0; i < 3; i++) {
                 if (scenes[selected].gps[i] !== null) {
                     scenes[selected].gps[i].forEach(gps => {

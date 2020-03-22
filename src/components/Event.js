@@ -17,12 +17,12 @@ const eventStyles = makeStyles(theme => ({
     }
 }));
 
-const Event = ({ index, scene, open }) => {
+const Event = ({ index, scene, open , setRef}) => {
     const classes = eventStyles();
     return (
         <div className={classes.group}>
             <Thumbnail index={index} group={scene.before} scale={0.7} open={open} position="before" />
-            <Thumbnail index={index} group={scene.current} scale={1} open={open} position="current"/>
+            <Thumbnail setRef={setRef} index={index} group={scene.current} scale={1} open={open} position="current"/>
             <Thumbnail index={index} group={scene.after} scale={0.7} open={open} position="after" />
         </div>
     );
