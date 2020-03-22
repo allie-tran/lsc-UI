@@ -1,5 +1,5 @@
 import React from "react";
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import Typography from "@material-ui/core/Typography";
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
@@ -25,10 +25,6 @@ const imageStyles = makeStyles(theme => ({
         position: "relative",
         marginTop: 10,
         marginBottom: 0
-    },
-    paper: {
-        padding: theme.spacing(1),
-        backgroundColor: "transparent"
     },
     grid: {
         overflow: "scroll"

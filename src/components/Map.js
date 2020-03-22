@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
     icon: {
         padding: 0,
         backgroundColor: "#f7f7f7",
-        left: props => props.open ? `calc(71% - 25px)` : `calc(88% - 25px)`,
+        left: props => props.open ? `calc(80% - 25px)` : `calc(97% - 25px)`,
         top: "90%",
         zIndex: 4
 

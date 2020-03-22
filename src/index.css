@@ -11,3 +11,27 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.highlight-enter {
+  transform: scale(1);
+}
+
+.highlight-enter-active {
+    transform: scale(1.3);
+    border: 3px solid #FF6584;
+    transition: all 5s ease;
+    z-index: 1;
+    box-shadow: "3px 3px 3px rgba(0, 0, 0, 0.5)";
+}
+
+.highlight-exit {
+    transform: scale(1.3);
+    border: 3px solid #FF6584;
+    z-index: 1;
+}
+
+.highlight-exit-active {
+  opacity: 0.01;
+  transform: scale(1);
+  transition: all 5000ms;
+}

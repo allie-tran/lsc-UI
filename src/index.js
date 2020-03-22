@@ -9,7 +9,6 @@ import { Provider } from 'react-redux'
 import configureStore from "./redux/configureStore";
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
-
 const theme = createMuiTheme({
     palette: {
         type: "dark",
@@ -19,8 +18,6 @@ const theme = createMuiTheme({
         success: { main: "#212121" }
     },
     spacing: 4
-
-
 });
 const store = configureStore();
 

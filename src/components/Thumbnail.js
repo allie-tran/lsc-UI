@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState, Suspense, lazy, useRef, useEffect } from "react";
 import Popover from "@material-ui/core/Popover";
 import { makeStyles } from "@material-ui/core/styles";
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
@@ -29,7 +29,8 @@ const thumbnailStyles = makeStyles(theme => ({
             transform: "scale(1.3)",
             zIndex: 1,
             boxShadow: "3px 3px 3px rgba(0, 0, 0, 0.5)",
-        }
+        },
+        transition: "all 5s"
     },
     highlight: {},
     row: {
@@ -74,11 +75,17 @@ const thumbnailStyles = makeStyles(theme => ({
     }
 }));
 
-const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved, sendToMap, open, clearNextEvents, position, markersSelected, last }) => {
-    const highlight = markersSelected.includes(index) && saved === undefined && position === "current"
+const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved, sendToMap,
+                     open, clearNextEvents, position, markersSelected, last,
+                     disableOnClickOutside, enableOnClickOutside, selectMarkers}) => {
+    const [highlight, setHighlight] = useState(false)
     const classes = thumbnailStyles({hidden, scale, open, last, saved});
     const [openPopover, setOpenPopover] = useState(false);
-    const [inProp, setInProp] = useState(true)
+    const ref = React.useRef(null)
+
+    const handleClickOutside = () => {
+        setTimeout(() => highlight.current = false, 50)
+    }
 
     const openEvent = event => {
         console.log("Clicked");
@@ -87,6 +94,13 @@ const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved,
             sendToMap(index)
         }
     };
+    useEffect(()=>{
+        var newHighlight = markersSelected.includes(index) && saved === undefined && position === "current"
+        if (newHighlight != highlight){
+            setHighlight(newHighlight)
+        }
+    }, [markersSelected])
+    useOnClickOutside(ref, () => {console.log('clicked outside'); selectMarkers([])}, highlight);
 
     const closeEvent = () => {
         setOpenPopover(false);
@@ -99,15 +113,14 @@ const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved,
             <CheckRoundedIcon fontSize="small" className={classes.submitButton} />]
         }
         return (
-            [<DeleteOutlineRoundedIcon fontSize="small" className={classes.saveButton} onClick={() => {setInProp(false); removeScene(index)}} />,
+            [<DeleteOutlineRoundedIcon fontSize="small" className={classes.saveButton} onClick={() => {removeScene(index)}} />,
             <CheckRoundedIcon fontSize="small" className={classes.submitButton} />])
     }
-
 
     const ImageCard = () => {
         if (saved === undefined) {
             return (<div className={classes.card}>
-                        <img
+                        <img ref={ref}
                             alt={group[0]}
                             src={"LSC_DATA/" + group[0]}
                             className={clsx(classes.image, {[classes.highlight]: highlight})}
@@ -116,21 +129,19 @@ const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved,
                     </div>)
         }
         return (
-            <Fade direction="down" in={inProp} timeout={500} mountOnEnter unmountOnExit>
-                <div className={classes.card}>
-                    <img
-                        alt={group[0]}
-                        src={"LSC_DATA/" + group[0]}
-                        className={classes.image}
-                        onClick={openEvent} />
-                    <AddRemove />
-                </div>
-            </Fade>)
+            <div className={classes.card}>
+                <img
+                    alt={group[0]}
+                    src={"LSC_DATA/" + group[0]}
+                    className={classes.image}
+                    onClick={openEvent} />
+                <AddRemove />
+            </div>)
     }
 
     if (group.length > 0) {
         return ([<ImageCard/>,
-            <Popover
+                <Popover
                 open={openPopover}
                 anchorReference="anchorPosition"
                 anchorPosition={{ top: 0, left: 0 }}
@@ -155,5 +166,30 @@ const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved,
         return <div className={classes.card} />;
     }
 };
+
+function useOnClickOutside(ref, handler, highlight) {
+  useEffect(
+    () => {
+        if (highlight) {
+            const listener = event => {
+            // Do nothing if clicking ref's element or descendent elements
+            if (!ref.current || ref.current.contains(event.target)) {
+            return;
+            }
+            handler(event);
+            };
+
+            document.addEventListener('mousedown', listener);
+            document.addEventListener('touchstart', listener);
+
+            return () => {
+                document.removeEventListener('mousedown', listener);
+                document.removeEventListener('touchstart', listener);
+            };
+        }
+    },
+    [ref, handler]
+  );
+}
 
 export default Thumbnail;
