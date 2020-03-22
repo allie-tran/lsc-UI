@@ -46,7 +46,6 @@ const gridStyles = makeStyles(theme => ({
 }));
 
 const LoadingIndicator = props => {
-    const classes = gridStyles()
     const { promiseInProgress } = usePromiseTracker();
 
     return (
@@ -58,7 +57,7 @@ const IMAGE_WIDTH = 1024
 const IMAGE_HEIGHT = 768
 const RESIZE_FACTOR = 6.5
 
-const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelected }) => {
+const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelected, currentMarker, setQueryBound }) => {
     const classes = gridStyles({ open, height });
     const [scenes, setScenes] = useState([]);
     const [bottom, setBottom] = useState(false);
@@ -80,23 +79,28 @@ const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelect
         trackPromise(collection.then(res => {
             setScenes(res.data.results);
         }));
+    // eslint-disable-next-line
     }, [collection]);
 
     useEffect(() => {
         setScene(scenes)
-        setBottom(scenes.length / maxItemsPerRow == 4)
+        setBottom(scenes.length / maxItemsPerRow === 4)
+        setQueryBound(null)
+    // eslint-disable-next-line
     }, [scenes])
 
     useEffect(() => {
-        if (markersSelected.length > 0) {
-            const index = markersSelected[0]
+        console.log(currentMarker)
+        if (currentMarker >= 0 && markersSelected.length>0) {
+            const index = markersSelected[currentMarker]
             gridRef.current.scrollToItem({
                 columnIndex: index % maxItemsPerRow,
                 rowIndex: Math.round(index / maxItemsPerRow),
                 align: "center"
             })
         }
-    }, [markersSelected])
+    // eslint-disable-next-line
+    }, [markersSelected, currentMarker])
 
     const Cell = memo(({ columnIndex, rowIndex, style }) => {
         if (rowIndex * maxItemsPerRow + columnIndex < scenes.length) {

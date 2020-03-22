@@ -1,6 +1,5 @@
 import React from 'react'
 import FilledInput from '@material-ui/core/FilledInput';
-import InputAdornment from '@material-ui/core/InputAdornment'
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 

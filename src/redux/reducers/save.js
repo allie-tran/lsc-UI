@@ -6,14 +6,16 @@ import {
 const initialState = {
     saved: [['Thumbnail1', 'img1', 'img2'],
     ['Thumbnail2', 'img1', 'img2'],
-    ['Thumbnail3', 'img1', 'img2']]
+    ['Thumbnail3', 'img1', 'img2'],
+    ['Thumbnail4', 'img1', 'img2'],
+    ['Thumbnail4', 'img1', 'img2']]
 };
 
 export default function (state = initialState, action) {
     if (action.type === SAVE_SCENE) {
         return {
             ...state,
-            saved: [action.scene, ...state.saved]
+            saved: [...state.saved, action.scene]
         }
     }
     else if (action.type === REMOVE_SCENE) {

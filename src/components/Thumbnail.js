@@ -1,9 +1,11 @@
-import React, { useEffect, useState, Suspense, lazy } from "react";
+import clsx from 'clsx';
+import React, { useState, Suspense, lazy } from "react";
 import Popover from "@material-ui/core/Popover";
 import { makeStyles } from "@material-ui/core/styles";
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
+import Fade from '@material-ui/core/Fade';
 
 const IMAGE_WIDTH = 1024
 const IMAGE_HEIGHT = 768
@@ -20,12 +22,16 @@ const thumbnailStyles = makeStyles(theme => ({
         marginTop: 0,
         marginBottom: 10,
         position: "relative",
-        borderRadius: 2,
-        border: props => props.highlight? "3px solid #FF6584": "1px solid #E6E6E6",
-        transform: props => props.highlight? "scale(1.3)": "none",
-        zIndex: props => props.highlight? 1: "none",
-        boxShadow: props => props.highlight? "3px 3px 3px rgba(0, 0, 0, 0.5)" : "none"
+        border: "1px solid #E6E6E6",
+        visibility: props=> props.hidden? "hidden": "visible",
+        '&$highlight': {
+            border: "3px solid #FF6584",
+            transform: "scale(1.3)",
+            zIndex: 1,
+            boxShadow: "3px 3px 3px rgba(0, 0, 0, 0.5)",
+        }
     },
+    highlight: {},
     row: {
         display: "flex",
     },
@@ -36,9 +42,9 @@ const thumbnailStyles = makeStyles(theme => ({
         flexDirection: "column",
         position: "relative",
         marginTop: 10,
-        marginBottom: 10,
+        marginBottom: props => props.last? 40: 40,
         marginLeft: 2,
-        marginRight: 2
+        marginRight: 2,
     },
     saveButton: {
         position: "absolute",
@@ -50,7 +56,8 @@ const thumbnailStyles = makeStyles(theme => ({
         "&:hover": {
             backgroundColor: "#FF6584",
         },
-        zIndex: props => props.highlight? 2: "none"
+        zIndex: props => props.highlight? 2: "none",
+        visibility: props=> props.hidden? "hidden": "visible"
     },
     submitButton: {
         position: "absolute",
@@ -62,15 +69,16 @@ const thumbnailStyles = makeStyles(theme => ({
         "&:hover": {
             backgroundColor: "#FF6584",
         },
-        zIndex: props => props.highlight? 2: "none"
+        zIndex: props => props.highlight? 2: "none",
+        visibility: props=> props.hidden? "hidden": "visible"
     }
 }));
 
-const Thumbnail = ({ group, scale, saveScene, removeScene, index, saved, sendToMap, open, clearNextEvents, position, markersSelected }) => {
+const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved, sendToMap, open, clearNextEvents, position, markersSelected, last }) => {
     const highlight = markersSelected.includes(index) && saved === undefined && position === "current"
-    const classes = thumbnailStyles({ scale, open, highlight });
+    const classes = thumbnailStyles({hidden, scale, open, last, saved});
     const [openPopover, setOpenPopover] = useState(false);
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [inProp, setInProp] = useState(true)
 
     const openEvent = event => {
         console.log("Clicked");
@@ -78,12 +86,10 @@ const Thumbnail = ({ group, scale, saveScene, removeScene, index, saved, sendToM
         if (saved === undefined){
             sendToMap(index)
         }
-        setAnchorEl(event.currentTarget);
     };
 
     const closeEvent = () => {
         setOpenPopover(false);
-        setAnchorEl(null);
         clearNextEvents()
     };
 
@@ -93,26 +99,37 @@ const Thumbnail = ({ group, scale, saveScene, removeScene, index, saved, sendToM
             <CheckRoundedIcon fontSize="small" className={classes.submitButton} />]
         }
         return (
-            <DeleteOutlineRoundedIcon fontSize="small" className={classes.submitButton} onClick={() => removeScene(index)} />)
+            [<DeleteOutlineRoundedIcon fontSize="small" className={classes.saveButton} onClick={() => {setInProp(false); removeScene(index)}} />,
+            <CheckRoundedIcon fontSize="small" className={classes.submitButton} />])
+    }
+
+
+    const ImageCard = () => {
+        if (saved === undefined) {
+            return (<div className={classes.card}>
+                        <img
+                            alt={group[0]}
+                            src={"LSC_DATA/" + group[0]}
+                            className={clsx(classes.image, {[classes.highlight]: highlight})}
+                            onClick={openEvent} />
+                        <AddRemove />
+                    </div>)
+        }
+        return (
+            <Fade direction="down" in={inProp} timeout={500} mountOnEnter unmountOnExit>
+                <div className={classes.card}>
+                    <img
+                        alt={group[0]}
+                        src={"LSC_DATA/" + group[0]}
+                        className={classes.image}
+                        onClick={openEvent} />
+                    <AddRemove />
+                </div>
+            </Fade>)
     }
 
     if (group.length > 0) {
-        return ([
-            <div className={classes.card}>
-                <img
-                    alt={group[0]}
-                    src={"LSC_DATA/" + group[0]}
-                    className={classes.image}
-                    onClick={openEvent} />
-                <AddRemove />
-            </div>,
-            //  <div className={classes.row}>
-            // * <img
-            //     alt={group[0]}
-            //     src={"LSC_DATA/" + group[0]}
-            //     className={classes.image}
-            //     onClick={openEvent} />
-            // <AddRemove /></div>,
+        return ([<ImageCard/>,
             <Popover
                 open={openPopover}
                 anchorReference="anchorPosition"

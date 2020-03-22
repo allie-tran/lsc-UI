@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const Bar = ({ open, getImages }) => {
+const Bar = ({ open, getImages, resetSelection }) => {
     const classes = useStyles({ open });
 
     const submitQuery = () => {
@@ -38,6 +38,7 @@ const Bar = ({ open, getImages }) => {
         };
         console.log(query)
         window.scrollTo(0, 0);
+        resetSelection();
         getImages(query);
     };
 

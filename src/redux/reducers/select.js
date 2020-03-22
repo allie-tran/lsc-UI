@@ -1,11 +1,13 @@
 import {
     SELECT_SCENE,
-    SELECT_MARKERS
+    SELECT_MARKERS,
+    RESET
 } from '../actions/select'
 
 const initialState = {
     selected: null,
-    markersSelected: []
+    markersSelected: [],
+    currentMarker: -1
 };
 
 export default function (state = initialState, action) {
@@ -16,9 +18,32 @@ export default function (state = initialState, action) {
         }
     }
     else if (action.type === SELECT_MARKERS) {
+        console.log(action.indices)
+        console.log(state.markersSelected)
+        if (action.indices.length === state.markersSelected.length && action.indices.every(function(value, index) { return value === state.markersSelected[index]})){
+            if (state.currentMarker === action.indices.length - 1) {
+                return {
+                    ...state,
+                    currentMarker: 0,
+                    selected: action.indices[0]
+                }
+            }
+            return {
+                ...state,
+                currentMarker: state.currentMarker + 1,
+                selected: action.indices[state.currentMarker + 1]
+            }
+        }
         return {
             ...state,
-            markersSelected: action.indices
+            markersSelected: action.indices,
+            currentMarker: 0,
+            selected: action.indices[0]
+        }
+    }
+    else if (action.type === RESET) {
+        return {
+            ...initialState
         }
     }
     return state

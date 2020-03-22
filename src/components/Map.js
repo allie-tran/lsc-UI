@@ -3,9 +3,9 @@ import KeyboardArrowLeftRoundedIcon from '@material-ui/icons/KeyboardArrowLeftRo
 import KeyboardArrowRightRoundedIcon from '@material-ui/icons/KeyboardArrowRightRounded';
 import IconButton from "@material-ui/core/IconButton";
 import * as L from 'leaflet'
-import 'leaflet.markercluster'; // must be here!!!!
+import 'leaflet.markercluster';
 import 'leaflet-polylinedecorator'
-import SelectArea from 'leaflet-area-select';
+import 'leaflet-area-select';
 
 import { makeStyles } from '@material-ui/core/styles';
 const PRECISION = 5
@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
 var mainIcon = new L.Icon({
     iconUrl: 'mainicon_64.png',
     iconSize:     [64, 64], // size of the icon
-    iconAnchor:   [33, 58], // point of the icon which will correspond to marker's location
+    iconAnchor:   [32, 55], // point of the icon which will correspond to marker's location
     popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
     });
 
@@ -50,9 +50,7 @@ var subIcon = L.Icon.extend({
 
 const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound, selectMarkers }) => {
     const classes = useStyles({ open });
-    const [center, setCenter] = useState(selected === null ? [53.384811, -6.263190] : selected);
     const [bounds, setBounds] = useState(null);
-    const [zoom, setZoom] = useState(13);
 
     const submit = () => {
         submitRegion(bounds, scenes)
@@ -65,19 +63,18 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
     const boundLine = useRef(null)
     const pane = useRef(null)
 
+    const handleKeyPress = (event) => {
+        if (event.key === "Enter")
+           console.log("Enter");
+    }
+
     useEffect(() => {
         map.current = L.map("map", { selectArea: true, maxZoom: 17 }).setView([53.384811, -6.263190], 13);
         markerGroup.current = L.layerGroup().addTo(map.current);
 
         map.current.on('areaselected', (e) => {
-            // setCenter(map.current.getCenter());
-            // setZoom(map.current._zoom);
             map.current.fitBounds(e.bounds, {minZoom : map.current._zoom});
-            // map.current.setMaxBounds(e.bounds, {minZoom : map.current._zoom});
-            // map.current.e.getBoundsZoom
             setBounds(e.bounds.toBBoxString().split(","));
-            console.log(e.bounds.toBBoxString().split(","))
-            console.log(map.current._zoom)
         });
 
         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
@@ -121,9 +118,9 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
                 selectMarkers(a.layer.getAllChildMarkers().map(marker=>parseInt(marker.getAttribution())))
 
             });
-            map.current.flyTo(first_location, 13)
+            map.current.fitBounds(clustersMain.current.getBounds())
         }
-
+    // eslint-disable-next-line
     }, [scenes]);
 
     useEffect(() => {
@@ -148,9 +145,10 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
                     });
                 }
             }
-            var polyline = L.polyline(path, { weight: 3, opacity: 1, pane: pane.current }).addTo(pathLine.current);
+            var polyline = L.polyline(path, { weight: 3, opacity: 1, pane: pane.current, interactive: false }).addTo(pathLine.current);
             map.current.fitBounds(polyline.getBounds());
 
+            // eslint-disable-next-line
             var arrowHead = L.polylineDecorator(polyline, {
                 patterns: [
                     {
@@ -158,20 +156,21 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
                         symbol: L.Symbol.arrowHead({
                             pixelSize: 10,
                             polygon: false,
-                            pathOptions: { stroke: true, weight: 3, opacity: 1, pane: pane.current }
+                            pathOptions: { stroke: true, weight: 3, opacity: 1, pane: pane.current, interactive: false },
                         })
                     }
                 ]
             }).addTo(pathLine.current);
+            // eslint-disable-next-line
             var marker = L.marker([scenes[selected].gps[1][0].lat.toPrecision(PRECISION),
-                                   scenes[selected].gps[1][0].lon.toPrecision(PRECISION)],
-                                   {icon: mainIcon,
-                                    pane: pane.current}).addTo(pathLine.current)
-
-            // start = new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) })
+                    scenes[selected].gps[1][0].lon.toPrecision(PRECISION)],
+                    {icon: mainIcon,
+                    pane: pane.current,
+                    interactive: false}).addTo(pathLine.current)
 
             map.current.addLayer(pathLine.current)
         }
+        // eslint-disable-next-line
     }, [selected])
 
     useEffect(() => {
@@ -186,12 +185,12 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
         boundLine.current = L.rectangle([[parseFloat(bounds[3]), parseFloat(bounds[0])],
         [parseFloat(bounds[1]), parseFloat(bounds[2])]],
             { color: "#ff7800", weight: 1, fill: false }).addTo(map.current);
-
+    // eslint-disable-next-line
     }, [bounds]);
 
 
     return (
-        [<div id="map" className={classes.map} />,
+        [<div id="map" className={classes.map} onKeyPress={handleKeyPress} />,
         <IconButton size="small" className={classes.icon} onClick={() => changeStatus(!open)}>
             {open ? <KeyboardArrowRightRoundedIcon style={{ color: "#FF6584", fontSize: 50 }} /> :
                 <KeyboardArrowLeftRoundedIcon style={{ color: "#FF6584", fontSize: 50 }} />}

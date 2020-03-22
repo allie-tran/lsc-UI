@@ -9,7 +9,7 @@ const Page = () => {
     const HEIGHT = 945; // 945, 700
     const [open, setOpen] = useState(true); // closed, open
     return (
-        <div style={{ height: HEIGHT, width: WIDTH, position: 'fixed' }}> // 700 * 1443, 945 x 1920
+        <div style={{ height: HEIGHT, width: WIDTH, position: 'fixed' }}>  {/*700 * 1443, 945 x 1920*/}
             <Bar open={open} />
             <SaveSection open={open} />
             <Map open={open} changeStatus={stt => setOpen(stt)} />

@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: "#272727",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center"
+        alignItems: "center",
     },
     title: {
         padding: 10,
@@ -36,18 +36,34 @@ const useStyles = makeStyles(theme => ({
     },
     imageContainer: {
         width: "100%",
+        maxHeight: "47%",
+        overflow: "scroll"
+    },
+    list: {
+        width: "80%",
         display: "flex",
-        flexDirection: "column",
+        flexWrap: "wrap-reverse",
+        flexDirection: "row-reverse",
+        justifyContent: "space-evenly",
         alignItems: "center",
         alignContent: "space-between",
-        height: "44%",
-        overflow: "scroll"
+        margin: "auto"
+    },
+    hidden: {
+        visibility: "hidden",
     }
 }));
 
 const SaveSection = ({ open, saved, removeScene }) => {
     const classes = useStyles({ open });
+
     console.log(saved)
+
+    useEffect(()=> {
+        var section = document.getElementById("save-section");
+        section.scrollTop = 0;
+    }, [saved]);
+
     return (
         <div id="save" className={classes.section}>
             <Typography variant="subtitle1" className={classes.title}>
@@ -56,13 +72,16 @@ const SaveSection = ({ open, saved, removeScene }) => {
                     <BookmarkRoundedIcon />
                 </Badge>
             </Typography>
-
-            <div className={classes.imageContainer}>
-                {saved.map((scene, index) =>
-                    <Thumbnail saved group={scene} scale={0.7} index={index} />
-                )}
+            <div className={classes.imageContainer} id="save-section">
+                <div className={classes.list}>
+                    {saved.length % 2 !== 0? <Thumbnail hidden saved group={["Hidden"]} scale={0.7} /> : null}
+                    {saved.map((scene, index) =>
+                        <Thumbnail saved group={scene} scale={0.7} index={index} last={index===0} />
+                    )}
+                </div>
             </div>
         </div>
     )
 };
+
 export default SaveSection;

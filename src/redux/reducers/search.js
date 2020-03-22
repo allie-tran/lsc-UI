@@ -21,7 +21,7 @@ export default function (state = initialState, action) {
     }
     else if (action.type === GET_ALL_IMAGES) {
         const response = axios.post(
-            'http://localhost:8000/api/image/',
+            'http://localhost:7999/api/image/',
             { "query": action.query, "gps_bounds": state.bounds },
             { headers: { 'Content-Type': 'application/json' } });
         return {
@@ -37,7 +37,7 @@ export default function (state = initialState, action) {
     }
     else if (action.type === NEXT_SCENE) {
         const response = axios.post(
-            'http://localhost:8000/api/timeline/',
+            'http://localhost:7999/api/timeline/',
             { "images": action.images,
               "timeline_type": action.timeline_type },
             { headers: { 'Content-Type': 'application/json' } });

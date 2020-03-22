@@ -1,5 +1,4 @@
 import { connect } from 'react-redux'
-import { removeScene } from './actions/save'
 import Save from '../components/Save'
 
 
@@ -11,4 +10,3 @@ export default connect(
     mapStateToProps,
     null
 )(Save);
-

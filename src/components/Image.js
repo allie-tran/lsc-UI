@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense, lazy } from "react";
+import React from "react";
 import { makeStyles } from '@material-ui/styles'
 import Typography from "@material-ui/core/Typography";
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
@@ -16,7 +16,6 @@ const imageStyles = makeStyles(theme => ({
         marginTop: 0,
         marginBottom: 10,
         position: "relative",
-        borderRadius: 2,
         border: "1px solid #E6E6E6"
     },
     card: {
