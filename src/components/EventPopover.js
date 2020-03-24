@@ -20,9 +20,11 @@ const popStyle = makeStyles(theme => ({
     grid: {
         overflow: "scroll",
         padding: 10
+    },
+    text: {
+        color: "#F4CDD2"
     }
 }));
-
 
 const EventPopover = ({ group, closeEvent, getNextScenes, nextSceneRespone, position }) => {
     const classes = popStyle()
@@ -35,9 +37,13 @@ const EventPopover = ({ group, closeEvent, getNextScenes, nextSceneRespone, posi
         });
     }, [nextSceneRespone])
 
+    useEffect(() => {
+        // console.log("Function changed")
+    }, [closeEvent])
+
     return (
-        <Paper elevation={4} className={classes.detailed}>
-            <Typography variant="overline" color="#F4CDD2">
+        <Paper elevation={4} className={classes.detailed} onEscapeKeyDown={closeEvent}>
+            <Typography variant="button" className={classes.text}>
                 Event images
                 </Typography>
             <Grid wrap="nowrap" container spacing={2} className={classes.grid}>
@@ -47,24 +53,22 @@ const EventPopover = ({ group, closeEvent, getNextScenes, nextSceneRespone, posi
                             className={classes.img}
                             image={image}
                             scale={4}
-                            onEscapeKeyDown={closeEvent.bind(this)}
                             info
                         />
                     </Grid>
                 ))}
             </Grid>
-            {position==="before"? <Button onClick={() => getNextScenes(group, "before")}>Previous Events</Button> :
-             position==="after"? <Button onClick={() => getNextScenes(group, "after")}>Next Events</Button> :
-                                 <Button onClick={() => getNextScenes(group, "current")}>View Full Events</Button>}
+            {position==="before"? <Button onClick={() => getNextScenes(group, "before")} className={classes.text}>Previous Events</Button> :
+             position==="after"? <Button onClick={() => getNextScenes(group, "after")} className={classes.text}>Next Events</Button> :
+                                 <Button onClick={() => getNextScenes(group, "current")} className={classes.text}>View Full Events</Button>}
             <Grid wrap="nowrap" container spacing={2} className={classes.grid}>
-                {nextScenes.map(scene => (
+                {nextScenes.map((scene, index) => (
                     <Grid item>
                         <Image
                             className={classes.img}
                             image={scene[0]}
                             scale={1}
-                            onEscapeKeyDown={closeEvent.bind(this)}
-                            onClick={() => {console.log('clicked'); setCurrentDisplay(scene)}}
+                            onClick={() => setCurrentDisplay(scene)}
                         />
                     </Grid>
                 ))}

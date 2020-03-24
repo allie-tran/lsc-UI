@@ -27,7 +27,10 @@ const useStyles = makeStyles(theme => ({
         left: props => props.open ? `calc(80% - 25px)` : `calc(97% - 25px)`,
         top: "90%",
         zIndex: 4
-
+    },
+    insideIcon: {
+        color: "#FF6584",
+        fontSize: 50
     }
 }));
 
@@ -147,7 +150,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
                 }
             }
             var polyline = L.polyline(path, { weight: 3, opacity: 1, pane: pane.current, interactive: false }).addTo(pathLine.current);
-            map.current.fitBounds(polyline.getBounds());
+            // map.current.fitBounds(polyline.getBounds());
 
             // eslint-disable-next-line
             var arrowHead = L.polylineDecorator(polyline, {
@@ -169,6 +172,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
                     pane: pane.current,
                     interactive: false}).addTo(pathLine.current)
 
+            map.current.setView(marker.getLatLng())
             map.current.addLayer(pathLine.current)
         }
         // eslint-disable-next-line
@@ -189,14 +193,18 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
     // eslint-disable-next-line
     }, [bounds]);
 
+    const OpenOrClose = () => changeStatus(!open)
 
     return (
         [<div id="map" className={classes.map} onKeyPress={handleKeyPress} />,
-        <IconButton size="small" className={classes.icon} onClick={() => changeStatus(!open)}>
-            {open ? <KeyboardArrowRightRoundedIcon style={{ color: "#FF6584", fontSize: 50 }} /> :
-                <KeyboardArrowLeftRoundedIcon style={{ color: "#FF6584", fontSize: 50 }} />}
+        <IconButton size="small" className={classes.icon} onClick={OpenOrClose}>
+            {open ? <KeyboardArrowRightRoundedIcon className={classes.insideIcon} /> :
+                <KeyboardArrowLeftRoundedIcon className={classes.insideIcon} />}
         </IconButton>
         ]
     )
 };
+
+Map.whyDidYouRender = true
+
 export default Map;

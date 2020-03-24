@@ -4,6 +4,14 @@ import Bar from "../redux/AppBar-cnt";
 import SaveSection from '../redux/Save-cnt'
 const ImageGrid = lazy(() => import("../redux/Images-cnt"));
 
+
+if (process.env.NODE_ENV === 'development') {
+  const whyDidYouRender = require('@welldone-software/why-did-you-render');
+  whyDidYouRender(React, {
+    trackAllPureComponents: true,
+  });
+}
+
 const Page = () => {
     const WIDTH = 1920; // 1920, 1443
     const HEIGHT = 945; // 945, 700
@@ -19,5 +27,6 @@ const Page = () => {
         </div>
     )
 };
+Page.whyDidYouRender = true
 
 export default Page;

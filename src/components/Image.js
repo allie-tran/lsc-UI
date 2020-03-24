@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, memo} from "react";
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from "@material-ui/core/Typography";
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
@@ -56,20 +56,32 @@ const imageStyles = makeStyles(theme => ({
     }
 }));
 
-const Image = ({ image, scale, saveScene, info, onClick}) => {
+const areEqual = (prevProps, nextProps) => {
+    console.log(prevProps.image === nextProps.image)
+    return prevProps.image === nextProps.image
+}
+
+const Image = memo(({ image, scale, saveScene, info, onClick}) => {
     const classes = imageStyles({ scale });
+    const bookmarkClick = () => saveScene([image])
+    const Bookmark = () => <BookmarkBorderRoundedIcon fontSize="small" className={classes.saveButton} onClick={bookmarkClick} />
+
+    useEffect(() => {
+        // Do nothing LOL
+    }, [onClick])
+
     return (
         <div className={classes.card}>
             <img
                 alt={image}
-                src={"LSC_DATA/" + image}
+                src={(info? "LSC_DATA/" : "Thumbnail/") + image}
                 className={classes.image}
                 onClick={onClick} />
-            <BookmarkBorderRoundedIcon fontSize="small" className={classes.saveButton} onClick={() => saveScene([image])} />
+            <Bookmark/>
             <CheckRoundedIcon fontSize="small" className={classes.submitButton} />
-            {info? <Typography classname={classes.info}>{image}</Typography>: null}
+            {info && <Typography className={classes.info}>{image}</Typography>}
         </div>
     );
-};
+}, areEqual);
 
 export default Image;

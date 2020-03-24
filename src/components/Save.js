@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
         alignItems: "center",
     },
     title: {
-        padding: 10,
+        padding: 18,
         color: "#CCCCCC"
     },
     divider: {
@@ -54,10 +54,11 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
+const hiddenGroup= ["Hidden"]
+const Hidden = () => <Thumbnail key="saved: Hidden" hidden saved group={hiddenGroup} scale={0.7} />
+
 const SaveSection = ({ open, saved, removeScene }) => {
     const classes = useStyles({ open });
-
-    console.log(saved)
 
     useEffect(()=> {
         var section = document.getElementById("save-section");
@@ -74,9 +75,9 @@ const SaveSection = ({ open, saved, removeScene }) => {
             </Typography>
             <div className={classes.imageContainer} id="save-section">
                 <div className={classes.list}>
-                    {saved.length % 2 !== 0? <Thumbnail hidden saved group={["Hidden"]} scale={0.7} /> : null}
+                    {saved.length % 2 !== 0? <Hidden key="Hidden"/> : null}
                     {saved.map((scene, index) =>
-                        <Thumbnail saved group={scene} scale={0.7} index={index} last={index===0} />
+                        <Thumbnail key={"saved:" + scene[0]} saved group={scene} scale={0.7} index={index} last={index===0} />
                     )}
                 </div>
             </div>

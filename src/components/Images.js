@@ -1,10 +1,15 @@
-import React, { useEffect, useState, Suspense, lazy, memo } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { FixedSizeGrid as Grid, areEqual } from 'react-window';
+import React, { useEffect, useState, Suspense, lazy, memo, PureComponent, useRef} from "react";
+import clsx from 'clsx'
+import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { FixedSizeGrid as Grid, shouldComponentUpdate } from 'react-window';
 import { trackPromise, usePromiseTracker } from 'react-promise-tracker';
 import ReactLoading from "react-loading";
 import Typography from '@material-ui/core/Typography';
 const Event = lazy(() => import('./Event'));
+
+const IMAGE_WIDTH = 1024
+const IMAGE_HEIGHT = 768
+const RESIZE_FACTOR = 6.5
 
 const gridStyles = makeStyles(theme => ({
     root: {
@@ -19,30 +24,23 @@ const gridStyles = makeStyles(theme => ({
         alignItems: "center"
     },
     grid: {
-        flexGrow: 1,
-        justifyContent: "space-evenly",
-        backgroundImage: `linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.15) 50%)`,
-        backgroundPosition: `0px -20px`,
+        width: "100%",
+        display: "flex",
+        flexWrap: "wrap",
+        // height: props => props.height,
+        // flexGrow: 1,
+        justifyContent: "center",
+        backgroundImage: "linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.15) 50%)",
         backgroundRepeat: "repeat",
-        backgroundSize: `770px 313px`
+        backgroundSize: `100px ${IMAGE_HEIGHT / RESIZE_FACTOR * 4}px`,
+        backgroundAttachment: "local",
+        overflow: "auto"
     },
     text: {
         top: 50,
-        padding: 20,
+        paddingTop: 20,
         color: "#CCCCCC"
-    },
-    scrollbox: {
-        display: "flex",
-        height: props => props.height,
-        flexDirection: "column",
-        alignItems: "center"
-    },
-    textend: {
-        top: -50,
-        color: "#CCCCCC",
-        position: "relative"
     }
-
 }));
 
 const LoadingIndicator = props => {
@@ -53,92 +51,67 @@ const LoadingIndicator = props => {
     );
 }
 
-const IMAGE_WIDTH = 1024
-const IMAGE_HEIGHT = 768
-const RESIZE_FACTOR = 6.5
-
-const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelected, currentMarker, setQueryBound, resetSelection}) => {
+const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelected,
+                    currentMarker, setQueryBound, resetSelection}) => {
     const classes = gridStyles({ open, height });
     const [scenes, setScenes] = useState([]);
     const [bottom, setBottom] = useState(false);
     const { promiseInProgress } = usePromiseTracker();
-    const gridRef = React.createRef();
-    const highlightRef = React.createRef([]);
+    const highlightRef = React.useRef([]);
+    const [maxItemsPerRow, setMaxItemsPerRow] = useState(open? 3: 4)
+    const [rendered, setRendered] = useState(0)
 
     const setRef = (index) => {
-        if (highlightRef.current === null){
-            highlightRef.current = []
+        if (index !== null){
+            highlightRef.current.push(index)
         }
-        highlightRef.current.push(index)
     }
 
-    let ITEM_WIDTH = IMAGE_WIDTH / RESIZE_FACTOR * 2.5
-    const width = open ? maxwidth * 0.8 : maxwidth * 0.97;
-    const maxItemsPerRow = Math.max(Math.floor(width / ITEM_WIDTH), 1);
-    ITEM_WIDTH = Math.floor(width / maxItemsPerRow)
+    useEffect(()=>{
+        const newMaxItems = open? 3: 4
+        if (newMaxItems !== maxItemsPerRow){
+            setMaxItemsPerRow(newMaxItems)
+        }
+    }, [open])
+
+    useEffect(()=> {
+        if (rendered < scenes.length){
+            setTimeout(() => setRendered(rendered + 2 * maxItemsPerRow), 50)
+        }
+    }, [rendered])
 
     useEffect(() => {
-        if (gridRef.current !== null) {
-            gridRef.current.scrollToItem({
-                columnIndex: 0,
-                rowIndex: 0
-            })
-        };
         trackPromise(collection.then(res => {
-            setScenes(res.data.results);
+            console.log("enter promise")
+            const newScenes = res.data.results
+            var isEqual = require('lodash.isequal');
+            if (!isEqual(scenes, newScenes)){
+                setScenes(newScenes);
+                setScene(newScenes)
+                setRendered(10)
+                setBottom(newScenes.length / maxItemsPerRow < 4)
+                setQueryBound(null)
+                // highlightRef.current = []
+            }
         }));
     // eslint-disable-next-line
     }, [collection]);
 
     useEffect(() => {
-        setScene(scenes)
-        setBottom(scenes.length / maxItemsPerRow === 4)
-        setQueryBound(null)
-    // eslint-disable-next-line
-    }, [scenes])
-
-    useEffect(() => {
-        console.log(currentMarker)
         if (currentMarker >= 0 && markersSelected.length>0) {
-            const index = markersSelected[currentMarker]
-            gridRef.current.scrollToItem({
-                columnIndex: index % maxItemsPerRow,
-                rowIndex: Math.round(index / maxItemsPerRow),
-                align: "center"
-            })
+            const newIndex = markersSelected[currentMarker]
+            const newRow = Math.floor(newIndex / maxItemsPerRow)
+            const imageRowX = newRow * (IMAGE_HEIGHT / RESIZE_FACTOR * 2) + (IMAGE_HEIGHT / RESIZE_FACTOR * 2) / 2
+            console.log("scroll to ", Math.max(0, imageRowX - height / 2 + 1 + (IMAGE_HEIGHT / RESIZE_FACTOR * 2) * 1.5))
+            document.getElementById("grid").scrollTo({top: Math.max(0, imageRowX - height / 2 + 1 + (IMAGE_HEIGHT / RESIZE_FACTOR * 2) * 1.5),
+                                                      left: 0, behavior: 'smooth'})
         }
     // eslint-disable-next-line
     }, [markersSelected, currentMarker])
 
-    useOnClickOutside(highlightRef, () => {console.log('clicked outside'); resetSelection()});
-
-    const Cell = memo(({ columnIndex, rowIndex, style }) => {
-        if (rowIndex * maxItemsPerRow + columnIndex < scenes.length) {
-            const index = rowIndex * maxItemsPerRow + columnIndex
-            return (
-                <Suspense fallback={<div style={style}></div>}>
-                    <div style={{ ...style, display: 'flex',
-                                  justifyContent: 'center',
-                                  alignItems: "center",
-                                  backgroundColor: rowIndex % 2 !== 0? "none": "rgba(0, 0, 0, 0.15)"}}>
-                        <Event setRef={setRef} index={index} style={style} scene={scenes[index]} open={open} />
-                    </div>
-                </Suspense>
-            )
-        }
-        else {
-            return <div style={style}></div>
-        }
-    }, areEqual);
-
-    const scrollCheck = (event) => {
-        const checkBottom =
-            event.target.scrollHeight - event.target.scrollTop ===
-            event.target.clientHeight;
-        if (checkBottom !== bottom) {
-            setBottom(checkBottom);
-        }
-    };
+    useOnClickOutside(highlightRef, () => {console.log('clicked outside');
+                                           resetSelection();
+                                           highlightRef.current = []});
 
     if (promiseInProgress) {
         return (
@@ -151,33 +124,26 @@ const ImageGrid = ({ height, maxwidth, open, collection, setScene, markersSelect
                 <Typography variant="subtitle1" className={classes.text}>
                     Click an event thumbnail to view all images.
                 </Typography >
-                <div onScroll={scrollCheck} className={classes.scrollbox}>
-                    <Grid ref={gridRef}
-                        columnCount={maxItemsPerRow}
-                        columnWidth={ITEM_WIDTH}
-                        height={height - 60}
-                        rowCount={Math.max(Math.floor(scenes.length / maxItemsPerRow), 1)}
-                        rowHeight={IMAGE_HEIGHT / RESIZE_FACTOR * 1.8}
-                        width={width}
-                    >
-                        {Cell}
-                    </Grid>
-                     {bottom ? <Typography variant="subtitle1" className={classes.textend}>
-                        End of results.
-                    </Typography> : null}
+                <div id="grid" className={classes.grid}>
+                    {scenes.map((scene, index) =>
+                    <Suspense fallback={<div className={classes.gridCell}/>}>
+                        {index<rendered && <Event key={index} setRef={setRef} index={index}
+                                scene={scene}/>}
+                    </Suspense>)}
                 </div>
             </div >
         )
     }
 };
 
+
 function useOnClickOutside(ref, handler) {
   useEffect(
     () => {
             const listener = event => {
             // Do nothing if clicking ref's element or descendent elements
-            if (!ref.current || ref.current.includes(event.target)) {
-            return;
+            if (!ref.current || ref.current.includes(event.target) || document.getElementById("map").contains(event.target)) {
+                return;
             }
             handler(event);
             };

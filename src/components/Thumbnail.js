@@ -1,11 +1,11 @@
 import clsx from 'clsx';
-import React, { useState, Suspense, lazy, useRef, useEffect } from "react";
+import React, { useState, Suspense, lazy, useEffect } from "react";
 import Popover from "@material-ui/core/Popover";
 import { makeStyles } from "@material-ui/core/styles";
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
+import IconButton from '@material-ui/core/IconButton';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
-import Fade from '@material-ui/core/Fade';
 
 const IMAGE_WIDTH = 1024
 const IMAGE_HEIGHT = 768
@@ -19,8 +19,6 @@ const thumbnailStyles = makeStyles(theme => ({
         height: props => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale,
         borderRadius: 2,
         flexShrink: 0,
-        marginTop: 0,
-        marginBottom: 10,
         position: "relative",
         border: "1px solid #E6E6E6",
         visibility: props=> props.hidden? "hidden": "visible",
@@ -28,9 +26,8 @@ const thumbnailStyles = makeStyles(theme => ({
             border: "3px solid #FF6584",
             transform: "scale(1.3)",
             zIndex: 1,
-            boxShadow: "3px 3px 3px rgba(0, 0, 0, 0.5)",
-        },
-        transition: "all 5s"
+            boxShadow: "3px 3px 3px rgba(0, 0, 0, 0.5)"},
+        transition: "all 300ms ease-in"
     },
     highlight: {},
     row: {
@@ -42,8 +39,7 @@ const thumbnailStyles = makeStyles(theme => ({
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        marginTop: 10,
-        marginBottom: props => props.last? 40: 40,
+        marginBottom: props => props.saved? 40: 0,
         marginLeft: 2,
         marginRight: 2,
     },
@@ -57,8 +53,9 @@ const thumbnailStyles = makeStyles(theme => ({
         "&:hover": {
             backgroundColor: "#FF6584",
         },
-        zIndex: props => props.highlight? 2: "none",
-        visibility: props=> props.hidden? "hidden": "visible"
+        zIndex: props => props.highlight? 2: 1,
+        visibility: props=> props.hidden? "hidden": "visible",
+        padding: 0
     },
     submitButton: {
         position: "absolute",
@@ -70,24 +67,53 @@ const thumbnailStyles = makeStyles(theme => ({
         "&:hover": {
             backgroundColor: "#FF6584",
         },
-        zIndex: props => props.highlight? 2: "none",
+        zIndex: props => props.highlight? 2: 1,
         visibility: props=> props.hidden? "hidden": "visible"
     }
 }));
 
+const FallBack = () => <div>Loading...</div>
+
+const ImageCard = ({saved, hidden, scale, highlight, img, openEvent, onButtonClick}) => {
+    const classes = thumbnailStyles({hidden, scale, saved, highlight});
+    if (saved === undefined) {
+        return (<div className={classes.card}>
+                    <img alt={img}
+                         src={"Thumbnail/" + img}
+                         className={clsx(classes.image, {[classes.highlight]: highlight})}
+                         onClick={openEvent} />
+                    <IconButton onClick={onButtonClick} className={classes.saveButton}>
+                        <BookmarkBorderRoundedIcon fontSize="small"/>
+                    </IconButton>
+                        <CheckRoundedIcon fontSize="small" className={classes.submitButton} />
+                </div>)
+    }
+    return (
+        <div className={classes.card}>
+            <img alt={img}
+                 src={"Thumbnail/" + img}
+                 className={classes.image}
+                 onClick={openEvent} />
+            <IconButton onClick={onButtonClick} className={classes.saveButton}>
+                <DeleteOutlineRoundedIcon fontSize="small"/>
+            </IconButton>
+            <CheckRoundedIcon fontSize="small" className={classes.submitButton} />
+        </div>)
+}
+
 const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved, sendToMap,
-                     open, clearNextEvents, position, markersSelected, last,
+                     clearNextEvents, position, markersSelected, last,
                      setRef, selectMarkers}) => {
+    const [groupState, setGroupState] = useState(group)
     const [highlight, setHighlight] = useState(false)
-    const classes = thumbnailStyles({hidden, scale, open, last, saved});
+    const classes = thumbnailStyles({hidden, scale, last, saved});
     const [openPopover, setOpenPopover] = useState(false);
 
-    const handleClickOutside = () => {
-        setTimeout(() => highlight.current = false, 50)
-    }
+    useEffect(()=>{
+        // var isEqual = require('lodash.isequal');
+    },[group])
 
     const openEvent = event => {
-        console.log("Clicked");
         setOpenPopover(true);
         if (saved === undefined){
             sendToMap(index)
@@ -95,74 +121,57 @@ const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved,
     };
     useEffect(()=>{
         var newHighlight = markersSelected.includes(index) && saved === undefined && position === "current"
-        if (newHighlight != highlight){
+        if (newHighlight !== highlight){
             setHighlight(newHighlight)
         }
     }, [markersSelected])
+
 
     const closeEvent = () => {
         setOpenPopover(false);
         clearNextEvents()
     };
 
-    const AddRemove = () => {
-        if (saved === undefined) {
-            return [<BookmarkBorderRoundedIcon fontSize="small" className={classes.saveButton} onClick={() => saveScene(group)} />,
-            <CheckRoundedIcon fontSize="small" className={classes.submitButton} />]
-        }
-        return (
-            [<DeleteOutlineRoundedIcon fontSize="small" className={classes.saveButton} onClick={() => {removeScene(index)}} />,
-            <CheckRoundedIcon fontSize="small" className={classes.submitButton} />])
-    }
+    const Save = () => saveScene(group)
+    const Remove = () => removeScene(index)
 
-    const ImageCard = () => {
-        if (saved === undefined) {
-            return (<div className={classes.card}>
-                        <img ref={setRef}
-                            alt={group[0]}
-                            src={"LSC_DATA/" + group[0]}
-                            className={clsx(classes.image, {[classes.highlight]: highlight})}
-                            onClick={openEvent} />
-                        <AddRemove />
-                    </div>)
-        }
+    if (groupState.length > 0) {
         return (
-            <div className={classes.card}>
-                <img
-                    alt={group[0]}
-                    src={"LSC_DATA/" + group[0]}
-                    className={classes.image}
-                    onClick={openEvent} />
-                <AddRemove />
-            </div>)
-    }
-
-    if (group.length > 0) {
-        return ([<ImageCard/>,
+            <>
+                <ImageCard onButtonClick={saved===undefined? Save: Remove}
+                            saved={saved}
+                            hidden={hidden}
+                            scale={scale}
+                            img={groupState[0]}
+                            highlight={highlight}
+                            openEvent={openEvent}
+                            ref={highlight? setRef: null}/>
                 <Popover
-                open={openPopover}
-                anchorReference="anchorPosition"
-                anchorPosition={{ top: 0, left: 0 }}
-                anchorOrigin={{
-                    vertical: "center",
-                    horizontal: "center"
-                }}
-                transformOrigin={{
-                    vertical: "center",
-                    horizontal: "center"
-                }}
-                onBackdropClick={closeEvent}
-                onEscapeKeyDown={closeEvent}
-                className={classes.popover}
-            >
-                <Suspense fallback={<div>Loading...</div>}>
-                    <EventPopover closeEvent={closeEvent} group={group} position={position} />
-                </Suspense>
-            </Popover>])
+                    open={openPopover}
+                    anchorReference="anchorPosition"
+                    anchorPosition={{ top: 0, left: 0 }}
+                    anchorOrigin={{
+                        vertical: "center",
+                        horizontal: "center"
+                    }}
+                    transformOrigin={{
+                        vertical: "center",
+                        horizontal: "center"
+                    }}
+                    onBackdropClick={closeEvent}
+                    onEscapeKeyDown={closeEvent}
+                    className={classes.popover}
+                    >
+                        <Suspense fallback={<FallBack/>}>
+                            <EventPopover closeEvent={closeEvent} group={groupState} position={position} />
+                        </Suspense>
+                </Popover>
+            </>)
     }
     else {
         return <div className={classes.card} />;
     }
 };
+Thumbnail.whyDidYouRender = true
 
 export default Thumbnail;

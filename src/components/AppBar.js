@@ -47,10 +47,13 @@ const Bar = ({ open, getImages, resetSelection }) => {
             <SearchBar type="Before:" submitQuery={submitQuery} />
             <SearchBar type="Find:" submitQuery={submitQuery} />
             <SearchBar type="After:" submitQuery={submitQuery} />
-            <IconButton size="small" className={classes.icon}>
-                <KeyboardReturnRoundedIcon onClick={submitQuery} />
+            <IconButton size="small" className={classes.icon} onClick={submitQuery}>
+                <KeyboardReturnRoundedIcon />
             </IconButton>
         </AppBar>
     )
 };
+
+Bar.whyDidYouRender = true
+
 export default Bar;

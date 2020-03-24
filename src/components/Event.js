@@ -1,4 +1,5 @@
-import React from "react";
+import React, {useState, useEffect, memo} from "react";
+import clsx from 'clsx'
 import { makeStyles } from "@material-ui/core/styles";
 import Thumbnail from "../redux/Thumbnail-cnt"
 
@@ -9,23 +10,29 @@ const RESIZE_FACTOR = 6.5
 const eventStyles = makeStyles(theme => ({
     group: {
         display: "flex",
-        justifyContent: "space-evenly",
-        width: IMAGE_WIDTH / RESIZE_FACTOR * 2.5,
-        height: IMAGE_HEIGHT / RESIZE_FACTOR * 1.1,
+        justifyContent: "center",
+        width: 465,
+        height: IMAGE_HEIGHT / RESIZE_FACTOR * 2,
         alignItems: "center",
-        margin: 0.
     }
 }));
 
-const Event = ({ index, scene, open , setRef}) => {
+const areEqual = (prevProps, nextProps) => {
+    var isEqual = require('lodash.isequal');
+    return isEqual(prevProps.scene, nextProps.scene)
+}
+
+const Event = memo(({ index, scene, setRef }) => {
     const classes = eventStyles();
     return (
         <div className={classes.group}>
-            <Thumbnail index={index} group={scene.before} scale={0.7} open={open} position="before" />
-            <Thumbnail setRef={setRef} index={index} group={scene.current} scale={1} open={open} position="current"/>
-            <Thumbnail index={index} group={scene.after} scale={0.7} open={open} position="after" />
+            <Thumbnail index={index} group={scene.before} scale={0.7} position="before" />
+            <Thumbnail setRef={setRef} index={index} group={scene.current} scale={1} position="current"/>
+            <Thumbnail index={index} group={scene.after} scale={0.7} position="after" />
         </div>
     );
-};
+}, areEqual)
+Event.whyDidYouRender = true
+
 
 export default Event;

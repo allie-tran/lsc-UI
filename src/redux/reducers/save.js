@@ -8,9 +8,8 @@ const initialState = {
     ['Thumbnail2', 'img1', 'img2'],
     ['Thumbnail3', 'img1', 'img2'],
     ['Thumbnail4', 'img1', 'img2'],
-    ['Thumbnail4', 'img1', 'img2']]
+    ['Thumbnail5', 'img1', 'img2']]
 };
-
 export default function (state = initialState, action) {
     if (action.type === SAVE_SCENE) {
         return {
@@ -19,7 +18,6 @@ export default function (state = initialState, action) {
         }
     }
     else if (action.type === REMOVE_SCENE) {
-        console.log(state)
         return {
             ...state,
             saved: [...state.saved.slice(0, action.sceneId),
