@@ -24,20 +24,17 @@ export default function (state = initialState, action) {
                 return {
                     ...state,
                     currentMarker: 0,
-                    selected: action.indices[0]
                 }
             }
             return {
                 ...state,
                 currentMarker: state.currentMarker + 1,
-                selected: action.indices[state.currentMarker + 1]
             }
         }
         return {
             ...state,
             markersSelected: action.indices,
             currentMarker: action.indices.length > 0? 0: -1,
-            selected: action.indices.length > 0? action.indices[0] : null
         }
     }
     else if (action.type === RESET) {

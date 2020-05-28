@@ -1,12 +1,17 @@
-import { connect } from 'react-redux'
-import Save from '../components/Save'
-
+import { connect } from 'react-redux';
+import Save from '../components/Save';
+import { setKeywords } from './actions/search';
 
 function mapStateToProps(state) {
-    return { saved: state.save.saved }
+	return {
+		saved: state.save.saved,
+		info: state.search.info,
+		keywords: state.search.keywords
+	};
 }
 
-export default connect(
-    mapStateToProps,
-    null
-)(Save);
+const mapDispatchToProps = {
+	setKeywords
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Save);

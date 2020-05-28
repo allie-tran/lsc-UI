@@ -4,11 +4,7 @@ import {
 } from '../actions/save'
 
 const initialState = {
-    saved: [['Thumbnail1', 'img1', 'img2'],
-    ['Thumbnail2', 'img1', 'img2'],
-    ['Thumbnail3', 'img1', 'img2'],
-    ['Thumbnail4', 'img1', 'img2'],
-    ['Thumbnail5', 'img1', 'img2']]
+    saved: []
 };
 export default function (state = initialState, action) {
     if (action.type === SAVE_SCENE) {

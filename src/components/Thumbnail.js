@@ -6,6 +6,7 @@ import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
 import IconButton from '@material-ui/core/IconButton';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
+import ImageSearchIcon from '@material-ui/icons/ImageSearch';
 
 const IMAGE_WIDTH = 1024
 const IMAGE_HEIGHT = 768
@@ -46,7 +47,7 @@ const thumbnailStyles = makeStyles(theme => ({
     saveButton: {
         position: "absolute",
         left: props => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * (props.highlight? 1.15: 1) - 25,
-        top: props => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * (props.highlight? 1.15: 1) - 50,
+        top: props => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * (props.highlight? 1.15: 1) - 75,
         color: "#fff",
         backgroundColor: "rgba(255, 255, 255, 0.5)",
         borderRadius: 3,
@@ -69,7 +70,22 @@ const thumbnailStyles = makeStyles(theme => ({
         },
         zIndex: props => props.highlight? 2: 1,
         visibility: props=> props.hidden? "hidden": "visible"
-    }
+    },
+    similarButton: {
+        position: "absolute",
+        left: props => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * (props.highlight? 1.15: 1) - 25,
+        top: props => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * (props.highlight? 1.15: 1) - 50,
+        color: "#fff",
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        borderRadius: 3,
+        "&:hover": {
+            backgroundColor: "#FF6584",
+        },
+        zIndex: props => props.highlight? 2: 1,
+        visibility: props=> props.hidden? "hidden": "visible",
+        padding: 0
+    },
+
 }));
 
 const FallBack = () => <div>Loading...</div>
@@ -79,23 +95,29 @@ const ImageCard = ({saved, hidden, scale, highlight, img, openEvent, onButtonCli
     if (saved === undefined) {
         return (<div className={classes.card}>
                     <img alt={img}
-                         src={"Thumbnail/" + img}
+                         src={"http://lifeseeker-sv.computing.dcu.ie//" + img}
                          className={clsx(classes.image, {[classes.highlight]: highlight})}
                          onClick={openEvent} />
                     <IconButton onClick={onButtonClick} className={classes.saveButton}>
                         <BookmarkBorderRoundedIcon fontSize="small"/>
                     </IconButton>
+                    <IconButton onClick={onButtonClick} className={classes.similarButton}>
+                <ImageSearchIcon fontSize="small"/>
+            </IconButton>
                         <CheckRoundedIcon fontSize="small" className={classes.submitButton} />
                 </div>)
     }
     return (
         <div className={classes.card}>
             <img alt={img}
-                 src={"Thumbnail/" + img}
+                 src={"http://lifeseeker-sv.computing.dcu.ie//" + img}
                  className={classes.image}
                  onClick={openEvent} />
             <IconButton onClick={onButtonClick} className={classes.saveButton}>
                 <DeleteOutlineRoundedIcon fontSize="small"/>
+            </IconButton>
+            <IconButton onClick={onButtonClick} className={classes.similarButton}>
+                <ImageSearchIcon fontSize="small"/>
             </IconButton>
             <CheckRoundedIcon fontSize="small" className={classes.submitButton} />
         </div>)
