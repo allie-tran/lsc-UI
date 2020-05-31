@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useState } from 'react';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import Thumbnail from '../redux/Thumbnail-cnt';
@@ -6,15 +6,12 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import BookmarkRoundedIcon from '@material-ui/icons/BookmarkRounded';
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import ExposureNeg1Icon from '@material-ui/icons/ExposureNeg1';
-import Badge from '@material-ui/core/Badge';
 import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
 import PublishIcon from '@material-ui/icons/Publish';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Box from '@material-ui/core/Box';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
-import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles((theme) => ({
 	section: {
@@ -126,13 +123,13 @@ const hiddenGroup = [ 'Hidden' ];
 const Hidden = () => <Thumbnail key="saved: Hidden" hidden saved group={hiddenGroup} scale={0.7} />;
 var isEqual = require('lodash.isequal');
 
-const areEqual = (prevProps, nextProps) => {
-	return (
-		isEqual(prevProps.keywords, nextProps.keywords) &&
-		isEqual(prevProps.info, nextProps.info) &&
-		isEqual(prevProps.saved, nextProps.saved)
-	);
-};
+// const areEqual = (prevProps, nextProps) => {
+// 	return (
+// 		isEqual(prevProps.keywords, nextProps.keywords) &&
+// 		isEqual(prevProps.info, nextProps.info) &&
+// 		isEqual(prevProps.saved, nextProps.saved)
+// 	);
+// };
 
 const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords }) => {
 	const classes = useStyles({ open });
@@ -154,7 +151,7 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords }) 
 				}
 			}
 		},
-		[ info ]
+		[ info, setKeywords, keywords ]
 	);
 
 	const increase = (index) => {
@@ -176,7 +173,7 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords }) 
 
 	const up = (index) => {
 		var newKeywords = keywords.map((a) => ({ ...a }));
-		var newKeywords = [
+		newKeywords = [
 			[ newKeywords[index][0], newKeywords[0][1] ],
 			...newKeywords.slice(0, index),
 			...newKeywords.slice(index + 1)

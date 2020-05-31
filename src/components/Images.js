@@ -1,13 +1,13 @@
-import React, { useEffect, useState, Suspense, lazy, memo, PureComponent, useRef, useCallback } from 'react';
-import clsx from 'clsx';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
-import { FixedSizeGrid as Grid, shouldComponentUpdate } from 'react-window';
+import React, { useEffect, useState, Suspense, lazy, useCallback } from 'react';
+import Popover from '@material-ui/core/Popover';
+import { makeStyles } from '@material-ui/core/styles';
 import { trackPromise, usePromiseTracker } from 'react-promise-tracker';
 import ReactLoading from 'react-loading';
 import Typography from '@material-ui/core/Typography';
 const Event = lazy(() => import('./Event'));
+const FallBack = () => <div>Loading...</div>;
+const EventPopover = lazy(() => import('../redux/EventPopover-cnt'));
 
-const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
 const RESIZE_FACTOR = 6.5;
 
@@ -58,20 +58,37 @@ const ImageGrid = ({
 	currentMarker,
 	setQueryBound,
 	resetSelection,
-	setQueryInfo
+	setQueryInfo,
+	clearNextEvents
 }) => {
 	const classes = gridStyles({ open, height });
 	const [ scenes, setScenes ] = useState([]);
-	const [ bottom, setBottom ] = useState(false);
 	const { promiseInProgress } = usePromiseTracker();
 	const highlightRef = React.useRef([]);
 	const [ maxItemsPerRow, setMaxItemsPerRow ] = useState(open ? 3 : 4);
 	const [ rendered, setRendered ] = useState(0);
+	const [ openPopover, setOpenPopover ] = useState(false);
+	const [ similar, setSimilar ] = useState(false);
+	const [ group, setGroup ] = useState([]);
+	const [ position, setPosition ] = useState(false);
+
+	const openEvent = useCallback((event, similar, group, position) => {
+		setSimilar(similar);
+		setGroup(group);
+		setPosition(position);
+		setOpenPopover(true); // eslint-disable-next-line
+	}, []);
+
+	const closeEvent = useCallback(() => {
+		setOpenPopover(false);
+		clearNextEvents();
+		setSimilar(false); // eslint-disable-next-line
+	}, []);
 
 	const setRef = useCallback((index) => {
 		if (index !== null) {
 			highlightRef.current.push(index);
-		}
+		} // eslint-disable-next-line
 	}, []);
 
 	useEffect(
@@ -80,7 +97,7 @@ const ImageGrid = ({
 			if (newMaxItems !== maxItemsPerRow) {
 				setMaxItemsPerRow(newMaxItems);
 			}
-		},
+		}, // eslint-disable-next-line
 		[ open ]
 	);
 
@@ -93,7 +110,7 @@ const ImageGrid = ({
 					setTimeout(() => setRendered(rendered + 2 * maxItemsPerRow, 500));
 				}
 			}
-		},
+		}, // eslint-disable-next-line
 		[ rendered, currentMarker ]
 	);
 
@@ -101,22 +118,19 @@ const ImageGrid = ({
 		() => {
 			trackPromise(
 				collection.then((res) => {
-					console.log('enter promise');
 					const newScenes = res.data.results;
 					var isEqual = require('lodash.isequal');
 					if (!isEqual(scenes, newScenes)) {
 						setScenes(newScenes);
 						setScene(newScenes);
 						setRendered(10);
-						setBottom(newScenes.length / maxItemsPerRow < 4);
 						setQueryBound(null);
 						setQueryInfo(res.data.info);
 						// highlightRef.current = []
 					}
 				})
 			);
-			// eslint-disable-next-line
-		},
+		}, // eslint-disable-next-line
 		[ collection ]
 	);
 
@@ -131,28 +145,24 @@ const ImageGrid = ({
 					left: 0,
 					behavior: 'smooth'
 				});
-                window.addEventListener('mousedown', clickOutside);
-		        window.addEventListener('touchstart', clickOutside);
+				window.addEventListener('mousedown', clickOutside);
+				window.addEventListener('touchstart', clickOutside);
 			}
-            return () => {
-                window.removeEventListener('mousedown', clickOutside);
-                window.removeEventListener('touchstart', clickOutside);
-            }
-			// eslint-disable-next-line
-		},
+			return () => {
+				window.removeEventListener('mousedown', clickOutside);
+				window.removeEventListener('touchstart', clickOutside);
+			};
+		}, // eslint-disable-next-line
 		[ markersSelected, currentMarker ]
 	);
 
 	const clickOutside = (event) => {
-        if (
-            highlightRef.current.includes(event.target) ||
-            document.getElementById('map').contains(event.target)
-        ) {
-            return;
-        }
+		if (highlightRef.current.includes(event.target) || document.getElementById('map').contains(event.target)) {
+			return;
+		}
 		resetSelection();
 		highlightRef.current = [];
-        window.removeEventListener('mousedown', clickOutside);
+		window.removeEventListener('mousedown', clickOutside);
 		window.removeEventListener('touchstart', clickOutside);
 	};
 
@@ -175,11 +185,39 @@ const ImageGrid = ({
 							fallback={<div key={scene.current[0]} className={classes.gridCell} />}
 						>
 							{index < rendered && (
-								<Event key={scene.current[0]} setRef={setRef} index={index} scene={scene} />
+								<Event
+									key={scene.current[0]}
+									setRef={setRef}
+									index={index}
+									scene={scene}
+									openEvent={openEvent}
+								/>
 							)}
 						</Suspense>
 					))}
 				</div>
+				<Popover
+					open={openPopover}
+					anchorReference="anchorPosition"
+					anchorPosition={{ top: 0, left: 0 }}
+					anchorOrigin={{
+						vertical: 'center',
+						horizontal: 'center'
+					}}
+					transformOrigin={{
+						vertical: 'center',
+						horizontal: 'center'
+					}}
+					onBackdropClick={closeEvent}
+					onEscapeKeyDown={closeEvent}
+					className={classes.popover}
+				>
+					<Suspense fallback={<FallBack />}>
+						{openPopover && (
+							<EventPopover closeEvent={closeEvent} group={group} position={position} similar={similar} />
+						)}
+					</Suspense>
+				</Popover>
 			</div>
 		);
 	}

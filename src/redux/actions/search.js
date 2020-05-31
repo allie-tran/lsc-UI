@@ -15,8 +15,8 @@ export function setScene(scenes = []) {
 	return { type: SET_SCENE, scenes };
 }
 
-export function getNextScenes(images = [], timeline_type = 'after') {
-	return { type: NEXT_SCENE, images, timeline_type };
+export function getNextScenes(images = [], timeline_type = 'after', direction='next') {
+	return { type: NEXT_SCENE, images, timeline_type, direction };
 }
 
 export function clearNextEvents() {

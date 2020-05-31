@@ -1,6 +1,5 @@
 import clsx from 'clsx';
-import React, { useState, Suspense, lazy, useEffect } from "react";
-import Popover from "@material-ui/core/Popover";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
@@ -12,7 +11,6 @@ const IMAGE_WIDTH = 1024
 const IMAGE_HEIGHT = 768
 const RESIZE_FACTOR = 6
 
-const EventPopover = lazy(() => import('../redux/EventPopover-cnt'));
 
 const thumbnailStyles = makeStyles(theme => ({
     image: {
@@ -88,8 +86,6 @@ const thumbnailStyles = makeStyles(theme => ({
 
 }));
 
-const FallBack = () => <div>Loading...</div>
-
 const ImageCard = ({saved, hidden, scale, highlight, img, openEvent, onButtonClick}) => {
     const classes = thumbnailStyles({hidden, scale, saved, highlight});
     if (saved === undefined) {
@@ -126,69 +122,38 @@ const ImageCard = ({saved, hidden, scale, highlight, img, openEvent, onButtonCli
 }
 
 const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved, sendToMap,
-                     clearNextEvents, position, markersSelected, last,
-                     setRef}) => {
+                     position, markersSelected, last,
+                     setRef, openEvent}) => {
     const [highlight, setHighlight] = useState(false)
     const classes = thumbnailStyles({hidden, scale, last, saved});
-    const [openPopover, setOpenPopover] = useState(false);
-    const [similar, setSimilar] = useState(false)
 
-    const openEvent = (event, similar) => {
-        setSimilar(similar)
-        setOpenPopover(true);
-        if (saved === undefined){
-            sendToMap(index)
-        }
-    };
     useEffect(()=>{
         var newHighlight = markersSelected.includes(index) && saved === undefined && position === "current"
         if (newHighlight !== highlight){
             setHighlight(newHighlight)
         }
-    }, [markersSelected])
+    }, [markersSelected, index, highlight, position, saved])
 
-
-    const closeEvent = () => {
-        setOpenPopover(false);
-        clearNextEvents()
-        setSimilar(false)
-    };
 
     const Save = () => saveScene(group)
     const Remove = () => removeScene(index)
-
+    const ownOpenEvent = (e, similar) => {
+        openEvent(e, similar, group, position)
+        if (saved === undefined){
+            sendToMap(index)
+        }
+    }
     if (group.length > 0) {
         return (
-            <>
                 <ImageCard onButtonClick={saved===undefined? Save: Remove}
                             saved={saved}
                             hidden={hidden}
                             scale={scale}
                             img={group[0]}
                             highlight={highlight}
-                            openEvent={openEvent}
+                            openEvent={ownOpenEvent}
                             ref={highlight? setRef: null}/>
-                <Popover
-                    open={openPopover}
-                    anchorReference="anchorPosition"
-                    anchorPosition={{ top: 0, left: 0 }}
-                    anchorOrigin={{
-                        vertical: "center",
-                        horizontal: "center"
-                    }}
-                    transformOrigin={{
-                        vertical: "center",
-                        horizontal: "center"
-                    }}
-                    onBackdropClick={closeEvent}
-                    onEscapeKeyDown={closeEvent}
-                    className={classes.popover}
-                    >
-                    <Suspense fallback={<FallBack/>}>
-                        {openPopover && <EventPopover closeEvent={closeEvent} group={group} position={position} similar={similar}/>}
-                    </Suspense>
-                </Popover>
-            </>)
+             )
     }
     else {
         return <div className={classes.card} />;

@@ -1,5 +1,4 @@
 import { connect } from 'react-redux'
-import { clearNextEvents } from './actions/search'
 import { saveScene, removeScene } from './actions/save'
 import { sendToMap } from './actions/select'
 
@@ -13,7 +12,6 @@ const mapDispatchToProps = {
     saveScene,
     removeScene,
     sendToMap,
-    clearNextEvents,
 };
 
 export default connect(

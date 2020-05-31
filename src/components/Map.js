@@ -54,10 +54,6 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 	const classes = useStyles({ open });
 	const [ bounds, setBounds ] = useState(null);
 
-	const submit = () => {
-		submitRegion(bounds, scenes);
-	};
-
 	const map = useRef(null);
 	const markerGroup = useRef(null);
 	const clustersMain = useRef(null);
@@ -87,7 +83,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 		// 	}
 		// ).addTo(map.current);
 
-		var Stadia_AlidadeSmooth = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+		L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
 			maxZoom: 18,
 			attribution:
 				'&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
@@ -145,7 +141,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 			}
 			// eslint-disable-next-line
 		},
-		[ scenes ]
+		[ scenes, selectMarkers ]
 	);
 
 	useEffect(
@@ -162,17 +158,16 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 					pathLine.current = new L.LayerGroup([]);
 				}
 				const color = [ 'rgb(255, 101, 132)', 'rgb(108, 99, 255)', 'rgb(33, 33, 33)' ];
-				let pathColors = [];
 				let path = [];
 				let fullPath = [];
-				console.log(selected);
 				let i;
+				let polyline;
 				for (i = 0; i < 3; i++) {
 					if (scenes[selected].gps[i] !== null && scenes[selected].gps[i].length > 0) {
 						if (path.length > 0) {
 							var gps = scenes[selected].gps[i][0];
 							path.push([ gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION) ]);
-							var polyline = L.polyline(path, {
+							polyline = L.polyline(path, {
 								color: color[i - 1],
 								weight: 2,
 								opacity: 0.5,
@@ -181,14 +176,17 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 							polyline.on({ click: (e) => map.current.fitBounds(e.target.getBounds()) });
 							path = [];
 						}
-						scenes[selected].gps[i].forEach((gps) => {
-							path.push([ gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION) ]);
-						});
+						path.push(
+							...scenes[selected].gps[i].map((gps) => [
+								gps.lat.toPrecision(PRECISION),
+								gps.lon.toPrecision(PRECISION)
+							])
+						);
 					}
 				}
 
 				if (path.length > 0) {
-					var polyline = L.polyline(path, {
+					polyline = L.polyline(path, {
 						color: color[i - 1],
 						weight: 2,
 						opacity: 0.5,
@@ -249,7 +247,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 			}
 			// eslint-disable-next-line
 		},
-		[ selected ]
+		[ selected, scenes ]
 	);
 
 	useEffect(
@@ -268,7 +266,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 			).addTo(map.current);
 			// eslint-disable-next-line
 		},
-		[ bounds ]
+		[ bounds, setQueryBound ]
 	);
 
 	const OpenOrClose = () => changeStatus(!open);

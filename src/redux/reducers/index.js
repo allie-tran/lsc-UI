@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import search, { searchState } from './search';
-import save, { saveState } from './save';
+import save from './save';
 import select, { selectState } from './select';
 import { NEXT_QUERY, EXPORT_SAVED } from '../actions/submit';
 
@@ -9,12 +9,6 @@ const appReducer = combineReducers({
 	save,
 	select
 });
-
-const initialState = {
-	search: searchState,
-	save: saveState,
-	select: selectState
-};
 
 const rootReducer = (state, action) => {
 	if (action.type === NEXT_QUERY || action.type === EXPORT_SAVED) {

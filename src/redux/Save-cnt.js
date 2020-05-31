@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import Save from '../components/Save';
 import { setKeywords } from './actions/search';
-import { nextQuery, exportSaved } from './actions/submit'
 
 function mapStateToProps(state) {
 	return {

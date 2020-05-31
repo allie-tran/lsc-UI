@@ -35,7 +35,6 @@ export default function(state = searchState, action) {
 			bounds: action.bounds
 		};
 	} else if (action.type === GET_ALL_IMAGES) {
-        console.log(action.ignoreInfo)
 		if (!action.ignoreInfo && state.keywords.length > 0) {
 			var newInfo = JSON.parse(JSON.stringify(state.info));
 			newInfo.expansion_score = {};
@@ -82,7 +81,8 @@ export default function(state = searchState, action) {
 			'http://localhost:7999/api/timeline/',
 			{
 				images: action.images,
-				timeline_type: action.timeline_type
+				timeline_type: action.timeline_type,
+                direction: action.direction
 			},
 			{ headers: { 'Content-Type': 'application/json' } }
 		);
