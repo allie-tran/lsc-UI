@@ -28,7 +28,7 @@ const thumbnailStyles = makeStyles(theme => ({
             transform: "scale(1.3)",
             zIndex: 1,
             boxShadow: "3px 3px 3px rgba(0, 0, 0, 0.5)"},
-        transition: "all 300ms ease-in"
+        transition: "all 150ms ease-in"
     },
     highlight: {},
     row: {
@@ -97,26 +97,28 @@ const ImageCard = ({saved, hidden, scale, highlight, img, openEvent, onButtonCli
                     <img alt={img}
                          src={"http://lifeseeker-sv.computing.dcu.ie//" + img}
                          className={clsx(classes.image, {[classes.highlight]: highlight})}
-                         onClick={openEvent} />
+                         onClick={(e) => openEvent(e, false)} />
                     <IconButton onClick={onButtonClick} className={classes.saveButton}>
                         <BookmarkBorderRoundedIcon fontSize="small"/>
                     </IconButton>
-                    <IconButton onClick={onButtonClick} className={classes.similarButton}>
-                <ImageSearchIcon fontSize="small"/>
-            </IconButton>
-                        <CheckRoundedIcon fontSize="small" className={classes.submitButton} />
+                    <IconButton onClick={(e) => openEvent(e, true)} className={classes.similarButton}>
+                        <ImageSearchIcon fontSize="small"/>
+                    </IconButton>
+                    <CheckRoundedIcon fontSize="small" className={classes.submitButton} />
                 </div>)
     }
     return (
         <div className={classes.card}>
-            <img alt={img}
+            {hidden? <img alt={img}
+                 className={classes.image}
+                 onClick={(e) => openEvent(e, false)} /> : <img alt={img}
                  src={"http://lifeseeker-sv.computing.dcu.ie//" + img}
                  className={classes.image}
-                 onClick={openEvent} />
+                 onClick={(e) => openEvent(e, false)} />}
             <IconButton onClick={onButtonClick} className={classes.saveButton}>
                 <DeleteOutlineRoundedIcon fontSize="small"/>
             </IconButton>
-            <IconButton onClick={onButtonClick} className={classes.similarButton}>
+            <IconButton onClick={(e) => openEvent(e, true)} className={classes.similarButton}>
                 <ImageSearchIcon fontSize="small"/>
             </IconButton>
             <CheckRoundedIcon fontSize="small" className={classes.submitButton} />
@@ -125,17 +127,14 @@ const ImageCard = ({saved, hidden, scale, highlight, img, openEvent, onButtonCli
 
 const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved, sendToMap,
                      clearNextEvents, position, markersSelected, last,
-                     setRef, selectMarkers}) => {
-    const [groupState, setGroupState] = useState(group)
+                     setRef}) => {
     const [highlight, setHighlight] = useState(false)
     const classes = thumbnailStyles({hidden, scale, last, saved});
     const [openPopover, setOpenPopover] = useState(false);
+    const [similar, setSimilar] = useState(false)
 
-    useEffect(()=>{
-        // var isEqual = require('lodash.isequal');
-    },[group])
-
-    const openEvent = event => {
+    const openEvent = (event, similar) => {
+        setSimilar(similar)
         setOpenPopover(true);
         if (saved === undefined){
             sendToMap(index)
@@ -152,19 +151,20 @@ const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved,
     const closeEvent = () => {
         setOpenPopover(false);
         clearNextEvents()
+        setSimilar(false)
     };
 
     const Save = () => saveScene(group)
     const Remove = () => removeScene(index)
 
-    if (groupState.length > 0) {
+    if (group.length > 0) {
         return (
             <>
                 <ImageCard onButtonClick={saved===undefined? Save: Remove}
                             saved={saved}
                             hidden={hidden}
                             scale={scale}
-                            img={groupState[0]}
+                            img={group[0]}
                             highlight={highlight}
                             openEvent={openEvent}
                             ref={highlight? setRef: null}/>
@@ -184,9 +184,9 @@ const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved,
                     onEscapeKeyDown={closeEvent}
                     className={classes.popover}
                     >
-                        <Suspense fallback={<FallBack/>}>
-                            <EventPopover closeEvent={closeEvent} group={groupState} position={position} />
-                        </Suspense>
+                    <Suspense fallback={<FallBack/>}>
+                        {openPopover && <EventPopover closeEvent={closeEvent} group={group} position={position} similar={similar}/>}
+                    </Suspense>
                 </Popover>
             </>)
     }

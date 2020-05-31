@@ -26,9 +26,9 @@ const Event = memo(({ index, scene, setRef }) => {
     const classes = eventStyles();
     return (
         <div className={classes.group}>
-            <Thumbnail index={index} group={scene.before} scale={0.7} position="before" />
-            <Thumbnail setRef={setRef} index={index} group={scene.current} scale={1} position="current"/>
-            <Thumbnail index={index} group={scene.after} scale={0.7} position="after" />
+            <Thumbnail key={index+"before"} index={index} group={scene.before} scale={0.7} position="before" />
+            <Thumbnail key={index+"current"} setRef={setRef} index={index} group={scene.current} scale={1} position="current"/>
+            <Thumbnail key={index+"after"} index={index} group={scene.after} scale={0.7} position="after" />
         </div>
     );
 }, areEqual)

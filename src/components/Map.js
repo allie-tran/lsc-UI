@@ -133,7 +133,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 								attribution: index.toString()
 							}
 						);
-						marker.on('click', (e) => selectMarkers([ e.target.options.icon.options.index ]));
+						marker.on('click', (e) => selectMarkers([ parseInt(e.target.options.attribution) ]));
 						clustersMain.current.addLayer(marker);
 					}
 				});
@@ -274,8 +274,8 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 	const OpenOrClose = () => changeStatus(!open);
 
 	return [
-		<div id="map" className={classes.map} onKeyPress={handleKeyPress} />,
-		<IconButton size="small" className={classes.icon} onClick={OpenOrClose}>
+		<div key="map" id="map" className={classes.map} onKeyPress={handleKeyPress} />,
+		<IconButton key="icon" size="small" className={classes.icon} onClick={OpenOrClose}>
 			{open ? (
 				<KeyboardArrowRightRoundedIcon className={classes.insideIcon} />
 			) : (

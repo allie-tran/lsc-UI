@@ -68,12 +68,12 @@ const imageStyles = makeStyles((theme) => ({
 	}
 }));
 
+var isEqual = require('lodash.isequal');
 const areEqual = (prevProps, nextProps) => {
-	console.log(prevProps.image === nextProps.image);
-	return prevProps.image === nextProps.image;
+	return prevProps.image === nextProps.image && isEqual(prevProps.scene, nextProps.scene)
 };
 
-const Image = memo(({ image, scale, saveScene, info, onClick }) => {
+const Image = memo(({ image, scene, scale, saveScene, info, onClick }) => {
 	const classes = imageStyles({ scale });
 	const bookmarkClick = () => saveScene([ image ]);
 	const Bookmark = () => (
@@ -93,7 +93,7 @@ const Image = memo(({ image, scale, saveScene, info, onClick }) => {
 				alt={image}
 				src={'http://lifeseeker-sv.computing.dcu.ie/' + image}
 				className={classes.image}
-				onClick={onClick}
+				onClick={() => onClick === undefined? null:onClick(scene)}
 			/>
 			<Bookmark />
 			<ImageSearchIcon fontSize="small" className={classes.similarButton} />

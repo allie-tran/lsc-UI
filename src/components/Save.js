@@ -2,7 +2,7 @@ import React, { useEffect, useState, memo } from 'react';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import Thumbnail from '../redux/Thumbnail-cnt';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import BookmarkRoundedIcon from '@material-ui/icons/BookmarkRounded';
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import ExposureNeg1Icon from '@material-ui/icons/ExposureNeg1';
@@ -10,6 +10,11 @@ import Badge from '@material-ui/core/Badge';
 import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
 import PublishIcon from '@material-ui/icons/Publish';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Box from '@material-ui/core/Box';
+import EditRoundedIcon from '@material-ui/icons/EditRounded';
+import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles((theme) => ({
 	section: {
@@ -42,9 +47,13 @@ const useStyles = makeStyles((theme) => ({
 	imageContainer: {
 		width: '100%',
 		maxHeight: '47%',
-		overflow: 'auto'
+		overflow: 'auto',
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center'
 	},
 	list: {
+		paddingTop: 10,
 		width: '80%',
 		display: 'flex',
 		flexWrap: 'wrap-reverse',
@@ -58,6 +67,7 @@ const useStyles = makeStyles((theme) => ({
 		visibility: 'hidden'
 	},
 	textList: {
+		paddingTop: 10,
 		width: '80%',
 		display: 'flex',
 		flexWrap: 'wrap',
@@ -86,16 +96,47 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
+const StyledTabs = withStyles({
+	indicator: {
+		display: 'flex',
+		justifyContent: 'center',
+		backgroundColor: 'transparent',
+		'& > span': {
+			maxWidth: 40,
+			width: '100%',
+			backgroundColor: '#635ee7'
+		}
+	}
+})((props) => <Tabs {...props} TabIndicatorProps={{ children: <span /> }} />);
+
+const StyledTab = withStyles((theme) => ({
+	root: {
+		textTransform: 'none',
+		color: '#fff',
+		fontWeight: theme.typography.fontWeightRegular,
+		fontSize: theme.typography.pxToRem(15),
+		marginRight: theme.spacing(1),
+		'&:focus': {
+			opacity: 1
+		}
+	}
+}))((props) => <Tab disableRipple {...props} />);
+
 const hiddenGroup = [ 'Hidden' ];
 const Hidden = () => <Thumbnail key="saved: Hidden" hidden saved group={hiddenGroup} scale={0.7} />;
 var isEqual = require('lodash.isequal');
 
 const areEqual = (prevProps, nextProps) => {
-	return isEqual(prevProps.keywords, nextProps.keywords) && isEqual(prevProps.info, nextProps.info);
+	return (
+		isEqual(prevProps.keywords, nextProps.keywords) &&
+		isEqual(prevProps.info, nextProps.info) &&
+		isEqual(prevProps.saved, nextProps.saved)
+	);
 };
 
-const SaveSection = memo(({ open, saved, removeScene, info, keywords, setKeywords }) => {
+const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords }) => {
 	const classes = useStyles({ open });
+	const [ tabValue, setTabValue ] = useState(1);
 
 	useEffect(
 		() => {
@@ -144,10 +185,8 @@ const SaveSection = memo(({ open, saved, removeScene, info, keywords, setKeyword
 	};
 
 	const handleChange = (e, index) => {
-		console.log(e);
 		if (e.key === 'Enter') {
 			var element = document.getElementById('kw' + index);
-			console.log('Changed ' + keywords[index][0] + ' to ' + element.value);
 			var newKeywords = JSON.parse(JSON.stringify(keywords));
 			newKeywords[index][1] = parseFloat(element.value);
 			if (!isEqual(keywords, newKeywords)) {
@@ -166,22 +205,24 @@ const SaveSection = memo(({ open, saved, removeScene, info, keywords, setKeyword
 	);
 
 	keywords.forEach((keyword, index) => {
-		var el = document.getElementById('kw' + index);
+		var el = document.getElementById('kw' + keyword[0]);
 		if (el !== null) {
 			el.value = null;
 		}
 	});
 
-	if (keywords.length > 0) {
-		return (
-			<div id="save" className={classes.section}>
-				<Typography variant="subtitle1" className={classes.title}>
-					INFO
-					<Badge badgeContent={saved.length} color="primary">
-						<BookmarkRoundedIcon />
-					</Badge>
-				</Typography>
-				<div className={classes.imageContainer} id="save-section">
+	const changeTab = (e, newValue) => {
+		setTabValue(newValue);
+	};
+
+	return (
+		<div id="save" className={classes.section}>
+			<StyledTabs value={tabValue} onChange={changeTab}>
+				<StyledTab icon={<EditRoundedIcon />} label="Word list" />
+				<StyledTab icon={<BookmarkRoundedIcon />} label="Saved scenes" />
+			</StyledTabs>
+			<div className={classes.imageContainer} id="save-section">
+				{tabValue === 0 && info !== null ? (
 					<div className={classes.textList}>
 						{info.weekdays.length > 0 ? <Typography> Weekday: {info.weekdays}</Typography> : null}
 						<Typography>
@@ -192,7 +233,7 @@ const SaveSection = memo(({ open, saved, removeScene, info, keywords, setKeyword
 						{info.location.length > 0 ? <Typography> Location: {info.location}</Typography> : null}
 
 						{keywords.map((keyword, index) => (
-							<div className={classes.text}>
+							<div key={keyword[0]} className={classes.text}>
 								<Typography className={classes.keyword}>{keyword[0]}:</Typography>
 								<InputBase
 									id={'kw' + index}
@@ -214,19 +255,7 @@ const SaveSection = memo(({ open, saved, removeScene, info, keywords, setKeyword
 							</div>
 						))}
 					</div>
-				</div>
-			</div>
-		);
-	} else {
-		return (
-			<div id="save" className={classes.section}>
-				<Typography variant="subtitle1" className={classes.title}>
-					SAVED SCENES
-					<Badge badgeContent={saved.length} color="primary">
-						<BookmarkRoundedIcon />
-					</Badge>
-				</Typography>
-				<div className={classes.imageContainer} id="save-section">
+				) : tabValue === 1 ? (
 					<div className={classes.list}>
 						{saved.length % 2 !== 0 ? <Hidden key="Hidden" /> : null}
 						{saved.map((scene, index) => (
@@ -240,10 +269,24 @@ const SaveSection = memo(({ open, saved, removeScene, info, keywords, setKeyword
 							/>
 						))}
 					</div>
-				</div>
+				) : null}
 			</div>
-		);
-	}
-}, areEqual);
+		</div>
+	);
+	// 	);
+	// } else {
+	// 	return (
+	// 		<div id="save" className={classes.section}>
+	// 			<Typography variant="subtitle1" className={classes.title}>
+	// 				SAVED SCENES
+	// 				<Badge badgeContent={saved.length} color="primary">
+	// 					<BookmarkRoundedIcon />
+	// 				</Badge>
+	// 			</Typography>
+
+	// 		</div>
+	// 	);
+	// }
+};
 
 export default SaveSection;

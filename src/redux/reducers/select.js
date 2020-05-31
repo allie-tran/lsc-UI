@@ -4,13 +4,14 @@ import {
     RESET
 } from '../actions/select'
 
-const initialState = {
+export const selectState = {
     selected: null,
     markersSelected: [],
     currentMarker: -1
 };
+var isEqual = require('lodash.isequal');
 
-export default function (state = initialState, action) {
+export default function (state = selectState, action) {
     if (action.type === SELECT_SCENE) {
         return {
             ...state,
@@ -19,7 +20,8 @@ export default function (state = initialState, action) {
     }
     else if (action.type === SELECT_MARKERS) {
         action.indices.sort((a, b) => a - b)
-        if (action.indices.length === state.markersSelected.length && action.indices.every(function(value, index) { return value === state.markersSelected[index]})){
+
+        if (isEqual(state.markersSelected, action.indices)){
             if (state.currentMarker === action.indices.length - 1) {
                 return {
                     ...state,
@@ -39,7 +41,7 @@ export default function (state = initialState, action) {
     }
     else if (action.type === RESET) {
         return {
-            ...initialState
+            ...selectState
         }
     }
     return state

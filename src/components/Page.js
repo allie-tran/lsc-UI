@@ -2,6 +2,7 @@ import React, { useState, Suspense, lazy } from 'react'
 import Map from "../redux/Map-cnt";
 import Bar from "../redux/AppBar-cnt";
 import SaveSection from '../redux/Save-cnt'
+import Submit from '../redux/Submit-cnt'
 const ImageGrid = lazy(() => import("../redux/Images-cnt"));
 
 
@@ -21,6 +22,7 @@ const Page = () => {
             <Bar open={open} />
             <SaveSection open={open} />
             <Map open={open} changeStatus={stt => setOpen(stt)} />
+            <Submit/>
             <Suspense fallback={<div></div>}>
                 <ImageGrid open={open} height={HEIGHT} maxwidth={WIDTH} />\
             </Suspense>

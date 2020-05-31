@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
 const Bar = ({ open, getImages, resetSelection }) => {
     const classes = useStyles({ open });
 
-    const submitQuery = () => {
+    const submitQuery = (ignoreInfo) => {
         let query = {
             before: document.getElementById("Before:").value,
             beforewhen: document.getElementById("Before:-when").value,
@@ -39,7 +39,7 @@ const Bar = ({ open, getImages, resetSelection }) => {
         console.log(query)
         window.scrollTo(0, 0);
         resetSelection();
-        getImages(query);
+        getImages(query, ignoreInfo);
     };
 
     return (
@@ -47,7 +47,7 @@ const Bar = ({ open, getImages, resetSelection }) => {
             <SearchBar type="Before:" submitQuery={submitQuery} />
             <SearchBar type="Find:" submitQuery={submitQuery} />
             <SearchBar type="After:" submitQuery={submitQuery} />
-            <IconButton size="small" className={classes.icon} onClick={submitQuery}>
+            <IconButton size="small" className={classes.icon} onClick={() => submitQuery(false)}>
                 <KeyboardReturnRoundedIcon />
             </IconButton>
         </AppBar>

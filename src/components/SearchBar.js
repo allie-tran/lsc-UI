@@ -43,14 +43,14 @@ const SearchBar = ({ open, type, submitQuery }) => {
 
     const keyPressed = event => {
         if (event.key === "Enter")
-            submitQuery();
+            submitQuery(true);
     };
 
     const Time = () => {
         if (type !== "Find:") {
             return ([
-                <Typography>when</Typography>,
-                <FilledInput id={type + "-when"}
+                <Typography key="text">when</Typography>,
+                <FilledInput key="input" id={type + "-when"}
                     variant="filled"
                     className={classes.timeBar}
                     disableUnderline={true}

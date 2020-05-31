@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense, lazy, memo, PureComponent, useRef } from 'react';
+import React, { useEffect, useState, Suspense, lazy, memo, PureComponent, useRef, useCallback } from 'react';
 import clsx from 'clsx';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { FixedSizeGrid as Grid, shouldComponentUpdate } from 'react-window';
@@ -68,11 +68,11 @@ const ImageGrid = ({
 	const [ maxItemsPerRow, setMaxItemsPerRow ] = useState(open ? 3 : 4);
 	const [ rendered, setRendered ] = useState(0);
 
-	const setRef = (index) => {
+	const setRef = useCallback((index) => {
 		if (index !== null) {
 			highlightRef.current.push(index);
 		}
-	};
+	}, []);
 
 	useEffect(
 		() => {
@@ -87,10 +87,14 @@ const ImageGrid = ({
 	useEffect(
 		() => {
 			if (rendered < scenes.length) {
-				setTimeout(() => setRendered(rendered + 2 * maxItemsPerRow), 50);
+				if (rendered < currentMarker) {
+					setRendered(currentMarker + 12);
+				} else {
+					setTimeout(() => setRendered(rendered + 2 * maxItemsPerRow, 500));
+				}
 			}
 		},
-		[ rendered ]
+		[ rendered, currentMarker ]
 	);
 
 	useEffect(
@@ -122,26 +126,35 @@ const ImageGrid = ({
 				const newIndex = markersSelected[currentMarker];
 				const newRow = Math.floor(newIndex / maxItemsPerRow);
 				const imageRowX = newRow * (IMAGE_HEIGHT / RESIZE_FACTOR * 2) + IMAGE_HEIGHT / RESIZE_FACTOR * 2 / 2;
-				console.log(
-					'scroll to ',
-					Math.max(0, imageRowX - height / 2 + 1 + IMAGE_HEIGHT / RESIZE_FACTOR * 2 * 1.5)
-				);
 				document.getElementById('grid').scrollTo({
 					top: Math.max(0, imageRowX - height / 2 + 1 + IMAGE_HEIGHT / RESIZE_FACTOR * 2 * 1.5),
 					left: 0,
 					behavior: 'smooth'
 				});
+                window.addEventListener('mousedown', clickOutside);
+		        window.addEventListener('touchstart', clickOutside);
 			}
+            return () => {
+                window.removeEventListener('mousedown', clickOutside);
+                window.removeEventListener('touchstart', clickOutside);
+            }
 			// eslint-disable-next-line
 		},
 		[ markersSelected, currentMarker ]
 	);
 
-	useOnClickOutside(highlightRef, () => {
-		console.log('clicked outside');
+	const clickOutside = (event) => {
+        if (
+            highlightRef.current.includes(event.target) ||
+            document.getElementById('map').contains(event.target)
+        ) {
+            return;
+        }
 		resetSelection();
 		highlightRef.current = [];
-	});
+        window.removeEventListener('mousedown', clickOutside);
+		window.removeEventListener('touchstart', clickOutside);
+	};
 
 	if (promiseInProgress) {
 		return (
@@ -157,8 +170,13 @@ const ImageGrid = ({
 				</Typography>
 				<div id="grid" className={classes.grid}>
 					{scenes.map((scene, index) => (
-						<Suspense fallback={<div className={classes.gridCell} />}>
-							{index < rendered && <Event key={index} setRef={setRef} index={index} scene={scene} />}
+						<Suspense
+							key={scene.current[0]}
+							fallback={<div key={scene.current[0]} className={classes.gridCell} />}
+						>
+							{index < rendered && (
+								<Event key={scene.current[0]} setRef={setRef} index={index} scene={scene} />
+							)}
 						</Suspense>
 					))}
 				</div>
@@ -166,32 +184,5 @@ const ImageGrid = ({
 		);
 	}
 };
-
-function useOnClickOutside(ref, handler) {
-	useEffect(
-		() => {
-			const listener = (event) => {
-				// Do nothing if clicking ref's element or descendent elements
-				if (
-					!ref.current ||
-					ref.current.includes(event.target) ||
-					document.getElementById('map').contains(event.target)
-				) {
-					return;
-				}
-				handler(event);
-			};
-
-			document.addEventListener('mousedown', listener);
-			document.addEventListener('touchstart', listener);
-
-			return () => {
-				document.removeEventListener('mousedown', listener);
-				document.removeEventListener('touchstart', listener);
-			};
-		},
-		[ ref, handler ]
-	);
-}
 
 export default ImageGrid;

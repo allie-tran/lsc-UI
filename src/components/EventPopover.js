@@ -18,7 +18,7 @@ const popStyle = makeStyles(theme => ({
         padding: 10
     },
     grid: {
-        overflow: "scroll",
+        overflow: "auto",
         padding: 10
     },
     text: {
@@ -26,11 +26,17 @@ const popStyle = makeStyles(theme => ({
     }
 }));
 
-const EventPopover = ({ group, closeEvent, getNextScenes, nextSceneRespone, position }) => {
+const EventPopover = ({ group, closeEvent, getNextScenes, nextSceneRespone, getSimilar, similarResponse, position, similar }) => {
     const classes = popStyle()
     const [nextScenes, setNextScenes] = useState([])
     const [currentDisplay, setCurrentDisplay] = useState(group)
 
+    window.addEventListener("keydown", function(e){
+        console.log(e.key)
+        if (e.key==="Escape"){
+            closeEvent()
+        }
+    });
     useEffect(()=>{
         nextSceneRespone.then(res => {
             setNextScenes(res.data.timeline);
@@ -41,16 +47,30 @@ const EventPopover = ({ group, closeEvent, getNextScenes, nextSceneRespone, posi
         // console.log("Function changed")
     }, [closeEvent])
 
+    useEffect(()=>{
+        if (similar){
+            getSimilar(group[0])
+        }
+    }, [similar])
+
+    useEffect(() => {
+        similarResponse.then(res=>{
+            if (res.data.scenes !== undefined){
+                setNextScenes(res.data.scenes);
+            }
+        });
+    }, [similarResponse])
+
     return (
-        <Paper elevation={4} className={classes.detailed} onEscapeKeyDown={closeEvent}>
+        <Paper elevation={4} className={classes.detailed}>
             <Typography variant="button" className={classes.text}>
                 Event images
                 </Typography>
             <Grid wrap="nowrap" container spacing={2} className={classes.grid}>
-                {currentDisplay.map(image => (
-                    <Grid item>
+                {currentDisplay.map((image, index) => (
+                    <Grid key={image} item>
                         <Image
-                            className={classes.img}
+                            key={image}
                             image={image}
                             scale={4}
                             info
@@ -58,17 +78,23 @@ const EventPopover = ({ group, closeEvent, getNextScenes, nextSceneRespone, posi
                     </Grid>
                 ))}
             </Grid>
-            {position==="before"? <Button onClick={() => getNextScenes(group, "before")} className={classes.text}>Previous Events</Button> :
-             position==="after"? <Button onClick={() => getNextScenes(group, "after")} className={classes.text}>Next Events</Button> :
-                                 <Button onClick={() => getNextScenes(group, "current")} className={classes.text}>View Full Events</Button>}
+            <div className={classes.buttonline}>
+                <Button className={classes.text}>Previous</Button>
+                {similar? null:
+                position==="before"? <Button onClick={() => getNextScenes(group, "before")} className={classes.text}>Previous Events</Button> :
+                position==="after"? <Button onClick={() => getNextScenes(group, "after")} className={classes.text}>Next Events</Button> :
+                                    <Button onClick={() => getNextScenes(group, "current")} className={classes.text}>View Full Events</Button>}
+                <Button className={classes.text}>Next</Button>
+            </div>
             <Grid wrap="nowrap" container spacing={2} className={classes.grid}>
                 {nextScenes.map((scene, index) => (
-                    <Grid item>
+                    <Grid key={index} item>
                         <Image
-                            className={classes.img}
+                            key={index}
                             image={scene[0]}
+                            scene={scene}
                             scale={1}
-                            onClick={() => setCurrentDisplay(scene)}
+                            onClick={setCurrentDisplay}
                         />
                     </Grid>
                 ))}

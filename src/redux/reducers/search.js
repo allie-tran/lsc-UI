@@ -5,11 +5,12 @@ import {
 	CLEAR_NEXT_SCENE,
 	SET_BOUND,
 	SET_INFO,
-	SET_KEYWORDS
+	SET_KEYWORDS,
+    SIMILAR
 } from '../actions/search';
 import axios from 'axios';
 
-const initialState = {
+export const searchState = {
 	collection: new Promise((resolve, reject) => {
 		resolve({ data: { results: [] } });
 	}),
@@ -19,17 +20,23 @@ const initialState = {
 	}),
 	bounds: null,
 	info: null,
-	keywords: []
+	keywords: [],
+    similarResponse: new Promise((resolve, reject) => {
+		resolve({ data: { images: [] } });
+	}),
 };
 
-export default function(state = initialState, action) {
+var isEqual = require('lodash.isequal');
+
+export default function(state = searchState, action) {
 	if (action.type === SET_BOUND) {
 		return {
 			...state,
 			bounds: action.bounds
 		};
 	} else if (action.type === GET_ALL_IMAGES) {
-		if (state.keywords.length > 0) {
+        console.log(action.ignoreInfo)
+		if (!action.ignoreInfo && state.keywords.length > 0) {
 			var newInfo = JSON.parse(JSON.stringify(state.info));
 			newInfo.expansion_score = {};
 			state.keywords.forEach((keyword) => {
@@ -64,7 +71,6 @@ export default function(state = initialState, action) {
 			};
 		}
 	} else if (action.type === SET_SCENE) {
-		var isEqual = require('lodash.isequal');
 		if (!isEqual(state.scenes, action.scenes)) {
 			return {
 				...state,
@@ -92,7 +98,6 @@ export default function(state = initialState, action) {
 			})
 		};
 	} else if (action.type === SET_INFO) {
-		var isEqual = require('lodash.isequal');
 		if (!isEqual(state.info, action.info)) {
 			return {
 				...state,
@@ -100,12 +105,18 @@ export default function(state = initialState, action) {
 			};
 		}
 	} else if (action.type === SET_KEYWORDS) {
-		var isEqual = require('lodash.isequal');
 		if (!isEqual(state.keywords, action.keywords)) {
 			return {
 				...state,
 				keywords: action.keywords
 			};
+		}
+	} else if (action.type === SIMILAR) {
+        const response = axios.post(
+                'http://localhost:7999/similar/group?image_id=' + action.image)
+		return {
+			...state,
+			similarResponse: response
 		}
 	}
 	return state;

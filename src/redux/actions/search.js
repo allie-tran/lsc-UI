@@ -5,9 +5,10 @@ export const CLEAR_NEXT_SCENE = 'CLEAR_NEXT_SCENE';
 export const SET_BOUND = 'SET_BOUND';
 export const SET_INFO = 'SET_INFO';
 export const SET_KEYWORDS = 'SET_KEYWORDS';
+export const SIMILAR = 'SIMILAR'
 
-export function getImages(query = {}) {
-	return { type: GET_ALL_IMAGES, query };
+export function getImages(query = {}, ignoreInfo=false) {
+	return { type: GET_ALL_IMAGES, query, ignoreInfo };
 }
 
 export function setScene(scenes = []) {
@@ -41,4 +42,8 @@ export function setKeywords(keywords) {
 		type: SET_KEYWORDS,
 		keywords
 	};
+}
+
+export function getSimilar(image) {
+	return { type: SIMILAR, image };
 }

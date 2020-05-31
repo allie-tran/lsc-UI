@@ -3,10 +3,12 @@ import {
     REMOVE_SCENE
 } from '../actions/save'
 
-const initialState = {
-    saved: []
+export const saveState = {
+    saved: [],
+    currentQuery: 1,
+	finished: [ ...Array(5) ].map((i) => false),
 };
-export default function (state = initialState, action) {
+export default function (state = saveState, action) {
     if (action.type === SAVE_SCENE) {
         return {
             ...state,
