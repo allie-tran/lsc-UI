@@ -23,7 +23,6 @@ const thumbnailStyles = makeStyles(theme => ({
         visibility: props=> props.hidden? "hidden": "visible",
         '&$highlight': {
             border: "3px solid #FF6584",
-            transform: "scale(1.3)",
             zIndex: 1,
             boxShadow: "3px 3px 3px rgba(0, 0, 0, 0.5)"},
         transition: "all 150ms ease-in"
@@ -121,18 +120,11 @@ const ImageCard = ({saved, hidden, scale, highlight, img, openEvent, onButtonCli
         </div>)
 }
 
-const Thumbnail = ({ hidden, group, scale, saveScene, removeScene, index, saved, sendToMap,
+const Thumbnail = ({ hidden, highlight, group, scale, saveScene, removeScene, index, saved, sendToMap,
                      position, markersSelected, last,
                      setRef, openEvent}) => {
-    const [highlight, setHighlight] = useState(false)
     const classes = thumbnailStyles({hidden, scale, last, saved});
 
-    useEffect(()=>{
-        var newHighlight = markersSelected.includes(index) && saved === undefined && position === "current"
-        if (newHighlight !== highlight){
-            setHighlight(newHighlight)
-        }
-    }, [markersSelected, index, highlight, position, saved])
 
 
     const Save = () => saveScene(group)

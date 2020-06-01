@@ -4,12 +4,15 @@ import { makeStyles } from '@material-ui/core/styles';
 import { trackPromise, usePromiseTracker } from 'react-promise-tracker';
 import ReactLoading from 'react-loading';
 import Typography from '@material-ui/core/Typography';
-const Event = lazy(() => import('./Event'));
+import Grid from '@material-ui/core/Grid';
+
+const Thumbnail = lazy(() => import('../redux/Thumbnail-cnt'));
 const FallBack = () => <div>Loading...</div>;
 const EventPopover = lazy(() => import('../redux/EventPopover-cnt'));
 
 const IMAGE_HEIGHT = 768;
-const RESIZE_FACTOR = 6.5;
+const IMAGE_WIDTH = 1024;
+const RESIZE_FACTOR = 6;
 
 const gridStyles = makeStyles((theme) => ({
 	root: {
@@ -39,6 +42,16 @@ const gridStyles = makeStyles((theme) => ({
 		top: 50,
 		paddingTop: 20,
 		color: '#CCCCCC'
+	},
+	dategrid: {
+		width: '96%',
+		overflow: 'auto',
+		padding: 10,
+		marginTop: 50
+	},
+	popover: {
+		width: '80%',
+        color: '#272727'
 	}
 }));
 
@@ -48,12 +61,20 @@ const LoadingIndicator = (props) => {
 	return promiseInProgress && <ReactLoading type={'bubbles'} color={'white'} />;
 };
 
+const hiddenGroup = [ 'Hidden' ];
+const Hidden = ({ position }) =>
+	[ ...Array(5).keys() ].map((index) => (
+		<Grid item key={position + 'hidden' + index}>
+			<Thumbnail key="Hidden" hidden group={hiddenGroup} scale={1} />
+		</Grid>
+	));
+
 const ImageGrid = ({
 	height,
 	maxwidth,
 	open,
 	collection,
-	setScene,
+	setMap,
 	markersSelected,
 	currentMarker,
 	setQueryBound,
@@ -62,7 +83,7 @@ const ImageGrid = ({
 	clearNextEvents
 }) => {
 	const classes = gridStyles({ open, height });
-	const [ scenes, setScenes ] = useState([]);
+	const [ dates, setDates ] = useState([]);
 	const { promiseInProgress } = usePromiseTracker();
 	const highlightRef = React.useRef([]);
 	const [ maxItemsPerRow, setMaxItemsPerRow ] = useState(open ? 3 : 4);
@@ -103,26 +124,52 @@ const ImageGrid = ({
 
 	useEffect(
 		() => {
-			if (rendered < scenes.length) {
-				if (rendered < currentMarker) {
-					setRendered(currentMarker + 12);
+            if ( markersSelected[currentMarker] !== undefined){
+                var [ newIndex, newId ] = markersSelected[currentMarker].split('-');
+            }
+            else {
+                newIndex = -1
+            }
+
+			if (rendered < dates.length) {
+				if (rendered < newIndex) {
+					setRendered(newIndex + 4);
 				} else {
-					setTimeout(() => setRendered(rendered + 2 * maxItemsPerRow, 500));
+					setTimeout(() => setRendered(rendered + 4, 500));
 				}
 			}
 		}, // eslint-disable-next-line
 		[ rendered, currentMarker ]
 	);
 
+	useEffect(() => {
+		dates.forEach((date, index) => {
+			const column = Math.floor((date[1] + 4 / 3) * (IMAGE_WIDTH / RESIZE_FACTOR + 8));
+			var el = document.getElementById('dategrid' + index);
+
+			var newPos = Math.max(0, column);
+			if (el) {
+				setTimeout(
+					() =>
+						el.scrollTo({
+							top: 0,
+							left: newPos
+						}),
+					100
+				);
+			}
+		});
+	});
+
 	useEffect(
 		() => {
 			trackPromise(
 				collection.then((res) => {
-					const newScenes = res.data.results;
+					const newDates = res.data.results;
 					var isEqual = require('lodash.isequal');
-					if (!isEqual(scenes, newScenes)) {
-						setScenes(newScenes);
-						setScene(newScenes);
+					if (!isEqual(dates, newDates)) {
+						setDates(newDates);
+						setMap(newDates);
 						setRendered(10);
 						setQueryBound(null);
 						setQueryInfo(res.data.info);
@@ -137,14 +184,30 @@ const ImageGrid = ({
 	useEffect(
 		() => {
 			if (currentMarker >= 0 && markersSelected.length > 0) {
-				const newIndex = markersSelected[currentMarker];
-				const newRow = Math.floor(newIndex / maxItemsPerRow);
-				const imageRowX = newRow * (IMAGE_HEIGHT / RESIZE_FACTOR * 2) + IMAGE_HEIGHT / RESIZE_FACTOR * 2 / 2;
-				document.getElementById('grid').scrollTo({
-					top: Math.max(0, imageRowX - height / 2 + 1 + IMAGE_HEIGHT / RESIZE_FACTOR * 2 * 1.5),
-					left: 0,
-					behavior: 'smooth'
-				});
+                console.log(markersSelected[currentMarker])
+				var [ newIndex, newId ] = markersSelected[currentMarker].split('-');
+				const imageRowX = newIndex * (IMAGE_HEIGHT / RESIZE_FACTOR + 4 + 20);
+				var el = document.getElementById('grid');
+				if (el) {
+							el.scrollTo({
+								top: imageRowX,
+								left: 0,
+								behavior: 'smooth'
+							})
+				}
+				document.getElementById('grid');
+
+				const column = Math.floor((newId + 4 / 3) * (IMAGE_WIDTH / RESIZE_FACTOR + 8));
+				el = document.getElementById('dategrid' + newIndex);
+				var newPos = Math.max(0, column);
+				if (el) {
+							el.scrollTo({
+								top: 0,
+								left: newPos,
+                                behavior: 'smooth'
+							})
+				}
+
 				window.addEventListener('mousedown', clickOutside);
 				window.addEventListener('touchstart', clickOutside);
 			}
@@ -179,21 +242,45 @@ const ImageGrid = ({
 					Click an event thumbnail to view all images.
 				</Typography>
 				<div id="grid" className={classes.grid}>
-					{scenes.map((scene, index) => (
-						<Suspense
-							key={scene.current[0]}
-							fallback={<div key={scene.current[0]} className={classes.gridCell} />}
+					{dates.map((date, index) => (
+						<Grid
+							className={classes.dategrid}
+							id={'dategrid' + index}
+							key={'dategrid' + index}
+							wrap="nowrap"
+							alignItems="center"
+							container
+							spacing={1}
 						>
-							{index < rendered && (
-								<Event
-									key={scene.current[0]}
-									setRef={setRef}
-									index={index}
-									scene={scene}
-									openEvent={openEvent}
-								/>
-							)}
-						</Suspense>
+							<Hidden position="start" />
+							{date[0].map((scene, id) => (
+								<Grid key={index + '-' + id} item>
+									<Suspense
+										key={scene.current[0]}
+										fallback={<div key={scene.current[0]} className={classes.gridCell} />}
+									>
+										<Thumbnail
+											key={scene.current[0]}
+											setRef={setRef}
+											index={index + '-' + id}
+											group={scene.current}
+											scale={1}
+											position="current"
+											openEvent={openEvent}
+											highlight={markersSelected.includes(index + '-' + id)}
+										/>
+										{/* <Event
+											key={scene.current[0]}
+											setRef={setRef}
+											index={index + '-' + id}
+											scene={scene}
+											openEvent={openEvent}
+										/> */}
+									</Suspense>
+								</Grid>
+							))}
+							<Hidden position="end" />
+						</Grid>
 					))}
 				</div>
 				<Popover

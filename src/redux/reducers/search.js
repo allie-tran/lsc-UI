@@ -1,12 +1,13 @@
 import {
 	GET_ALL_IMAGES,
-	SET_SCENE,
+	SET_MAP,
 	NEXT_SCENE,
 	CLEAR_NEXT_SCENE,
 	SET_BOUND,
 	SET_INFO,
 	SET_KEYWORDS,
-    SIMILAR
+    SIMILAR,
+    GET_GROUP
 } from '../actions/search';
 import axios from 'axios';
 
@@ -14,7 +15,7 @@ export const searchState = {
 	collection: new Promise((resolve, reject) => {
 		resolve({ data: { results: [] } });
 	}),
-	scenes: [],
+	dates: [],
 	nextSceneRespone: new Promise((resolve, reject) => {
 		resolve({ data: { timeline: [] } });
 	}),
@@ -24,6 +25,9 @@ export const searchState = {
     similarResponse: new Promise((resolve, reject) => {
 		resolve({ data: { images: [] } });
 	}),
+    groupResponse: new Promise((resolve, reject) => {
+		resolve({ data: { timeline: [] } });
+	})
 };
 
 var isEqual = require('lodash.isequal');
@@ -42,7 +46,7 @@ export default function(state = searchState, action) {
 				newInfo.expansion_score[keyword[0]] = keyword[1];
 			});
 			const response = axios.post(
-				'http://localhost:7999/api/image/',
+				'http://localhost:7999/api/date/',
 				{
 					query: {
 						before: '',
@@ -60,7 +64,7 @@ export default function(state = searchState, action) {
 			};
 		} else {
 			const response = axios.post(
-				'http://localhost:7999/api/image/',
+				'http://localhost:7999/api/date/',
 				{ query: action.query, gps_bounds: state.bounds },
 				{ headers: { 'Content-Type': 'application/json' } }
 			);
@@ -69,11 +73,11 @@ export default function(state = searchState, action) {
 				collection: response
 			};
 		}
-	} else if (action.type === SET_SCENE) {
-		if (!isEqual(state.scenes, action.scenes)) {
+	} else if (action.type === SET_MAP) {
+		if (!isEqual(state.dates, action.dates)) {
 			return {
 				...state,
-				scenes: action.scenes
+				dates: action.dates
 			};
 		}
 	} else if (action.type === NEXT_SCENE) {
@@ -97,7 +101,20 @@ export default function(state = searchState, action) {
 				resolve({ data: { timeline: [] } });
 			})
 		};
-	} else if (action.type === SET_INFO) {
+    } else if (action.type == GET_GROUP){
+        const response = axios.post(
+			'http://localhost:7999/api/timeline/group/',
+			{
+				date: action.date
+			},
+			{ headers: { 'Content-Type': 'application/json' } }
+		);
+        return {
+			...state,
+			groupResponse: response
+		};
+
+    } else if (action.type === SET_INFO) {
 		if (!isEqual(state.info, action.info)) {
 			return {
 				...state,

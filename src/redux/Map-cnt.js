@@ -6,7 +6,7 @@ import Map from '../components/Map'
 
 function mapStateToProps(state) {
     return {
-        scenes: state.search.scenes,
+        dates: state.search.dates,
         selected: state.select.selected
     }
 }

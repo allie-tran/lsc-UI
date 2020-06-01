@@ -50,7 +50,7 @@ var subIcon = L.Icon.extend({
 	}
 });
 
-const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound, selectMarkers }) => {
+const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound, selectMarkers }) => {
 	const classes = useStyles({ open });
 	const [ bounds, setBounds ] = useState(null);
 
@@ -100,7 +100,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 	useEffect(
 		() => {
 			markerGroup.current.clearLayers();
-			if (scenes.length > 0) {
+			if (dates.length > 0) {
 				let first_location = null;
 				if (clustersMain.current !== null) {
 					clustersMain.current.clearLayers();
@@ -113,40 +113,46 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 					animateAddingMarkers: true,
 					singleMarkerMode: true
 				});
-
-				scenes.forEach((scene, index) => {
-					if (scene.gps !== null) {
-						if (first_location === null) {
-							first_location = [
-								scene.gps[1][0].lat.toPrecision(PRECISION),
-								scene.gps[1][0].lon.toPrecision(PRECISION)
-							];
-						}
-						var marker = L.marker(
-							[ scene.gps[1][0].lat.toPrecision(PRECISION), scene.gps[1][0].lon.toPrecision(PRECISION) ],
-							{
-								icon: new subIcon({ index: index }),
-								attribution: index.toString()
+				dates.forEach((date, id) => {
+					date[0].forEach((scene, index) => {
+						if (scene.gps !== null) {
+							if (first_location === null) {
+								first_location = [
+									scene.gps[1][0].lat.toPrecision(PRECISION),
+									scene.gps[1][0].lon.toPrecision(PRECISION)
+								];
 							}
-						);
-						marker.on('click', (e) => selectMarkers([ parseInt(e.target.options.attribution) ]));
-						clustersMain.current.addLayer(marker);
-					}
+							var marker = L.marker(
+								[
+									scene.gps[1][0].lat.toPrecision(PRECISION),
+									scene.gps[1][0].lon.toPrecision(PRECISION)
+								],
+								{
+									icon: new subIcon({ index: index }),
+									attribution: id + '-' + index
+								}
+							);
+							marker.on('click', (e) => selectMarkers([ e.target.options.attribution ]));
+							clustersMain.current.addLayer(marker);
+						}
+					});
 				});
 				map.current.addLayer(clustersMain.current);
 				clustersMain.current.on('clusterclick', function(a) {
-					selectMarkers(a.layer.getAllChildMarkers().map((marker) => parseInt(marker.getAttribution())));
+					selectMarkers(a.layer.getAllChildMarkers().map((marker) => marker.getAttribution()));
 				});
 				map.current.fitBounds(clustersMain.current.getBounds());
 			}
 			// eslint-disable-next-line
 		},
-		[ scenes, selectMarkers ]
+		[ dates, selectMarkers ]
 	);
 
 	useEffect(
 		() => {
 			if (selected !== null) {
+				var [ index, id ] = selected.split('-');
+				const date_selected = dates[index][0][id];
 				if (pathLine.current !== null) {
 					pathLine.current.clearLayers();
 				} else {
@@ -163,9 +169,9 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 				let i;
 				let polyline;
 				for (i = 0; i < 3; i++) {
-					if (scenes[selected].gps[i] !== null && scenes[selected].gps[i].length > 0) {
+					if (date_selected.gps[i] !== null && date_selected.gps[i].length > 0) {
 						if (path.length > 0) {
-							var gps = scenes[selected].gps[i][0];
+							var gps = date_selected.gps[i][0];
 							path.push([ gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION) ]);
 							polyline = L.polyline(path, {
 								color: color[i - 1],
@@ -177,7 +183,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 							path = [];
 						}
 						path.push(
-							...scenes[selected].gps[i].map((gps) => [
+							...date_selected.gps[i].map((gps) => [
 								gps.lat.toPrecision(PRECISION),
 								gps.lon.toPrecision(PRECISION)
 							])
@@ -196,7 +202,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 					path = [];
 				}
 
-				scenes[selected].gps_path.forEach((gps) => {
+				date_selected.gps_path.forEach((gps) => {
 					fullPath.push([ gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION) ]);
 				});
 
@@ -229,8 +235,8 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 				// eslint-disable-next-line
 				var marker = L.marker(
 					[
-						scenes[selected].gps[1][0].lat.toPrecision(PRECISION),
-						scenes[selected].gps[1][0].lon.toPrecision(PRECISION)
+						date_selected.gps[1][0].lat.toPrecision(PRECISION),
+						date_selected.gps[1][0].lon.toPrecision(PRECISION)
 					],
 					{
 						icon: mainIcon,
@@ -247,7 +253,7 @@ const Map = ({ open, submitRegion, scenes, selected, changeStatus, setQueryBound
 			}
 			// eslint-disable-next-line
 		},
-		[ selected, scenes ]
+		[ selected, dates ]
 	);
 
 	useEffect(
