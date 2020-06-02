@@ -86,7 +86,7 @@ const ImageGrid = ({
 	setQueryBound,
 	resetSelection,
 	setQueryInfo,
-	openEvent
+	openEvent, saveResponse, setSaved
 }) => {
 	const classes = gridStyles({ open, height });
 	const [ dates, setDates ] = useState([]);
@@ -169,6 +169,36 @@ const ImageGrid = ({
 		}, // eslint-disable-next-line
 		[ collection ]
 	);
+
+    useEffect(
+        () => {
+            if (saveResponse) {
+                trackPromise(saveResponse.then(res => {
+                    if (res.data.saved) {
+                        setSaved(res.data.saved.map(image=>[image]))
+                        const newDates = res.data.results;
+						var isEqual = require('lodash.isequal');
+						if (!isEqual(dates, newDates)) {
+							setDates(newDates);
+							setMap(newDates);
+							setRendered(4);
+							setQueryBound(null);
+                            var query = res.data.query
+                            if (query.info) {
+                                setQueryInfo(query.info);
+                                document.getElementById("Before:").value = query.before;
+                                document.getElementById("Before:-when").value = query.beforewhen;
+                                document.getElementById("Find:").value = query.current
+                                document.getElementById("After:").value = query.after
+                                document.getElementById("After:-when").value = query.afterwhen
+                            }
+							// highlightRef.current = []
+						}
+                    }
+                }))
+            }
+        }, [saveResponse]
+    )
 
 	useEffect(
 		() => {

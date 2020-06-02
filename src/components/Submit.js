@@ -21,6 +21,10 @@ const useStyles = makeStyles((theme) => ({
 	},
 	button: {
 		margin: 'auto'
+	},
+    timer: {
+		margin: 'auto',
+        color: '#FF6584'
 	}
 }));
 
@@ -110,7 +114,7 @@ const SubmitSection = ({
 			<Button onClick={exportCSV} className={classes.button}>
 				Export
 			</Button>
-			<Button disabled={finished} onClick={toggle} className={classes.button}>
+			<Button disabled={finished} onClick={toggle} className={classes.timer}>
 				{seconds}s
 			</Button>
 		</div>

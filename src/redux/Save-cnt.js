@@ -8,7 +8,6 @@ function mapStateToProps(state) {
 		saved: state.save.saved,
 		info: state.search.info,
 		keywords: state.search.keywords,
-        saveResponse: state.save.saveResponse
 	};
 }
 

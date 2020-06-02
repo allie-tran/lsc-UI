@@ -9,12 +9,13 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        width: "100%",
+        width: props => props.type === "Find:" ? "95%": 0,
         height: 100,
         "& p": {
             color: "#F4CDD2",
             padding: 5
-        }
+        },
+        visibility: props => props.type === "Find:" ? "visible": "hidden"
     },
     searchBar: {
         marginLeft: theme.spacing(1),

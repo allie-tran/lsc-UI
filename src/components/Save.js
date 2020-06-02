@@ -72,7 +72,8 @@ const useStyles = makeStyles((theme) => ({
 		alignItems: 'center',
 		alignContent: 'space-between',
 		margin: 'auto',
-		color: '#CCCCCC'
+		color: '#CCCCCC',
+        flexDirection: 'column'
 	},
 	text: {
 		color: '#CCCCCC',
@@ -131,14 +132,14 @@ var isEqual = require('lodash.isequal');
 // 	);
 // };
 
-const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, openEvent, saveResponse, setSaved }) => {
+const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, openEvent }) => {
 	const classes = useStyles({ open });
 	const [ tabValue, setTabValue ] = useState(1);
 
 	useEffect(
 		() => {
 			var isEqual = require('lodash.isequal');
-			if (info !== null) {
+			if (info && info.expansion_score) {
 				var newKeywords = Object.keys(info.expansion_score).map((keyword, index) => [
 					keyword,
 					info.expansion_score[keyword]
@@ -151,7 +152,7 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 				}
 			}
 		},
-		[ info, setKeywords, keywords ]
+		[ info ]
 	);
 
 	const increase = (index) => {
@@ -201,18 +202,6 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 		[ saved ]
 	);
 
-    useEffect(
-        () => {
-            if (saveResponse) {
-                saveResponse.then(res => {
-                    if (res.data.saved) {
-                        setSaved(res.data.saved.map(image=>[image]))
-                    }
-                })
-            }
-        }, [saveResponse]
-    )
-
 	keywords.forEach((keyword, index) => {
 		var el = document.getElementById('kw' + keyword[0]);
 		if (el !== null) {
@@ -231,7 +220,7 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 				<StyledTab icon={<BookmarkRoundedIcon />} label="Saved scenes" />
 			</StyledTabs>
 			<div className={classes.imageContainer} id="save-section">
-				{tabValue === 0 && info !== null ? (
+				{tabValue === 0 && info ? (
 					<div className={classes.textList}>
 						{info.weekdays.length > 0 ? <Typography> Weekday: {info.weekdays}</Typography> : null}
 						<Typography>

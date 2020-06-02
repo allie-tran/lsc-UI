@@ -5,7 +5,7 @@ import Page from '../components/Page';
 
 const mapDispatchToProps = {
     getSimilar,
-    getGroups, getNextScenes
+    getGroups, getNextScenes,
 };
 
 export default connect(null, mapDispatchToProps)(Page);
