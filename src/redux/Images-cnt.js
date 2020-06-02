@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { setMap, setQueryBound, setQueryInfo, clearNextEvents } from './actions/search';
+import { setMap, setQueryBound, setQueryInfo, clearNextEvents, getSimilar } from './actions/search';
 import { resetSelection } from './actions/select';
 
 import ImageGrid from '../components/Images';
@@ -17,7 +17,8 @@ const mapDispatchToProps = {
 	setQueryBound,
 	resetSelection,
 	setQueryInfo,
-    clearNextEvents
+    clearNextEvents,
+    getSimilar
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ImageGrid);

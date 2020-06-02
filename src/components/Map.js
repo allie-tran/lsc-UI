@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import KeyboardArrowLeftRoundedIcon from '@material-ui/icons/KeyboardArrowLeftRounded';
-import KeyboardArrowRightRoundedIcon from '@material-ui/icons/KeyboardArrowRightRounded';
-import IconButton from '@material-ui/core/IconButton';
+// import KeyboardArrowLeftRoundedIcon from '@material-ui/icons/KeyboardArrowLeftRounded';
+// import KeyboardArrowRightRoundedIcon from '@material-ui/icons/KeyboardArrowRightRounded';
+// import IconButton from '@material-ui/core/IconButton';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet-polylinedecorator';
@@ -50,7 +50,7 @@ var subIcon = L.Icon.extend({
 	}
 });
 
-const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound, selectMarkers }) => {
+const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound, selectMarkers, gpsResponse }) => {
 	const classes = useStyles({ open });
 	const [ bounds, setBounds ] = useState(null);
 
@@ -95,11 +95,14 @@ const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound,
 		// 	id: 'mapbox.streets',
 		// 	accessToken: 'pk.eyJ1IjoiYWxsaWV0cmFuIiwiYSI6ImNrM2Jpa3hpZjBicmwzaHA4NjljMno1YzYifQ.WRazWdYG2T1hK6H5EnKnYw'
 		// }).addTo(map.current);
+		pane.current = map.current.createPane('pathPane');
+		map.current.getPane('pathPane').style.zIndex = 625;
+		map.current.getPane('pathPane').style.pointerEvents = 'none';
+		pathLine.current = new L.LayerGroup([]);
 	}, []);
 
 	useEffect(
 		() => {
-			markerGroup.current.clearLayers();
 			if (dates.length > 0) {
 				let first_location = null;
 				if (clustersMain.current !== null) {
@@ -114,8 +117,8 @@ const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound,
 					singleMarkerMode: true
 				});
 				dates.forEach((date, id) => {
-					date[0].forEach((scene, index) => {
-						if (scene.gps !== null) {
+					date.forEach((scene, index) => {
+						if (scene !== null && scene.gps !== null) {
 							if (first_location === null) {
 								first_location = [
 									scene.gps[1][0].lat.toPrecision(PRECISION),
@@ -143,8 +146,8 @@ const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound,
 				});
 				map.current.fitBounds(clustersMain.current.getBounds());
 			}
-			// eslint-disable-next-line
-		},
+			return () => markerGroup.current.clearLayers();
+		}, // eslint-disable-next-line
 		[ dates, selectMarkers ]
 	);
 
@@ -152,17 +155,8 @@ const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound,
 		() => {
 			if (selected !== null) {
 				var [ index, id ] = selected.split('-');
-				const date_selected = dates[index][0][id];
-				if (pathLine.current !== null) {
-					pathLine.current.clearLayers();
-				} else {
-					if (pane.current === null) {
-						pane.current = map.current.createPane('pathPane');
-						map.current.getPane('pathPane').style.zIndex = 625;
-						map.current.getPane('pathPane').style.pointerEvents = 'none';
-					}
-					pathLine.current = new L.LayerGroup([]);
-				}
+				const date_selected = dates[index][id];
+				pathLine.current.clearLayers();
 				const color = [ 'rgb(255, 101, 132)', 'rgb(108, 99, 255)', 'rgb(33, 33, 33)' ];
 				let path = [];
 				let fullPath = [];
@@ -251,9 +245,34 @@ const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound,
 
 				map.current.addLayer(pathLine.current);
 			}
-			// eslint-disable-next-line
-		},
+			return () => pathLine.current.clearLayers();
+		}, // eslint-disable-next-line
 		[ selected, dates ]
+	);
+
+	useEffect(
+		() => {
+			if (gpsResponse) {
+				pathLine.current.clearLayers();
+				gpsResponse.then((res) => {
+					var gps = res.data.gps;
+					if (gps !== null) {
+						var marker = L.marker([ gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION) ], {
+							icon: mainIcon,
+							pane: pane.current,
+							interactive: false
+						}).addTo(pathLine.current);
+						// Zooming
+						map.current.setView(marker.getLatLng());
+						// map.current.setView(marker.getLatLng());
+						map.current.addLayer(pathLine.current);
+					}
+				});
+			}
+
+			return () => pathLine.current.clearLayers();
+		}, // eslint-disable-next-line
+		[ gpsResponse ]
 	);
 
 	useEffect(
@@ -274,21 +293,17 @@ const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound,
 		},
 		[ bounds, setQueryBound ]
 	);
-
-	const OpenOrClose = () => changeStatus(!open);
-
-	return [
-		<div key="map" id="map" className={classes.map} onKeyPress={handleKeyPress} />,
-		<IconButton key="icon" size="small" className={classes.icon} onClick={OpenOrClose}>
-			{open ? (
-				<KeyboardArrowRightRoundedIcon className={classes.insideIcon} />
-			) : (
-				<KeyboardArrowLeftRoundedIcon className={classes.insideIcon} />
-			)}
-		</IconButton>
-	];
+    return <div key="map" id="map" className={classes.map} onKeyPress={handleKeyPress} />
+	// return [
+	// 	<div key="map" id="map" className={classes.map} onKeyPress={handleKeyPress} />,
+	// 	// <IconButton key="icon" size="small" className={classes.icon} onClick={changeStatus}>
+	// 	// 	{open ? (
+	// 	// 		<KeyboardArrowRightRoundedIcon className={classes.insideIcon} />
+	// 	// 	) : (
+	// 	// 		<KeyboardArrowLeftRoundedIcon className={classes.insideIcon} />
+	// 	// 	)}
+	// 	// </IconButton>
+	// ];
 };
-
-Map.whyDidYouRender = true;
 
 export default Map;

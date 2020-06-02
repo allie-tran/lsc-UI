@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { getNextScenes, getSimilar, getGroups } from './actions/search'
+import { getNextScenes, getSimilar, getGroups, getGPS } from './actions/search'
 import EventPopover from '../components/EventPopover'
 
 
@@ -12,7 +12,8 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
     getNextScenes,
     getSimilar,
-    getGroups
+    getGroups,
+    getGPS
 };
 
 export default connect(

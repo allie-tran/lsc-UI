@@ -7,27 +7,21 @@ import {
 	SET_INFO,
 	SET_KEYWORDS,
     SIMILAR,
-    GET_GROUP
+    GET_GROUP,
+    GET_GPS
 } from '../actions/search';
 import axios from 'axios';
 
 export const searchState = {
-	collection: new Promise((resolve, reject) => {
-		resolve({ data: { results: [] } });
-	}),
+	collection: null,
 	dates: [],
-	nextSceneRespone: new Promise((resolve, reject) => {
-		resolve({ data: { timeline: [] } });
-	}),
+	nextSceneRespone: null,
 	bounds: null,
 	info: null,
 	keywords: [],
-    similarResponse: new Promise((resolve, reject) => {
-		resolve({ data: { images: [] } });
-	}),
-    groupResponse: new Promise((resolve, reject) => {
-		resolve({ data: { timeline: [] } });
-	})
+    similarResponse: null,
+    groupResponse: null,
+    gpsResponse: null,
 };
 
 var isEqual = require('lodash.isequal');
@@ -101,7 +95,7 @@ export default function(state = searchState, action) {
 				resolve({ data: { timeline: [] } });
 			})
 		};
-    } else if (action.type == GET_GROUP){
+    } else if (action.type === GET_GROUP){
         const response = axios.post(
 			'http://localhost:7999/api/timeline/group/',
 			{
@@ -113,8 +107,20 @@ export default function(state = searchState, action) {
 			...state,
 			groupResponse: response
 		};
-
-    } else if (action.type === SET_INFO) {
+    } else if (action.type === GET_GPS){
+        const response = axios.post(
+			'http://localhost:7999/api/gps/',
+			{
+				image: action.image
+			},
+			{ headers: { 'Content-Type': 'application/json' } }
+		);
+        return {
+			...state,
+			gpsResponse: response
+		};
+    }
+    else if (action.type === SET_INFO) {
 		if (!isEqual(state.info, action.info)) {
 			return {
 				...state,

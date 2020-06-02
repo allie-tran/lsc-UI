@@ -131,7 +131,7 @@ var isEqual = require('lodash.isequal');
 // 	);
 // };
 
-const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords }) => {
+const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, openEvent, saveResponse, setSaved }) => {
 	const classes = useStyles({ open });
 	const [ tabValue, setTabValue ] = useState(1);
 
@@ -201,6 +201,18 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords }) 
 		[ saved ]
 	);
 
+    useEffect(
+        () => {
+            if (saveResponse) {
+                saveResponse.then(res => {
+                    if (res.data.saved) {
+                        setSaved(res.data.saved.map(image=>[image]))
+                    }
+                })
+            }
+        }, [saveResponse]
+    )
+
 	keywords.forEach((keyword, index) => {
 		var el = document.getElementById('kw' + keyword[0]);
 		if (el !== null) {
@@ -257,12 +269,13 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords }) 
 						{saved.length % 2 !== 0 ? <Hidden key="Hidden" /> : null}
 						{saved.map((scene, index) => (
 							<Thumbnail
-								key={'saved:' + scene[0]}
+								key={'saved:' + scene[0] + index}
 								saved
 								group={scene}
 								scale={0.7}
 								index={index}
 								last={index === 0}
+                                openEvent={openEvent}
 							/>
 						))}
 					</div>
@@ -285,5 +298,7 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords }) 
 	// 	);
 	// }
 };
+
+SaveSection.whyDidYouRender=true
 
 export default SaveSection;

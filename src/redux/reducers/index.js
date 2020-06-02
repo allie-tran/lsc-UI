@@ -2,7 +2,8 @@ import { combineReducers } from 'redux';
 import search, { searchState } from './search';
 import save from './save';
 import select, { selectState } from './select';
-import { NEXT_QUERY, EXPORT_SAVED } from '../actions/submit';
+import { NEXT_QUERY, EXPORT_SAVED, START_TIMER, DISABLE } from '../actions/submit';
+import axios from 'axios';
 
 const appReducer = combineReducers({
 	search,
@@ -19,30 +20,21 @@ const rootReducer = (state, action) => {
 		document.getElementById('After:-when').value = null;
 	}
 	if (action.type === NEXT_QUERY) {
-		console.log(state.save.finished);
-		if (state.save.finished.includes(false)) {
-			var newQuery = state.save.currentQuery + 1;
-			if (newQuery > state.save.finished.length) {
-				newQuery = 1;
-			}
-            console.log(newQuery);
-			while (state.save.finished[newQuery - 1]) {
-				newQuery += 1;
-				console.log(newQuery);
-				if (newQuery > state.save.finished.length) {
-					newQuery = 1;
-				}
-			}
-			console.log(newQuery);
-			return {
-				save: {
-					currentQuery: newQuery,
-					saved: state.save.saved.length === 0 ? state.save.saved : [],
-					finished: state.save.finished
-				},
-				search: searchState,
-				select: selectState
-			};
+        var newQuery = state.save.currentQuery + 1;
+        if (newQuery > 5) {
+            newQuery = 1;
+        }
+
+        return {
+            save: {
+                ...state.save,
+                currentQuery: newQuery,
+                saved: state.save.saved.length === 0 ? state.save.saved : [],
+                timerRunning: false,
+                saveResponse: axios.post('http://localhost:7999/api/getsaved?query_id=' + newQuery),
+            },
+            search: searchState,
+            select: selectState
 		}
 	} else if (action.type === EXPORT_SAVED) {
 		var currentQuery = state.save.currentQuery;
@@ -51,17 +43,31 @@ const rootReducer = (state, action) => {
 		}
 		return {
 			save: {
+                ...state.save,
 				currentQuery: state.save.currentQuery,
 				saved: state.save.saved.length === 0 ? state.save.saved : [],
-				finished: [
-					...state.save.finished.slice(0, currentQuery - 1),
-					true,
-					...state.save.finished.slice(currentQuery)
-				]
+                timerRunning: false,
+                saveResponse: null
 			},
 			search: searchState,
 			select: selectState
 		};
+	}
+    else if (action.type === START_TIMER) {
+		return {
+            ...state,
+            save: {...state.save,
+                    timerRunning: true}
+        }
+	}
+    else if (action.type === DISABLE) {
+        var newFinished = state.save.finished.slice()
+        newFinished[state.save.currentQuery - 1] = true
+		return {
+            ...state,
+            save: {...state.save,
+                    finished: newFinished}
+        }
 	}
 	return state;
 };

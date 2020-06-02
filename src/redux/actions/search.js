@@ -7,6 +7,7 @@ export const SET_BOUND = 'SET_BOUND';
 export const SET_INFO = 'SET_INFO';
 export const SET_KEYWORDS = 'SET_KEYWORDS';
 export const SIMILAR = 'SIMILAR'
+export const GET_GPS = 'GET_GPS'
 
 export function getImages(query = {}, ignoreInfo=false) {
 	return { type: GET_ALL_IMAGES, query, ignoreInfo };
@@ -32,6 +33,13 @@ export function setQueryBound(bounds) {
 	return {
 		type: SET_BOUND,
 		bounds
+	};
+}
+
+export function getGPS(image) {
+	return {
+		type: GET_GPS,
+		image
 	};
 }
 

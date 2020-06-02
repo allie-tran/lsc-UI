@@ -7,7 +7,8 @@ import Map from '../components/Map'
 function mapStateToProps(state) {
     return {
         dates: state.search.dates,
-        selected: state.select.selected
+        selected: state.select.selected,
+        gpsResponse: state.search.gpsResponse
     }
 }
 
