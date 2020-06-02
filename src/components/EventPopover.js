@@ -86,19 +86,29 @@ const EventPopover = memo(
 				console.log('rerendering', similar);
 				window.addEventListener('keydown', listener);
 				if (!similar) {
-					date.current = currentDisplay[0].split('/')[0];
-					getGroups(date.current);
-					getNextScenes(currentDisplay, 'current', 'full');
+					date.current = group[0].split('/')[0];
 					fetchedScenes.current = false;
 					fetchedGroups.current = false;
 				} else {
 					fetchedScenes.current = false;
+                    fetchedGroups.current = true;
+                    if (groups) {
+                        setGroups(null)
+                    }
 				}
+                if (!isEqual(currentDisplay, group)){
+                        setCurrentDisplay(group)
+                    }
 				return () => {
 					window.removeEventListener('keydown', listener);
+                    fetchedScenes.current = true;
+					fetchedGroups.current = true;
+                    setGroups(null)
+                    setCurrentDisplay(null)
+                    setNextScenes(null)
 				};
 			},
-			[ similar ]
+			[ similar, group ]
 		);
 
 		useEffect(
@@ -218,7 +228,6 @@ const EventPopover = memo(
 						if (!fetchedScenes.current && res.data.scenes !== undefined) {
 							if (!isEqual(res.data.scenes, nextScenes)) {
 								setNextScenes(res.data.scenes);
-								fetchedScenes.current = false;
 							}
 							if (!currentDisplay.includes(res.data.scenes[0][0])) {
 								setCurrentDisplay(res.data.scenes[0]);
@@ -245,7 +254,7 @@ const EventPopover = memo(
 					Event images
 				</Typography>
 				<div wrap="nowrap" className={classes.grid}>
-					{currentDisplay.map((image, index) => (
+					{currentDisplay? currentDisplay.map((image, index) => (
 						<Image
 							key={'detailed' + image}
 							image={image}
@@ -254,7 +263,7 @@ const EventPopover = memo(
 							openEvent={openEvent}
 							similar={similar}
 						/>
-					))}
+					)):null}
 				</div>
 				<div className={classes.buttonline}>
 					<Button className={classes.button} onClick={() => ButtonPress('before')}>

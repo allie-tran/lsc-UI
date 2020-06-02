@@ -19,29 +19,32 @@ const popoverStyles = makeStyles((theme) => ({
 
 var isEqual = require('lodash.isequal');
 
-const Page = ({ getSimilar }) => {
+const Page = ({ getSimilar, getGroups, getNextScenes }) => {
 	const WIDTH = 1920; // 1920, 1443
 	const HEIGHT = 945; // 945, 700
 	const classes = popoverStyles();
 	// const [ open, setOpen ] = useState(true); // closed, open
 	const [ openPopover, setOpenPopover ] = useState(false);
 	const [ similar, setSimilar ] = useState(false);
-	const [ group, setGroup ] = useState([]);
+	const [ group, setGroup ] = useState(null);
 	const [ position, setPosition ] = useState(false);
 
 	const openEvent = useCallback((event, newSimilar, newGroup, newPosition) => {
-		if (newSimilar !== similar) {
-			setSimilar(newSimilar);
-		}
+        setSimilar(newSimilar);
 		if (newSimilar) {
 			getSimilar(newGroup[0]);
 		}
+        else {
+            getGroups(newGroup[0].split('/')[0]);
+            getNextScenes(newGroup, 'current', 'full');
+        }
 		if (!isEqual(newGroup, group)) {
 			setGroup(newGroup);
 		}
+
 		setPosition(newPosition);
 		setOpenPopover(true); // eslint-disable-next-line
-	}, []);
+	}, [group]);
 
 	const closeEvent = useCallback(() => {
 		setOpenPopover(false);

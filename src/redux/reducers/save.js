@@ -9,7 +9,7 @@ import axios from 'axios';
 export const saveState = {
     saved: [],
     currentQuery: 1,
-	finished: [ ...Array(5) ].map((i) => false),
+	finished: [ ...Array(10) ].map((i) => false),
     timerRunning: false,
     saveResponse: null,
 };

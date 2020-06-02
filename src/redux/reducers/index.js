@@ -21,7 +21,7 @@ const rootReducer = (state, action) => {
 	}
 	if (action.type === NEXT_QUERY) {
         var newQuery = state.save.currentQuery + 1;
-        if (newQuery > 5) {
+        if (newQuery > 10) {
             newQuery = 1;
         }
 
@@ -37,15 +37,10 @@ const rootReducer = (state, action) => {
             select: selectState
 		}
 	} else if (action.type === EXPORT_SAVED) {
-		var currentQuery = state.save.currentQuery;
-		if (currentQuery === undefined) {
-			currentQuery = 0;
-		}
 		return {
 			save: {
                 ...state.save,
 				currentQuery: state.save.currentQuery,
-				saved: state.save.saved.length === 0 ? state.save.saved : [],
                 timerRunning: false,
                 saveResponse: null
 			},

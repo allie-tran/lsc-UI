@@ -29,7 +29,7 @@ const gridStyles = makeStyles((theme) => ({
 		justifyContent: 'center',
 		backgroundImage: 'linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.15) 50%)',
 		backgroundRepeat: 'repeat',
-		backgroundSize: `100px ${IMAGE_HEIGHT / RESIZE_FACTOR * 4}px`,
+		backgroundSize: `148px 396px`,
 		backgroundAttachment: 'local',
 		overflow: 'auto'
 	},
@@ -41,8 +41,7 @@ const gridStyles = makeStyles((theme) => ({
 	dategrid: {
 		width: '96%',
 		overflow: 'auto',
-		padding: 10,
-		marginTop: 50,
+		padding: "35px 10px 35px 10px",
 		display: 'flex',
 		alignItems: 'center',
 		flexDirection: 'row'
@@ -123,7 +122,7 @@ const ImageGrid = ({
 				if (rendered < newIndex) {
 					setRendered(newIndex + 4);
 				} else {
-					setTimeout(() => setRendered(Math.max(rendered + 4, dates.length), 500));
+					setTimeout(() => setRendered(Math.min(rendered + 2, dates.length), 2000));
 				}
 			}
 		}, // eslint-disable-next-line
@@ -159,7 +158,7 @@ const ImageGrid = ({
 						if (!isEqual(dates, newDates)) {
 							setDates(newDates);
 							setMap(newDates);
-							setRendered(1);
+							setRendered(4);
 							setQueryBound(null);
 							setQueryInfo(res.data.info);
 							// highlightRef.current = []
@@ -175,7 +174,7 @@ const ImageGrid = ({
 		() => {
 			if (currentMarker >= 0 && markersSelected.length > 0) {
 				var [ newIndex, newId ] = markersSelected[currentMarker].split('-');
-				const imageRowX = newIndex * (IMAGE_HEIGHT / RESIZE_FACTOR + 4 + 20);
+				const imageRowX = newIndex * (IMAGE_HEIGHT / RESIZE_FACTOR + 70);
 				var el = document.getElementById('grid');
 				if (el) {
 					el.scrollTo({
