@@ -24,7 +24,6 @@ const rootReducer = (state, action) => {
         if (newQuery > 10) {
             newQuery = 1;
         }
-
         return {
             save: {
                 ...state.save,
@@ -33,8 +32,8 @@ const rootReducer = (state, action) => {
                 timerRunning: false,
                 saveResponse: axios.post('http://localhost:7999/api/getsaved?query_id=' + newQuery),
             },
-            search: searchState,
-            select: selectState
+            search: {...searchState},
+            select: {...selectState}
 		}
 	} else if (action.type === EXPORT_SAVED) {
 		return {
@@ -44,8 +43,8 @@ const rootReducer = (state, action) => {
                 timerRunning: false,
                 saveResponse: null
 			},
-			search: searchState,
-			select: selectState
+			search: {...searchState},
+            select: {...selectState}
 		};
 	}
     else if (action.type === START_TIMER) {

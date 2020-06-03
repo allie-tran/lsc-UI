@@ -8,7 +8,8 @@ function mapStateToProps(state) {
     return {
         dates: state.search.dates,
         selected: state.select.selected,
-        gpsResponse: state.search.gpsResponse
+        gpsResponse: state.search.gpsResponse,
+        stateBounds: state.search.bounds
     }
 }
 

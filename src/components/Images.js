@@ -160,7 +160,7 @@ const ImageGrid = ({
 							setDates(newDates);
 							setMap(newDates);
 							setRendered(newDates.length);
-							setQueryBound(null);
+							// setQueryBound(null);
 							setQueryInfo(res.data.info);
 							// highlightRef.current = []
 						}
@@ -183,7 +183,7 @@ const ImageGrid = ({
 							setDates(newDates);
 							setMap(newDates);
 							setRendered(newDates.length);
-							setQueryBound(null);
+							setQueryBound(res.data.gps_bounds);
                             var query = res.data.query
                             if (query.info) {
                                 setQueryInfo(query.info);

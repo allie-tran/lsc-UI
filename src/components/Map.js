@@ -50,9 +50,8 @@ var subIcon = L.Icon.extend({
 	}
 });
 
-const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound, selectMarkers, gpsResponse }) => {
+const Map = ({ stateBounds, open, submitRegion, dates, selected, changeStatus, setQueryBound, selectMarkers, gpsResponse }) => {
 	const classes = useStyles({ open });
-	const [ bounds, setBounds ] = useState(null);
 
 	const map = useRef(null);
 	const markerGroup = useRef(null);
@@ -71,7 +70,7 @@ const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound,
 
 		map.current.on('areaselected', (e) => {
 			map.current.fitBounds(e.bounds, { minZoom: map.current._zoom });
-			setBounds(e.bounds.toBBoxString().split(','));
+			setQueryBound(e.bounds.toBBoxString().split(','));
 		});
 
 		// var Stadia_AlidadeSmoothDark = L.tileLayer(
@@ -278,20 +277,17 @@ const Map = ({ open, submitRegion, dates, selected, changeStatus, setQueryBound,
 	useEffect(
 		() => {
 			// map.current.setView(center, zoom);
-			if (bounds === null) {
-				return;
-			}
-			setQueryBound(bounds);
-			if (boundLine.current !== null) {
-				map.current.removeLayer(boundLine.current);
-			}
-			boundLine.current = L.rectangle(
-				[ [ parseFloat(bounds[3]), parseFloat(bounds[0]) ], [ parseFloat(bounds[1]), parseFloat(bounds[2]) ] ],
-				{ color: '#ff7800', weight: 1, fill: false }
-			).addTo(map.current);
-			// eslint-disable-next-line
+			if (stateBounds){
+                boundLine.current = L.rectangle(
+                    [ [ parseFloat(stateBounds[3]), parseFloat(stateBounds[0]) ], [ parseFloat(stateBounds[1]), parseFloat(stateBounds[2]) ] ],
+                    { color: '#ff7800', weight: 1, fill: false }
+                ).addTo(map.current);
+                }
+            else if (boundLine.current) {
+                map.current.removeLayer(boundLine.current)
+            }
 		},
-		[ bounds, setQueryBound ]
+		[ stateBounds ]
 	);
     return <div key="map" id="map" className={classes.map} onKeyPress={handleKeyPress} />
 	// return [
