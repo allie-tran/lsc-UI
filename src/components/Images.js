@@ -111,23 +111,24 @@ const ImageGrid = ({
 		[ open ]
 	);
 
-	useEffect(
-		() => {
-			if (markersSelected[currentMarker] !== undefined) {
-				var [ newIndex, newId ] = markersSelected[currentMarker].split('-');
-			} else {
-				newIndex = -1;
-			}
-			if (rendered < dates.length) {
-				if (rendered < newIndex) {
-					setRendered(newIndex + 4);
-				} else {
-					setTimeout(() => setRendered(Math.min(rendered + 2, dates.length), 2000));
-				}
-			}
-		}, // eslint-disable-next-line
-		[ rendered, currentMarker ]
-	);
+	// useEffect(
+	// 	() => {
+    //         console.log("update rendering", rendered)
+	// 		if (markersSelected[currentMarker] !== undefined) {
+	// 			var [ newIndex, newId ] = markersSelected[currentMarker].split('-');
+	// 		} else {
+	// 			newIndex = -1;
+	// 		}
+	// 		if (rendered < dates.length) {
+	// 			if (rendered < newIndex) {
+	// 				setRendered(newIndex + 4);
+	// 			}
+    //             setTimeout(() => setRendered(Math.min(rendered + 2, dates.length), 2000));
+	// 		}
+
+	// 	}, // eslint-disable-next-line
+	// 	[ rendered, currentMarker ]
+	// );
 
 	// useEffect(() => {
 	// 	dates.forEach((date, index) => {
@@ -158,7 +159,7 @@ const ImageGrid = ({
 						if (!isEqual(dates, newDates)) {
 							setDates(newDates);
 							setMap(newDates);
-							setRendered(4);
+							setRendered(newDates.length);
 							setQueryBound(null);
 							setQueryInfo(res.data.info);
 							// highlightRef.current = []
@@ -181,7 +182,7 @@ const ImageGrid = ({
 						if (!isEqual(dates, newDates)) {
 							setDates(newDates);
 							setMap(newDates);
-							setRendered(4);
+							setRendered(newDates.length);
 							setQueryBound(null);
                             var query = res.data.query
                             if (query.info) {

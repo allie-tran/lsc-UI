@@ -47,7 +47,9 @@ const popStyle = makeStyles((theme) => ({
 
 var isEqual = require('lodash.isequal');
 const areEqual = (prevProps, nextProps) => {
-	return isEqual(prevProps, nextProps);
+	return isEqual(prevProps.group, nextProps.group) && prevProps.position === nextProps.position && prevProps.similar === nextProps.similar &&
+            isEqual(prevProps.nextScenes, nextProps.nextScenes) && isEqual(prevProps.currentDisplay, nextProps.currentDisplay) && prevProps.highlight === nextProps.highlight && prevProps.highlightGroup === nextProps.highlightGroup &&
+            isEqual(prevProps.groups, nextProps.groups) && isEqual(prevProps.nextSceneRespone, nextProps.nextSceneRespone);
 };
 
 const EventPopover = memo(
@@ -63,7 +65,8 @@ const EventPopover = memo(
 		similar,
 		getGroups,
 		groupResponse,
-		getGPS
+		getGPS,
+        clearNextEvents
 	}) => {
 		const classes = popStyle();
 		const [ nextScenes, setNextScenes ] = useState(null);
@@ -81,6 +84,13 @@ const EventPopover = memo(
 				closeEvent();
 			}
 		};
+
+        useEffect(
+            () => {
+                return () => clearNextEvents()
+            }
+        )
+
 		useEffect(
 			() => {
 				console.log('rerendering', similar);
@@ -104,8 +114,10 @@ const EventPopover = memo(
                     fetchedScenes.current = true;
 					fetchedGroups.current = true;
                     setGroups(null)
-                    setCurrentDisplay(null)
+                    // console.log('set current display to null', res.data.timeline[index] )
+                    // setCurrentDisplay(null)
                     setNextScenes(null)
+                    clearNextEvents()
 				};
 			},
 			[ similar, group ]
@@ -118,25 +130,47 @@ const EventPopover = memo(
 						setHighlight(res.data.position);
 						setHighlightGroup(res.data.group);
 						if (!fetchedScenes.current) {
-							console.log(res.data);
+							console.log("next scene");
 							const index = res.data.position;
-							if (!isEqual(res.data.timeline, nextScenes)) {
+							if (!similar && !isEqual(res.data.timeline, nextScenes)) {
 								setNextScenes(res.data.timeline);
 								if (
 									changed &&
 									res.data.timeline[index] !== undefined &&
 									!isEqual(res.data.timeline[index], currentDisplay)
 								) {
+                                    // console.log('set current display', res.data.timeline[index] )
 									setCurrentDisplay(res.data.timeline[index]);
-									getGPS(currentDisplay[0]);
+									getGPS(res.data.timeline[index][0]);
 								}
-								fetchedScenes.current = true;
 							}
 						}
+                        fetchedScenes.current = true;
 					});
 				}
 			},
 			[ nextSceneRespone ]
+		);
+
+        useEffect(
+			() => {
+				if (similarResponse) {
+					similarResponse.then((res) => {
+                        console.log("similar")
+						if (similar && !fetchedScenes.current && res.data.scenes !== undefined) {
+							if (!isEqual(res.data.scenes, nextScenes)) {
+								setNextScenes(res.data.scenes);
+							}
+							if (currentDisplay && !currentDisplay.includes(res.data.scenes[0][0])) {
+								setCurrentDisplay(res.data.scenes[0]);
+							}
+							setHighlight(0);
+						}
+                        fetchedScenes.current = true;
+					});
+				}
+			},
+			[ similarResponse ]
 		);
 
 		useEffect(
@@ -144,12 +178,12 @@ const EventPopover = memo(
 				if (groupResponse) {
 					groupResponse.then((res) => {
 						if (!fetchedGroups.current) {
-							console.log(res.data);
+							console.log("group");
 							if (!isEqual(res.data.timeline, groups) && res.data.timeline) {
 								setGroups(res.data.timeline);
-								fetchedGroups.current = true;
 							}
 						}
+                        fetchedGroups.current = true;
 					});
 				}
 			},
@@ -220,26 +254,6 @@ const EventPopover = memo(
 			getNextScenes(currentDisplay, type, highlight);
 			fetchedScenes.current = false;
 		};
-
-		useEffect(
-			() => {
-				if (similarResponse) {
-					similarResponse.then((res) => {
-						if (!fetchedScenes.current && res.data.scenes !== undefined) {
-							if (!isEqual(res.data.scenes, nextScenes)) {
-								setNextScenes(res.data.scenes);
-							}
-							if (!currentDisplay.includes(res.data.scenes[0][0])) {
-								setCurrentDisplay(res.data.scenes[0]);
-							}
-							setHighlight(0);
-							fetchedScenes.current = true;
-						}
-					});
-				}
-			},
-			[ similarResponse ]
-		);
 
 		const revert = () => {
 			changed.current = false;

@@ -38,10 +38,7 @@ const Page = ({ getSimilar, getGroups, getNextScenes }) => {
             getGroups(newGroup[0].split('/')[0]);
             getNextScenes(newGroup, 'current', 'full');
         }
-		if (!isEqual(newGroup, group)) {
-			setGroup(newGroup);
-		}
-
+        setGroup(newGroup);
 		setPosition(newPosition);
 		setOpenPopover(true); // eslint-disable-next-line
 	}, [group]);

@@ -91,9 +91,8 @@ export default function(state = searchState, action) {
 	} else if (action.type === CLEAR_NEXT_SCENE) {
 		return {
 			...state,
-			nextSceneRespone: new Promise((resolve, reject) => {
-				resolve({ data: { timeline: [] } });
-			})
+			nextSceneRespone: null,
+            similarResponse: null
 		};
     } else if (action.type === GET_GROUP){
         const response = axios.post(

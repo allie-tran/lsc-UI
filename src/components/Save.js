@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 	imageContainer: {
 		width: '100%',
-		maxHeight: '47%',
+		maxHeight: '38%',
 		overflow: 'auto',
 		display: 'flex',
 		flexDirection: 'column',
