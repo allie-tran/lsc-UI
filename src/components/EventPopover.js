@@ -1,10 +1,16 @@
 import React, { useEffect, useState, useCallback, useRef, memo } from 'react';
+import { useDispatch, useSelector } from 'react-redux'
+
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Image from '../redux/Image-cnt';
+import LazyLoad from 'react-lazy-load';
+import { getNextScenes, getGPS, clearNextEvents, getSimilar} from '../redux/actions/search'
+
+const IMAGE_HEIGHT = 768;
 
 const IMAGE_WIDTH = 1024;
 const RESIZE_FACTOR = 6;
@@ -20,7 +26,8 @@ const popStyle = makeStyles((theme) => ({
 		padding: 10
 	},
 	grid: {
-		overflow: 'auto',
+		overflowX: 'scroll',
+        overflowY: 'hidden',
 		padding: 10,
 		width: `calc(100% - 32px)`,
 		left: -16,
@@ -34,7 +41,10 @@ const popStyle = makeStyles((theme) => ({
 	},
 	button: {
 		marginRight: 10,
-		marginLeft: 10
+		marginLeft: 10,
+        marginTop: 0,
+        marginBottom: 0,
+        padding: 0
 	},
 	buttonline: {
 		width: '98%',
@@ -47,26 +57,25 @@ const popStyle = makeStyles((theme) => ({
 
 var isEqual = require('lodash.isequal');
 const areEqual = (prevProps, nextProps) => {
-	return isEqual(prevProps.group, nextProps.group) && prevProps.position === nextProps.position && prevProps.similar === nextProps.similar &&
-            isEqual(prevProps.nextScenes, nextProps.nextScenes) && isEqual(prevProps.currentDisplay, nextProps.currentDisplay) && prevProps.highlight === nextProps.highlight && prevProps.highlightGroup === nextProps.highlightGroup &&
-            isEqual(prevProps.groups, nextProps.groups) && isEqual(prevProps.nextSceneRespone, nextProps.nextSceneRespone);
+	return (
+		isEqual(prevProps.group, nextProps.group) &&
+		prevProps.position === nextProps.position &&
+		prevProps.similar === nextProps.similar &&
+		isEqual(prevProps.nextScenes, nextProps.nextScenes) &&
+		isEqual(prevProps.currentDisplay, nextProps.currentDisplay) &&
+		prevProps.highlight === nextProps.highlight &&
+		prevProps.highlightGroup === nextProps.highlightGroup &&
+		isEqual(prevProps.groups, nextProps.groups) &&
+		isEqual(prevProps.nextSceneRespone, nextProps.nextSceneRespone)
+	);
 };
 
-const EventPopover = memo(
-	({
+const EventPopover = ({
 		group,
 		openEvent,
 		closeEvent,
-		getNextScenes,
-		nextSceneRespone,
-		getSimilar,
-		similarResponse,
 		position,
-		similar,
-		getGroups,
-		groupResponse,
-		getGPS,
-        clearNextEvents
+		similar
 	}) => {
 		const classes = popStyle();
 		const [ nextScenes, setNextScenes ] = useState(null);
@@ -79,45 +88,44 @@ const EventPopover = memo(
 		const date = useRef(null);
 		const fetchedScenes = useRef(false);
 		const fetchedGroups = useRef(false);
-		const listener = (e) => {
-			if (e.key === 'Escape') {
-				closeEvent();
-			}
-		};
+        const dispatch = useDispatch()
+        const nextSceneRespone = useSelector(state => state.search.nextSceneRespone)
+        const similarResponse = useSelector(state => state.search.similarResponse)
+        const groupResponse = useSelector(state => state.search.groupResponse)
 
-        useEffect(
-            () => {
-                return () => clearNextEvents()
-            }
-        )
+		const detailedContainer = useRef(null);
+		const sceneContainer = useRef(null);
+		const groupContainer = useRef(null);
+
+		useEffect(() => {
+			return () => dispatch(clearNextEvents());
+		});
 
 		useEffect(
 			() => {
 				console.log('rerendering', similar);
-				window.addEventListener('keydown', listener);
 				if (!similar) {
 					date.current = group[0].split('/')[0];
 					fetchedScenes.current = false;
 					fetchedGroups.current = false;
 				} else {
 					fetchedScenes.current = false;
-                    fetchedGroups.current = true;
-                    if (groups) {
-                        setGroups(null)
-                    }
-				}
-                if (!isEqual(currentDisplay, group)){
-                        setCurrentDisplay(group)
-                    }
-				return () => {
-					window.removeEventListener('keydown', listener);
-                    fetchedScenes.current = true;
 					fetchedGroups.current = true;
-                    setGroups(null)
-                    // console.log('set current display to null', res.data.timeline[index] )
-                    // setCurrentDisplay(null)
-                    setNextScenes(null)
-                    clearNextEvents()
+					if (groups) {
+						setGroups(null);
+					}
+				}
+				if (!isEqual(currentDisplay, group)) {
+					setCurrentDisplay(group);
+				}
+				return () => {
+					fetchedScenes.current = true;
+					fetchedGroups.current = true;
+					setGroups(null);
+					// console.log('set current display to null', res.data.timeline[index] )
+					// setCurrentDisplay(null)
+					setNextScenes(null);
+					clearNextEvents();
 				};
 			},
 			[ similar, group ]
@@ -130,33 +138,33 @@ const EventPopover = memo(
 						setHighlight(res.data.position);
 						setHighlightGroup(res.data.group);
 						if (!fetchedScenes.current) {
-							console.log("next scene");
+							console.log('next scene');
 							const index = res.data.position;
 							if (!similar && !isEqual(res.data.timeline, nextScenes)) {
 								setNextScenes(res.data.timeline);
 								if (
 									changed &&
 									res.data.timeline[index] !== undefined &&
-									!isEqual(res.data.timeline[index], currentDisplay)
+									!res.data.timeline[index].includes(currentDisplay[0])
 								) {
-                                    // console.log('set current display', res.data.timeline[index] )
+									// console.log('set current display', res.data.timeline[index] )
 									setCurrentDisplay(res.data.timeline[index]);
-									getGPS(res.data.timeline[index][0]);
+									dispatch(getGPS(res.data.timeline[index][0]));
 								}
 							}
 						}
-                        fetchedScenes.current = true;
+						fetchedScenes.current = true;
 					});
 				}
 			},
 			[ nextSceneRespone ]
 		);
 
-        useEffect(
+		useEffect(
 			() => {
 				if (similarResponse) {
 					similarResponse.then((res) => {
-                        console.log("similar")
+						console.log('similar');
 						if (similar && !fetchedScenes.current && res.data.scenes !== undefined) {
 							if (!isEqual(res.data.scenes, nextScenes)) {
 								setNextScenes(res.data.scenes);
@@ -166,7 +174,7 @@ const EventPopover = memo(
 							}
 							setHighlight(0);
 						}
-                        fetchedScenes.current = true;
+						fetchedScenes.current = true;
 					});
 				}
 			},
@@ -178,12 +186,12 @@ const EventPopover = memo(
 				if (groupResponse) {
 					groupResponse.then((res) => {
 						if (!fetchedGroups.current) {
-							console.log("group");
+							console.log('group');
 							if (!isEqual(res.data.timeline, groups) && res.data.timeline) {
 								setGroups(res.data.timeline);
 							}
 						}
-                        fetchedGroups.current = true;
+						fetchedGroups.current = true;
 					});
 				}
 			},
@@ -193,16 +201,15 @@ const EventPopover = memo(
 		useEffect(
 			() => {
 				if (highlight >= 0) {
-					const column = Math.floor((highlight + 0.6) * (IMAGE_WIDTH / RESIZE_FACTOR + 8));
+					const column = Math.floor((highlight + 0.6) * (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 + 8));
 					var el = document.getElementById('scenegrid');
-					var newPos = Math.max(0, column - 1524 * 0.5);
+					var newPos = Math.max(0, column - el.offsetWidth * 0.5);
 					setTimeout(
 						() =>
 							el.scrollTo({
 								top: 0,
 								left: newPos,
-								behavior:
-									'auto'
+								behavior: 'auto'
 							}),
 						100
 					);
@@ -214,9 +221,9 @@ const EventPopover = memo(
 		useEffect(
 			() => {
 				if (highlightGroup >= 0) {
-					const column = Math.floor((highlightGroup + 0.6) * (IMAGE_WIDTH / RESIZE_FACTOR * 0.8 + 8));
+					const column = Math.floor((highlightGroup + 0.6) * (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 * 0.8 + 8));
 					var el = document.getElementById('groupgrid');
-					var newPos = Math.max(0, column - 1524 * 0.5);
+					var newPos = Math.max(0, column - el.offsetWidth * 0.5);
 					setTimeout(
 						() =>
 							el.scrollTo({
@@ -232,33 +239,46 @@ const EventPopover = memo(
 		);
 
 		const setDetailedImages = useCallback(
-			(index) => {
-				setCurrentDisplay(nextScenes[index]);
-				if (!similar) {
-					getNextScenes(nextScenes[index], 'current', 'full');
-					pressed.current = index;
-					changed.current = true;
-					fetchedScenes.current = false;
-				}
+			(image) => {
+				nextScenes.forEach((scene, index) => {
+					if (scene[0] === image) {
+                        if (index !== highlight){
+                            setCurrentDisplay(scene);
+						if (!similar) {
+							dispatch(getNextScenes(scene, 'current', 'full'));
+							pressed.current = index;
+							changed.current = true;
+							fetchedScenes.current = false;
+						}
+                        else {
+                            setHighlight(index)
+                        }
+                        }
+					}
+				});
 			},
 			[ similar, nextScenes ]
 		);
 
-		const setDetailedGroups = useCallback((index) => {
-			getNextScenes([groups[index]], 'current', 'full');
-			fetchedScenes.current = false;
-			changed.current = true;
-		}, [similar, groups]);
-
-		const ButtonPress = (type) => {
-			getNextScenes(currentDisplay, type, highlight);
-			fetchedScenes.current = false;
-		};
+		const setDetailedGroups = useCallback(
+			(image) => {
+				dispatch(getNextScenes([ image ], 'current', 'full'));
+				fetchedScenes.current = false;
+				changed.current = true;
+			},
+			[ similar, groups ]
+		);
 
 		const revert = () => {
 			changed.current = false;
 			setCurrentDisplay(group);
-			getNextScenes(group, 'current', 'full');
+            if (!similar){
+                dispatch(getNextScenes(group, 'current', 'full'));
+            }
+            else {
+                dispatch(getSimilar(group[0]))
+            }
+
 			fetchedScenes.current = false;
 		};
 
@@ -267,37 +287,32 @@ const EventPopover = memo(
 				<Typography variant="button" className={classes.text}>
 					Event images
 				</Typography>
-				<div wrap="nowrap" className={classes.grid}>
-					{currentDisplay? currentDisplay.map((image, index) => (
-						<Image
-							key={'detailed' + image}
-							image={image}
-							scale={3 * window.innerWidth / 1920}
-							info
-							openEvent={openEvent}
-							similar={similar}
-						/>
-					)):null}
+				<div wrap="nowrap" className={classes.grid} ref={detailedContainer}>
+					{currentDisplay ? (
+						currentDisplay.map((image, index) => (
+							<Image
+								key={'detailed' + image}
+								image={image}
+								scale={3}
+								info
+								openEvent={openEvent}
+								similar={similar}
+							/>
+						))
+					) : null}
 				</div>
-				<div className={classes.buttonline}>
-					<Button className={classes.button} onClick={() => ButtonPress('before')}>
-						Previous event
-					</Button>
 					<Button className={classes.button} onClick={revert}>
 						Show original
 					</Button>
-					<Button className={classes.button} onClick={() => ButtonPress('after')}>
-						Next event
-					</Button>
-				</div>
-				<div id="scenegrid" className={classes.grid}>
-					{nextScenes !== null ? (
+
+				<div id="scenegrid" className={classes.grid} ref={sceneContainer}>
+					{nextScenes ? (
 						nextScenes.map((scene, index) => (
 							<Image
-								key={'scene' + scene[0]}
+								key={scene[0]}
 								index={index}
 								image={scene[0]}
-								scale={index === highlight ? 1.2 : 1}
+								scale={index === highlight ? 1.15 : 0.95}
 								onClick={setDetailedImages}
 								openEvent={openEvent}
 								similar={similar}
@@ -305,14 +320,13 @@ const EventPopover = memo(
 						))
 					) : null}
 				</div>
-				<div id="groupgrid" className={classes.grid}>
-					{groups !== null ? (
+				<div id="groupgrid" className={classes.grid} ref={groupContainer}>
+					{groups ? (
 						groups.map((gr, index) => (
 							<Image
 								key={'group' + gr}
-								index={index}
 								image={gr}
-								scale={index === highlightGroup ? 1 : 0.8}
+								scale={index === highlightGroup ? 0.95 : 0.75}
 								onClick={setDetailedGroups}
 								openEvent={openEvent}
 								similar={similar}
@@ -322,9 +336,7 @@ const EventPopover = memo(
 				</div>
 			</Paper>
 		);
-	},
-	areEqual
-);
+	}
 EventPopover.whyDidYouRender = true;
 
 export default EventPopover;

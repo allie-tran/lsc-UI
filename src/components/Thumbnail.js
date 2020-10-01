@@ -6,6 +6,11 @@ import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded'
 import IconButton from '@material-ui/core/IconButton';
 // import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import ImageSearchIcon from '@material-ui/icons/ImageSearch';
+import {useDispatch} from 'react-redux'
+import LazyLoad from 'react-lazy-load';
+import { saveScene, removeScene } from '../redux/actions/save'
+import { sendToMap } from '../redux/actions/select'
+import { getGPS } from '../redux/actions/search'
 
 const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
@@ -13,8 +18,8 @@ const RESIZE_FACTOR = 6;
 
 const thumbnailStyles = makeStyles((theme) => ({
 	image: {
-		width: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale,
-		height: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale,
+		width: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 ,
+		height: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 ,
 		borderRadius: 2,
 		flexShrink: 0,
 		position: 'relative',
@@ -32,8 +37,8 @@ const thumbnailStyles = makeStyles((theme) => ({
 		display: 'flex'
 	},
 	card: {
-		width: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale,
-		height: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale,
+		width: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 ,
+		height: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 ,
 		display: 'flex',
 		flexDirection: 'column',
 		position: 'relative',
@@ -43,8 +48,8 @@ const thumbnailStyles = makeStyles((theme) => ({
 	},
 	saveButton: {
 		position: 'absolute',
-		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale - 25,
-		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale - 50,
+		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 25,
+		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 50,
 		color: '#fff',
 		backgroundColor: 'rgba(255, 255, 255, 0.5)',
 		borderRadius: 3,
@@ -57,8 +62,8 @@ const thumbnailStyles = makeStyles((theme) => ({
 	},
 	submitButton: {
 		position: 'absolute',
-		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale - 25,
-		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale - 25,
+		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 25,
+		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 25,
 		color: '#fff',
 		backgroundColor: 'rgba(255, 255, 255, 0.5)',
 		borderRadius: 3,
@@ -70,8 +75,8 @@ const thumbnailStyles = makeStyles((theme) => ({
 	},
 	similarButton: {
 		position: 'absolute',
-		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale - 25,
-		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale - 25,
+		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 25,
+		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 25,
 		color: '#fff',
 		backgroundColor: 'rgba(255, 255, 255, 0.5)',
 		borderRadius: 3,
@@ -84,17 +89,25 @@ const thumbnailStyles = makeStyles((theme) => ({
 	}
 }));
 
+
 const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonClick }) => {
 	const classes = thumbnailStyles({ hidden, scale, saved, highlight });
 	if (saved === undefined) {
 		return (
 			<div className={classes.card}>
+                <LazyLoad
+					height={IMAGE_HEIGHT/ RESIZE_FACTOR * scale * window.innerWidth / 1920 }
+                    width={IMAGE_WIDTH / RESIZE_FACTOR * scale * window.innerWidth / 1920 }
+					offset={100}
+                    debounce={false}
+				>
 				<img
 					alt={img}
 					src={'http://lifeseeker-sv.computing.dcu.ie//' + img}
 					className={clsx(classes.image, { [classes.highlight]: highlight })}
 					onClick={(e) => openEvent(e, false)}
 				/>
+                </LazyLoad>
 				<IconButton onClick={onButtonClick} className={classes.saveButton}>
 					<BookmarkBorderRoundedIcon fontSize="small" />
 				</IconButton>
@@ -130,11 +143,11 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 
 const hiddenStyles = makeStyles((theme) => ({
 	hidden: {
-        flexBasis: ({num}) => (IMAGE_WIDTH / RESIZE_FACTOR + 4) * num,
-		minWidth: ({num}) => (IMAGE_WIDTH / RESIZE_FACTOR + 4) * num,
-        width: ({num}) => (IMAGE_WIDTH / RESIZE_FACTOR + 4) * num,
-		minHeight: IMAGE_HEIGHT / RESIZE_FACTOR,
-        height: IMAGE_HEIGHT / RESIZE_FACTOR,
+        flexBasis: ({num}) => (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 + 4) * num,
+		minWidth: ({num}) => (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 + 4) * num,
+        width: ({num}) => (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920  + 4) * num,
+		minHeight: IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 ,
+        height: IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 ,
         marginLeft: 6,
         marginRight: 6,
         position: 'relative',
@@ -155,26 +168,23 @@ const Thumbnail = ({
 	highlight,
 	group,
 	scale,
-	saveScene,
-	removeScene,
 	index,
 	saved,
-	sendToMap,
 	position,
-	markersSelected,
-	last,
-	setRef,
-	openEvent,
-    waitTime
+	openEvent
 }) => {
     // const [rendered, setRendered] = useState(false)
-	const Save = () => saveScene(group);
-	const Remove = () => removeScene(index);
+	const Save = () => dispatch(saveScene(group));
+	const Remove = () => dispatch(removeScene(index));
+    const dispatch = useDispatch()
 	const ownOpenEvent = (e, similar) => {
 		openEvent(e, similar, group, position);
 		if (saved === undefined) {
-			sendToMap(index);
-		}
+            console.log(index)
+			dispatch(sendToMap(index));
+		} else {
+            dispatch(getGPS(group[0]))
+        }
 	};
 
 	if (group.length > 0) {
@@ -184,10 +194,9 @@ const Thumbnail = ({
 				saved={saved}
 				hidden={hidden}
 				scale={scale}
-				img={group[0]}
+				img={group[0].split('.')[0] + '.webp'}
 				highlight={highlight}
 				openEvent={ownOpenEvent}
-				ref={highlight ? setRef : null}
 			/>
 		);
 	} else {

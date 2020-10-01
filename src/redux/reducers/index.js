@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import search, { searchState } from './search';
 import save from './save';
 import select, { selectState } from './select';
-import { NEXT_QUERY, EXPORT_SAVED, START_TIMER, DISABLE } from '../actions/submit';
+import { NEXT_QUERY, EXPORT_SAVED, START_TIMER, SET_TIMER } from '../actions/submit';
 import axios from 'axios';
 
 const appReducer = combineReducers({
@@ -19,11 +19,20 @@ const rootReducer = (state, action) => {
 		document.getElementById('After:').value = null;
 		document.getElementById('After:-when').value = null;
 	}
-	if (action.type === NEXT_QUERY) {
+    if (action.type === SET_TIMER) {
+        return {
+            ...state,
+            save: {...state.save,
+                  time: action.time}
+        }
+    }
+	else if (action.type === NEXT_QUERY) {
         var newQuery = state.save.currentQuery + 1;
         if (newQuery > 10) {
             newQuery = 1;
         }
+        var newFinished = state.save.finished.slice()
+        newFinished[state.save.currentQuery - 1] = state.save.time
         return {
             save: {
                 ...state.save,
@@ -31,6 +40,8 @@ const rootReducer = (state, action) => {
                 saved: state.save.saved.length === 0 ? state.save.saved : [],
                 timerRunning: false,
                 saveResponse: axios.post('http://localhost:7999/api/getsaved?query_id=' + newQuery),
+                finished: newFinished,
+                time: newFinished[newQuery - 1]
             },
             search: {...searchState},
             select: {...selectState}
@@ -39,7 +50,6 @@ const rootReducer = (state, action) => {
 		return {
 			save: {
                 ...state.save,
-				currentQuery: state.save.currentQuery,
                 timerRunning: false,
                 saveResponse: null
 			},
@@ -52,15 +62,6 @@ const rootReducer = (state, action) => {
             ...state,
             save: {...state.save,
                     timerRunning: true}
-        }
-	}
-    else if (action.type === DISABLE) {
-        var newFinished = state.save.finished.slice()
-        newFinished[state.save.currentQuery - 1] = true
-		return {
-            ...state,
-            save: {...state.save,
-                    finished: newFinished}
         }
 	}
 	return state;

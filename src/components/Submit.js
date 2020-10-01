@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
+import { nextQuery, exportSaved, disable, setTimer } from '../redux/actions/submit';
 
 // var FileSaver = require('file-saver');
 
@@ -22,36 +24,22 @@ const useStyles = makeStyles((theme) => ({
 	button: {
 		margin: 'auto'
 	},
-    timer: {
+	timer: {
 		margin: 'auto',
-        color: '#FF6584'
+		color: '#FF6584'
 	}
 }));
 
-// const areEqual = (prevProps, nextProps) => {
-// 	return (
-// 		prevProps.currentQuery === nextProps.currentQuery &&
-// 		prevProps.timerRunning === nextProps.timerRunning &&
-// 		prevProps.finished[prevProps.currentQuery] === nextProps.finished[nextProps.currentQuery]
-// 	);
-// };
-
 var timeLeft = [ ...Array(10).keys() ].map(() => 300);
 
-const SubmitSection = ({
-	finished,
-	currentQuery,
-	saved,
-	timer,
-	stopTimer,
-	nextQuery,
-	exportSaved,
-	timerRunning,
-	disable
-}) => {
+const SubmitSection = () => {
 	const classes = useStyles();
-	const [ seconds, setSeconds ] = useState(300);
 	const [ isActive, setIsActive ] = useState(false);
+	const dispatch = useDispatch();
+	const time = useSelector((state) => state.save.time);
+	const currentQuery = useSelector((state) => state.save.currentQuery);
+	const timerRunning = useSelector((state) => state.save.timerRunning);
+
 	useEffect(() => {
 		axios.post('http://localhost:7999/api/restart');
 	}, []);
@@ -61,24 +49,21 @@ const SubmitSection = ({
 			let interval = null;
 			if (isActive) {
 				interval = setInterval(() => {
-					setSeconds((seconds) => {
-						if (seconds <= 0) {
-							disable();
-							setIsActive(false);
-						}
-						return seconds - 1;
-					});
+					dispatch(setTimer(time - 1));
+					if (time <= 0) {
+						setIsActive(false);
+					}
 				}, 1000);
 			}
 
 			return () => clearInterval(interval);
 		},
-		[ seconds, isActive, disable ]
+		[ time, isActive ]
 	);
 
 	const getNextQuery = () => {
-		timeLeft[currentQuery - 1] = seconds;
-		nextQuery();
+		timeLeft[currentQuery - 1] = time;
+		dispatch(nextQuery());
 	};
 
 	const toggle = () => {
@@ -87,7 +72,8 @@ const SubmitSection = ({
 
 	useEffect(
 		() => {
-			setSeconds(timeLeft[currentQuery - 1]);
+            // dispatch(setTimer(time - 1));
+			// setSeconds(timeLeft[currentQuery - 1]);
 			return () => setIsActive(false);
 		},
 		[ currentQuery ]
@@ -103,8 +89,8 @@ const SubmitSection = ({
 	const exportCSV = () => {
 		// var blob = new Blob([ saved ], { type: 'text/plain;charset=utf-8' });
 		// FileSaver.saveAs(blob, 'result' + currentQuery + '.csv');
-		exportSaved();
-		axios.post('http://localhost:7999/api/submit?time='+seconds+'&query_id='+currentQuery);
+		dispatch(exportSaved());
+		axios.post('http://localhost:7999/api/submit?time=' + time + '&query_id=' + currentQuery);
 	};
 	return (
 		<div className={classes.section}>
@@ -114,8 +100,8 @@ const SubmitSection = ({
 			<Button onClick={exportCSV} className={classes.button}>
 				Export
 			</Button>
-			<Button disabled={finished} onClick={toggle} className={classes.timer}>
-				{seconds}s
+			<Button disabled={time < 0} onClick={toggle} className={classes.timer}>
+				{time}s
 			</Button>
 		</div>
 	);

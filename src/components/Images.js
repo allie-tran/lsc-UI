@@ -1,9 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { trackPromise, usePromiseTracker } from 'react-promise-tracker';
 import ReactLoading from 'react-loading';
 import Typography from '@material-ui/core/Typography';
-import Thumbnail from '../redux/Thumbnail-cnt';
+import Thumbnail from './Thumbnail';
+import Button from '@material-ui/core/Button';
+import { setMap, setQueryBound, setQueryInfo, getImages, setFinishedSearch } from '../redux/actions/search';
+import { resetSelection } from '../redux/actions/select';
+import { setSaved } from '../redux/actions/save';
+import LazyLoad from 'react-lazy-load';
 
 const IMAGE_HEIGHT = 768;
 const IMAGE_WIDTH = 1024;
@@ -23,15 +29,16 @@ const gridStyles = makeStyles((theme) => ({
 	grid: {
 		width: '100%',
 		display: 'flex',
-		flexWrap: 'wrap',
+		flexDirection: 'column',
 		// height: props => props.height,
 		// flexGrow: 1,
-		justifyContent: 'center',
-		backgroundImage: 'linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.15) 50%)',
+		backgroundImage: 'linear-gradient(180deg, rgba(0, 0, 0, 0.15) 50%, transparent 50%)',
 		backgroundRepeat: 'repeat',
-		backgroundSize: `148px 396px`,
+		backgroundSize: `148px ${2 * IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 + 140}px`,
 		backgroundAttachment: 'local',
-		overflow: 'auto'
+        backgroundPosition: `0px 5px`,
+		overflow: 'auto',
+		position: 'relative'
 	},
 	text: {
 		top: 50,
@@ -40,11 +47,14 @@ const gridStyles = makeStyles((theme) => ({
 	},
 	dategrid: {
 		width: '96%',
+		minHeight: IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920,
 		overflow: 'auto',
-		padding: "35px 10px 35px 10px",
+		padding: '35px 10px 35px 10px',
 		display: 'flex',
 		alignItems: 'center',
-		flexDirection: 'row'
+		flexDirection: 'row',
+		flexShrink: 0,
+		position: 'relative'
 	},
 	popover: {
 		width: '80%',
@@ -60,8 +70,8 @@ const LoadingIndicator = (props) => {
 
 const hiddenStyles = makeStyles((theme) => ({
 	hidden: {
-		minWidth: ({ num }) => IMAGE_WIDTH / RESIZE_FACTOR * num + 4 * (num - 1),
-		minHeight: IMAGE_HEIGHT / RESIZE_FACTOR,
+		minWidth: ({ num }) => IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 * num + 4 * (num - 1),
+		minHeight: IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 ,
 		marginLeft: 4,
 		marginRight: 4,
 		position: 'relative',
@@ -75,94 +85,29 @@ const Hidden = ({ num }) => {
 	return <div className={classes.hidden}> Hidden </div>;
 };
 
-const ImageGrid = ({
-	height,
-	maxwidth,
-	open,
-	collection,
-	setMap,
-	markersSelected,
-	currentMarker,
-	setQueryBound,
-	resetSelection,
-	setQueryInfo,
-	openEvent, saveResponse, setSaved
-}) => {
+const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
 	const classes = gridStyles({ open, height });
+	const dispatch = useDispatch();
 	const [ dates, setDates ] = useState([]);
 	const { promiseInProgress } = usePromiseTracker();
-	const highlightRef = React.useRef([]);
-	const [ maxItemsPerRow, setMaxItemsPerRow ] = useState(open ? 3 : 4);
-	const [ rendered, setRendered ] = useState(0);
-
-	const setRef = useCallback((index) => {
-		if (index !== null) {
-			highlightRef.current.push(index);
-		} // eslint-disable-next-line
-	}, []);
-
-	useEffect(
-		() => {
-			const newMaxItems = open ? 3 : 4;
-			if (newMaxItems !== maxItemsPerRow) {
-				setMaxItemsPerRow(newMaxItems);
-			}
-		}, // eslint-disable-next-line
-		[ open ]
-	);
-
-	// useEffect(
-	// 	() => {
-    //         console.log("update rendering", rendered)
-	// 		if (markersSelected[currentMarker] !== undefined) {
-	// 			var [ newIndex, newId ] = markersSelected[currentMarker].split('-');
-	// 		} else {
-	// 			newIndex = -1;
-	// 		}
-	// 		if (rendered < dates.length) {
-	// 			if (rendered < newIndex) {
-	// 				setRendered(newIndex + 4);
-	// 			}
-    //             setTimeout(() => setRendered(Math.min(rendered + 2, dates.length), 2000));
-	// 		}
-
-	// 	}, // eslint-disable-next-line
-	// 	[ rendered, currentMarker ]
-	// );
-
-	// useEffect(() => {
-	// 	dates.forEach((date, index) => {
-	// 		const column = Math.floor((date[1] + 4 / 3) * (IMAGE_WIDTH / RESIZE_FACTOR + 8));
-	// 		var el = document.getElementById('dategrid' + index);
-
-	// 		var newPos = Math.max(0, column);
-	// 		if (el) {
-	// 			setTimeout(
-	// 				() =>
-	// 					el.scrollTo({
-	// 						top: 0,
-	// 						left: newPos
-	// 					}),
-	// 				100
-	// 			);
-	// 		}
-	// 	});
-	// });
+	const finished = useSelector((state) => state.search.finishedSearch);
+	const collection = useSelector((state) => state.search.collection);
+	const saveResponse = useSelector((state) => state.save.saveResponse);
 
 	useEffect(
 		() => {
 			if (collection) {
 				trackPromise(
 					collection.then((res) => {
+						console.log('Got', res.data.size);
 						const newDates = res.data.results;
+						dispatch(setFinishedSearch(finished + res.data.size));
 						var isEqual = require('lodash.isequal');
 						if (!isEqual(dates, newDates)) {
 							setDates(newDates);
-							setMap(newDates);
-							setRendered(newDates.length);
+							dispatch(setMap(newDates));
 							// setQueryBound(null);
-							setQueryInfo(res.data.info);
-							// highlightRef.current = []
+							dispatch(setQueryInfo(res.data.info));
 						}
 					})
 				);
@@ -171,82 +116,37 @@ const ImageGrid = ({
 		[ collection ]
 	);
 
-    useEffect(
-        () => {
-            if (saveResponse) {
-                trackPromise(saveResponse.then(res => {
-                    if (res.data.saved) {
-                        setSaved(res.data.saved.map(image=>[image]))
-                        const newDates = res.data.results;
-						var isEqual = require('lodash.isequal');
-						if (!isEqual(dates, newDates)) {
-							setDates(newDates);
-							setMap(newDates);
-							setRendered(newDates.length);
-							setQueryBound(res.data.gps_bounds);
-                            var query = res.data.query
-                            if (query.info) {
-                                setQueryInfo(query.info);
-                                document.getElementById("Before:").value = query.before;
-                                document.getElementById("Before:-when").value = query.beforewhen;
-                                document.getElementById("Find:").value = query.current
-                                document.getElementById("After:").value = query.after
-                                document.getElementById("After:-when").value = query.afterwhen
-                            }
-							// highlightRef.current = []
-						}
-                    }
-                }))
-            }
-        }, [saveResponse]
-    )
-
 	useEffect(
 		() => {
-			if (currentMarker >= 0 && markersSelected.length > 0) {
-				var [ newIndex, newId ] = markersSelected[currentMarker].split('-');
-				const imageRowX = newIndex * (IMAGE_HEIGHT / RESIZE_FACTOR + 70);
-				var el = document.getElementById('grid');
-				if (el) {
-					el.scrollTo({
-						top: imageRowX,
-						left: 0,
-						behavior: 'smooth'
-					});
-				}
-				document.getElementById('grid');
-
-				const column = newId * (IMAGE_WIDTH / RESIZE_FACTOR + 8);
-				el = document.getElementById('dategrid' + newIndex);
-				var newPos = Math.max(0, column);
-				if (el) {
-					el.scrollTo({
-						top: 0,
-						left: newPos,
-						behavior: 'smooth'
-					});
-				}
-
-				window.addEventListener('mousedown', clickOutside);
-				window.addEventListener('touchstart', clickOutside);
+			if (saveResponse) {
+				trackPromise(
+					saveResponse.then((res) => {
+						if (res.data.saved) {
+							dispatch(setSaved(res.data.saved.map((image) => [ image ])));
+							const newDates = res.data.results;
+							var isEqual = require('lodash.isequal');
+							if (!isEqual(dates, newDates)) {
+								dispatch(setDates(newDates));
+								dispatch(setMap(newDates));
+								dispatch(setQueryBound(res.data.gps_bounds));
+								var query = res.data.query;
+								if (query.info) {
+									dispatch(setQueryInfo(query.info));
+									document.getElementById('Before:').value = query.before;
+									document.getElementById('Before:-when').value = query.beforewhen;
+									document.getElementById('Find:').value = query.current;
+									document.getElementById('After:').value = query.after;
+									document.getElementById('After:-when').value = query.afterwhen;
+								}
+							}
+						}
+					})
+				);
 			}
-			return () => {
-				window.removeEventListener('mousedown', clickOutside);
-				window.removeEventListener('touchstart', clickOutside);
-			};
-		}, // eslint-disable-next-line
-		[ markersSelected, currentMarker ]
+		},
+		[ saveResponse ]
 	);
 
-	const clickOutside = (event) => {
-		if (highlightRef.current.includes(event.target) || document.getElementById('map').contains(event.target)) {
-			return;
-		}
-		resetSelection();
-		highlightRef.current = [];
-		window.removeEventListener('mousedown', clickOutside);
-		window.removeEventListener('touchstart', clickOutside);
-	};
 	if (promiseInProgress) {
 		return (
 			<div className={classes.root}>
@@ -260,28 +160,38 @@ const ImageGrid = ({
 					Click an event thumbnail to view all images.
 				</Typography>
 				<div id="grid" className={classes.grid}>
-					{dates.slice(0, rendered).map((date, index) => (
-						<div className={classes.dategrid} id={'dategrid' + index} key={'dategrid' + index}>
-							{date.map(
-								(scene, id) =>
-									scene === null ? (
-										<Hidden key={'midhidden' + index + '-' + id} num={1} />
-									) : (
-										<Thumbnail
-											key={scene.current[0]}
-											setRef={setRef}
-											index={index + '-' + id}
-											group={scene.current}
-											scale={1}
-											position="current"
-											openEvent={openEvent}
-											highlight={markersSelected.includes(index + '-' + id)}
-										/>
-									)
-							)}
-							<Hidden key={'endhidden'} num={8} />
-						</div>
+					{dates.map((date, index) => (
+						<LazyLoad debounce={false} height={IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 + 70} offset={500} key={'dategrid' + index}>
+							<div className={classes.dategrid} id={'dategrid' + index}>
+								{date.map(
+									(scene, id) =>
+										scene === null ? (
+											<Hidden key={'midhidden' + index + '-' + id} num={1} />
+										) : (
+											<LazyLoad
+												height={IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920}
+												offset={500}
+												key={scene.current[0]}
+                                                debounce={false}
+											>
+												<Thumbnail
+													key={scene.current[0]}
+													index={index + '-' + id}
+													group={scene.current}
+													scale={1}
+													position="current"
+													openEvent={openEvent}
+												/>
+											</LazyLoad>
+										)
+								)}
+								{/* <Hidden key={'endhidden'} num={8} /> */}
+							</div>
+						</LazyLoad>
 					))}
+					{finished && !(finished % 2000) && finished <= 8000 ? (
+						<Button onClick={() => submitQuery(true, finished)}> MORE </Button>
+					) : null}
 				</div>
 			</div>
 		);

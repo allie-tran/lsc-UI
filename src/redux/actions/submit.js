@@ -4,9 +4,10 @@ export const EXPORT_SAVED = 'EXPORT_SAVED';
 export const START_TIMER = 'START_TIMER'
 export const PAUSE_TIMER = 'PAUSE_TIMER'
 export const DISABLE = 'DISABLE'
+export const SET_TIMER = 'SET_TIMER'
 
-export function nextQuery() {
-    return { type: NEXT_QUERY }
+export function nextQuery(time) {
+    return { type: NEXT_QUERY, time }
 }
 
 export function exportSaved(saved) {
@@ -23,4 +24,8 @@ export function pauseTimer() {
 
 export function disable() {
     return {type: DISABLE}
+}
+
+export function setTimer(time) {
+    return {type: SET_TIMER, time}
 }

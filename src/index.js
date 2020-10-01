@@ -1,7 +1,9 @@
+import './wdyr';
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Page from './redux/Page-cnt';
+import Page from './components/Page';
 import * as serviceWorker from './serviceWorker';
 import 'typeface-roboto';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';

@@ -8,9 +8,15 @@ export const SET_INFO = 'SET_INFO';
 export const SET_KEYWORDS = 'SET_KEYWORDS';
 export const SIMILAR = 'SIMILAR'
 export const GET_GPS = 'GET_GPS'
+export const SET_MUST_NOT = 'SET_MUST_NOT';
+export const REMOVE_MUST_NOT = 'REMOVE_MUST_NOT'
+export const SET_FINISH_SEARCH = 'SET_FINISH_SEARCH'
 
-export function getImages(query = {}, ignoreInfo=false) {
-	return { type: GET_ALL_IMAGES, query, ignoreInfo };
+export function getImages(query = {}, ignoreInfo=false, starting_from=0) {
+	return { type: GET_ALL_IMAGES, query, ignoreInfo, starting_from };
+}
+export function setFinishedSearch(finishedSearch) {
+	return { type: SET_FINISH_SEARCH, finishedSearch };
 }
 
 export function setMap(dates = []) {
@@ -55,6 +61,20 @@ export function setKeywords(keywords) {
 		type: SET_KEYWORDS,
 		keywords
 	};
+}
+
+export function setMustNot(keyword) {
+    return {
+        type: SET_MUST_NOT,
+        keyword
+    }
+}
+
+export function removeMustNot(keyword) {
+    return {
+        type: REMOVE_MUST_NOT,
+        keyword
+    }
 }
 
 export function getSimilar(image) {

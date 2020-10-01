@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
 // import KeyboardArrowLeftRoundedIcon from '@material-ui/icons/KeyboardArrowLeftRounded';
 // import KeyboardArrowRightRoundedIcon from '@material-ui/icons/KeyboardArrowRightRounded';
 // import IconButton from '@material-ui/core/IconButton';
@@ -7,6 +9,8 @@ import 'leaflet.markercluster';
 import 'leaflet-polylinedecorator';
 import 'leaflet-area-select';
 import { makeStyles } from '@material-ui/core/styles';
+import { setQueryBound } from '../redux/actions/search';
+var isEqual = require('lodash.isequal');
 
 const PRECISION = 5;
 const useStyles = makeStyles((theme) => ({
@@ -50,37 +54,40 @@ var subIcon = L.Icon.extend({
 	}
 });
 
-const Map = ({ stateBounds, open, submitRegion, dates, selected, changeStatus, setQueryBound, selectMarkers, gpsResponse }) => {
+var cancelIcon = L.Icon.extend({
+	options: {
+		iconUrl: 'Cancel-16.png',
+		iconSize: [ 16, 16 ], // size of the icon
+		iconAnchor: [ 8, 8 ], // point of the icon which will correspond to marker's location
+		popupAnchor: [ 0, 0 ] // point from which the popup should open relative to the iconAnchor
+	}
+});
+
+const Map = ({ open }) => {
 	const classes = useStyles({ open });
+	const dispatch = useDispatch();
+	const stateBounds = useSelector((state) => state.search.bounds);
+	const dates = useSelector((state) => state.search.dates, isEqual);
+	const selected = useSelector((state) => state.select.selected);
+	const gpsResponse = useSelector((state) => state.search.gpsResponse);
 
 	const map = useRef(null);
-	const markerGroup = useRef(null);
 	const clustersMain = useRef(null);
 	const pathLine = useRef(null);
 	const boundLine = useRef(null);
 	const pane = useRef(null);
 
-	const handleKeyPress = (event) => {
-		if (event.key === 'Enter') console.log('Enter');
-	};
-
 	useEffect(() => {
+		if (map.current) {
+			return;
+		}
 		map.current = L.map('map', { selectArea: true, maxZoom: 17 }).setView([ 53.384811, -6.26319 ], 13);
-		markerGroup.current = L.layerGroup().addTo(map.current);
 
 		map.current.on('areaselected', (e) => {
 			map.current.fitBounds(e.bounds, { minZoom: map.current._zoom });
-			setQueryBound(e.bounds.toBBoxString().split(','));
+			dispatch(setQueryBound(e.bounds.toBBoxString().split(',')));
 		});
 
-		// var Stadia_AlidadeSmoothDark = L.tileLayer(
-		// 	'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
-		// 	{
-		// 		attribution:
-		// 			'&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
-		// 		maxZoom: 18
-		// 	}
-		// ).addTo(map.current);
 
 		L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
 			maxZoom: 18,
@@ -88,26 +95,12 @@ const Map = ({ stateBounds, open, submitRegion, dates, selected, changeStatus, s
 				'&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
 		}).addTo(map.current);
 
-		// L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-		// 	attribution: '',
-		// 	maxZoom: 18,
-		// 	id: 'mapbox.streets',
-		// 	accessToken: 'pk.eyJ1IjoiYWxsaWV0cmFuIiwiYSI6ImNrM2Jpa3hpZjBicmwzaHA4NjljMno1YzYifQ.WRazWdYG2T1hK6H5EnKnYw'
-		// }).addTo(map.current);
 		pane.current = map.current.createPane('pathPane');
 		map.current.getPane('pathPane').style.zIndex = 625;
 		map.current.getPane('pathPane').style.pointerEvents = 'none';
 		pathLine.current = new L.LayerGroup([]);
-	}, []);
-
-	useEffect(
-		() => {
-			if (dates.length > 0) {
-				let first_location = null;
-				if (clustersMain.current !== null) {
-					clustersMain.current.clearLayers();
-				}
-				clustersMain.current = new L.markerClusterGroup({
+		boundLine.current = new L.LayerGroup([]);
+        clustersMain.current = new L.markerClusterGroup({
 					spiderfyOnMaxZoom: false,
 					maxClusterRadius: 80,
 					polygonOptions: { weight: 1, opacity: 0.5 },
@@ -115,15 +108,17 @@ const Map = ({ stateBounds, open, submitRegion, dates, selected, changeStatus, s
 					animateAddingMarkers: true,
 					singleMarkerMode: true
 				});
+	}, []);
+
+	useEffect(
+		() => {
+			if (dates.length > 0) {
+				if (clustersMain.current) {
+					clustersMain.current.clearLayers();
+				}
 				dates.forEach((date, id) => {
 					date.forEach((scene, index) => {
-						if (scene !== null && scene.gps !== null) {
-							if (first_location === null) {
-								first_location = [
-									scene.gps[1][0].lat.toPrecision(PRECISION),
-									scene.gps[1][0].lon.toPrecision(PRECISION)
-								];
-							}
+						if (scene && scene.gps) {
 							var marker = L.marker(
 								[
 									scene.gps[1][0].lat.toPrecision(PRECISION),
@@ -134,25 +129,22 @@ const Map = ({ stateBounds, open, submitRegion, dates, selected, changeStatus, s
 									attribution: id + '-' + index
 								}
 							);
-							marker.on('click', (e) => selectMarkers([ e.target.options.attribution ]));
 							clustersMain.current.addLayer(marker);
 						}
 					});
 				});
 				map.current.addLayer(clustersMain.current);
-				clustersMain.current.on('clusterclick', function(a) {
-					selectMarkers(a.layer.getAllChildMarkers().map((marker) => marker.getAttribution()));
-				});
 				map.current.fitBounds(clustersMain.current.getBounds());
 			}
-			return () => markerGroup.current.clearLayers();
+			return () => clustersMain.current.clearLayers();
 		}, // eslint-disable-next-line
-		[ dates, selectMarkers ]
+		[ dates ]
 	);
 
 	useEffect(
 		() => {
-			if (selected !== null) {
+			if (selected) {
+                console.log(selected)
 				var [ index, id ] = selected.split('-');
 				const date_selected = dates[index][id];
 				pathLine.current.clearLayers();
@@ -246,7 +238,7 @@ const Map = ({ stateBounds, open, submitRegion, dates, selected, changeStatus, s
 			}
 			return () => pathLine.current.clearLayers();
 		}, // eslint-disable-next-line
-		[ selected, dates ]
+		[ selected ]
 	);
 
 	useEffect(
@@ -276,30 +268,36 @@ const Map = ({ stateBounds, open, submitRegion, dates, selected, changeStatus, s
 
 	useEffect(
 		() => {
+            boundLine.current.clearLayers()
 			// map.current.setView(center, zoom);
-			if (stateBounds){
-                boundLine.current = L.rectangle(
-                    [ [ parseFloat(stateBounds[3]), parseFloat(stateBounds[0]) ], [ parseFloat(stateBounds[1]), parseFloat(stateBounds[2]) ] ],
-                    { color: '#ff7800', weight: 1, fill: false }
-                ).addTo(map.current);
-                }
-            else if (boundLine.current) {
-                map.current.removeLayer(boundLine.current)
-            }
+			if (stateBounds) {
+                var latlngBounds = L.latLngBounds([ parseFloat(stateBounds[3]), parseFloat(stateBounds[0]) ],
+						            [ parseFloat(stateBounds[1]), parseFloat(stateBounds[2]) ])
+				L.rectangle(
+					latlngBounds,
+					{ color: '#ff7800', weight: 1, fill: false }
+				).addTo(boundLine.current);
+				var marker = L.marker(latlngBounds.getSouthEast(), {
+					icon: new cancelIcon(),
+				}).addTo(boundLine.current);
+				marker.on('click', (e) => dispatch(setQueryBound(null)));
+				map.current.addLayer(boundLine.current);
+			} else if (boundLine.current) {
+				boundLine.current.clearLayers();
+			}
 		},
 		[ stateBounds ]
 	);
-    return <div key="map" id="map" className={classes.map} onKeyPress={handleKeyPress} />
-	// return [
-	// 	<div key="map" id="map" className={classes.map} onKeyPress={handleKeyPress} />,
-	// 	// <IconButton key="icon" size="small" className={classes.icon} onClick={changeStatus}>
-	// 	// 	{open ? (
-	// 	// 		<KeyboardArrowRightRoundedIcon className={classes.insideIcon} />
-	// 	// 	) : (
-	// 	// 		<KeyboardArrowLeftRoundedIcon className={classes.insideIcon} />
-	// 	// 	)}
-	// 	// </IconButton>
-	// ];
+	return [
+		<div key="map" id="map" className={classes.map} />
+		// <IconButton key="icon" size="small" className={classes.icon} onClick={changeStatus}>
+		// 	{open ? (
+		// 		<KeyboardArrowRightRoundedIcon className={classes.insideIcon} />
+		// 	) : (
+		// 		<KeyboardArrowLeftRoundedIcon className={classes.insideIcon} />
+		// 	)}
+		// </IconButton>
+	];
 };
 
 export default Map;

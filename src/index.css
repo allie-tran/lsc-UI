@@ -35,3 +35,16 @@ code {
   transform: scale(1);
   transition: all 5000ms;
 }
+
+::-webkit-scrollbar {
+    width: 0px;  /* remove scrollbar space */
+    background: transparent;  /* optional: just make scrollbar invisible */
+    border-radius: 5pt;
+    height: 5px;
+    top: -5px;
+}
+/* optional: show position indicator in red */
+::-webkit-scrollbar-thumb {
+    background: #6165ff;
+    border-radius: 5pt;
+}

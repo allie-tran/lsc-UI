@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {memo} from 'react'
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton'
 import SearchBar from "./SearchBar";
@@ -25,35 +25,20 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const Bar = ({ open, getImages, resetSelection, startTimer }) => {
+const Bar = memo(({ open, submitQuery }) => {
     const classes = useStyles({ open });
-
-    const submitQuery = (ignoreInfo) => {
-        let query = {
-            before: document.getElementById("Before:").value,
-            beforewhen: document.getElementById("Before:-when").value,
-            current: document.getElementById("Find:").value,
-            after: document.getElementById("After:").value,
-            afterwhen: document.getElementById("After:-when").value
-        };
-        console.log(query)
-        window.scrollTo(0, 0);
-        resetSelection();
-        getImages(query, ignoreInfo);
-        startTimer()
-    };
 
     return (
         <AppBar position="static" className={classes.appBar}>
             <SearchBar type="Before:" submitQuery={submitQuery} />
             <SearchBar type="Find:" submitQuery={submitQuery} />
             <SearchBar type="After:" submitQuery={submitQuery} />
-            <IconButton size="small" className={classes.icon} onClick={() => submitQuery(false)}>
+            <IconButton size="small" className={classes.icon} onClick={() => submitQuery(false, 0)}>
                 <KeyboardReturnRoundedIcon />
             </IconButton>
         </AppBar>
     )
-};
+}, () => true);
 
 Bar.whyDidYouRender = true
 

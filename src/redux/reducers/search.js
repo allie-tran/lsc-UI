@@ -8,7 +8,10 @@ import {
 	SET_KEYWORDS,
     SIMILAR,
     GET_GROUP,
-    GET_GPS
+    GET_GPS,
+    SET_MUST_NOT,
+    REMOVE_MUST_NOT,
+    SET_FINISH_SEARCH
 } from '../actions/search';
 import axios from 'axios';
 
@@ -22,6 +25,8 @@ export const searchState = {
     similarResponse: null,
     groupResponse: null,
     gpsResponse: null,
+    stats: [],
+    finishedSearch: 0
 };
 
 var isEqual = require('lodash.isequal');
@@ -34,11 +39,12 @@ export default function(state = searchState, action) {
 		};
 	} else if (action.type === GET_ALL_IMAGES) {
 		if (!action.ignoreInfo && state.keywords.length > 0) {
-			var newInfo = JSON.parse(JSON.stringify(state.info));
+			let newInfo = JSON.parse(JSON.stringify(state.info));
 			newInfo.expansion_score = {};
 			state.keywords.forEach((keyword) => {
 				newInfo.expansion_score[keyword[0]] = keyword[1];
 			});
+            newInfo.must_not_terms = state.stats.slice()
 			const response = axios.post(
 				'http://localhost:7999/api/date/',
 				{
@@ -48,7 +54,8 @@ export default function(state = searchState, action) {
 						current: '',
 						info: newInfo
 					},
-					gps_bounds: state.bounds
+					gps_bounds: state.bounds,
+                    starting_from: action.starting_from
 				},
 				{ headers: { 'Content-Type': 'application/json' } }
 			);
@@ -59,14 +66,21 @@ export default function(state = searchState, action) {
 		} else {
 			const response = axios.post(
 				'http://localhost:7999/api/date/',
-				{ query: action.query, gps_bounds: state.bounds },
+				{ query: action.query, gps_bounds: state.bounds,
+                 starting_from: action.starting_from },
 				{ headers: { 'Content-Type': 'application/json' } }
 			);
 			return {
 				...state,
-				collection: response
+				collection: response,
+                stats: []
 			};
 		}
+    } else if (action.type === SET_FINISH_SEARCH) {
+        return {
+            ...state,
+            finishedSearch: action.finishedSearch
+        };
 	} else if (action.type === SET_MAP) {
 		if (!isEqual(state.dates, action.dates)) {
 			return {
@@ -140,6 +154,25 @@ export default function(state = searchState, action) {
 			...state,
 			similarResponse: response
 		}
-	}
+	} else if (action.type === SET_MUST_NOT) {
+        if (!state.stats.includes(action.keyword)){
+            let newStats = state.stats.slice()
+            newStats.push(action.keyword)
+            return {
+                ...state,
+                stats: newStats
+            };
+        }
+    }
+    else if (action.type === REMOVE_MUST_NOT) {
+        let newStats = []
+        state.stats.forEach(kw => kw === action.keyword? null: newStats.push(kw))
+        if (!isEqual(state.stats, newStats)) {
+			return {
+				...state,
+				stats: newStats
+			};
+		}
+    }
 	return state;
 }

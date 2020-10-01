@@ -1,14 +1,17 @@
 import React, { useState, useCallback } from 'react';
-import Map from '../redux/Map-cnt';
-import Bar from '../redux/AppBar-cnt';
-import SaveSection from '../redux/Save-cnt';
-import Submit from '../redux/Submit-cnt';
+import { useDispatch } from 'react-redux';
+import Map from './Map';
+import Bar from './AppBar';
+import SaveSection from './Save';
+import Submit from './Submit';
 import Popover from '@material-ui/core/Popover';
 import { makeStyles } from '@material-ui/core/styles';
-
-import EventPopover from '../redux/EventPopover-cnt';
-import ImageGrid from '../redux/Images-cnt';
-
+import EventPopover from './EventPopover';
+import ImageGrid from './Images';
+import { getSimilar, getGroups, getNextScenes, setFinishedSearch} from '../redux/actions/search';
+import {getImages} from '../redux/actions/search'
+import {resetSelection} from '../redux/actions/select'
+import {startTimer} from '../redux/actions/submit'
 
 const popoverStyles = makeStyles((theme) => ({
 	popover: {
@@ -17,48 +20,61 @@ const popoverStyles = makeStyles((theme) => ({
 	}
 }));
 
-var isEqual = require('lodash.isequal');
 
-const Page = ({ getSimilar, getGroups, getNextScenes }) => {
+const Page = () => {
 	const WIDTH = 1920; // 1920, 1443
 	const HEIGHT = 945; // 945, 700
 	const classes = popoverStyles();
-	// const [ open, setOpen ] = useState(true); // closed, open
+    const dispatch = useDispatch()
 	const [ openPopover, setOpenPopover ] = useState(false);
 	const [ similar, setSimilar ] = useState(false);
 	const [ group, setGroup ] = useState(null);
 	const [ position, setPosition ] = useState(false);
 
+    const submitQuery = useCallback((ignoreInfo, starting_from) => {
+        let query = {
+            before: document.getElementById("Before:").value,
+            beforewhen: document.getElementById("Before:-when").value,
+            current: document.getElementById("Find:").value,
+            after: document.getElementById("After:").value,
+            afterwhen: document.getElementById("After:-when").value
+        };
+        console.log(query)
+        window.scrollTo(0, 0);
+        dispatch(resetSelection());
+        dispatch(setFinishedSearch(starting_from))
+        dispatch(getImages(query, ignoreInfo, starting_from));
+        dispatch(startTimer())
+    }, []);
+
 	const openEvent = useCallback((event, newSimilar, newGroup, newPosition) => {
         setSimilar(newSimilar);
 		if (newSimilar) {
-			getSimilar(newGroup[0]);
+			dispatch(getSimilar(newGroup[0]));
 		}
         else {
-            getGroups(newGroup[0].split('/')[0]);
-            getNextScenes(newGroup, 'current', 'full');
+            dispatch(getGroups(newGroup[0].split('/')[0]));
+            dispatch(getNextScenes(newGroup, 'current', 'full'));
         }
         setGroup(newGroup);
 		setPosition(newPosition);
 		setOpenPopover(true); // eslint-disable-next-line
-	}, [group]);
-
-	const closeEvent = useCallback(() => {
-		setOpenPopover(false);
-		// eslint-disable-next-line
 	}, []);
 
-	// const changeStatus = useCallback((stt) => setOpen(!open), [open]);
+	const closeEvent = useCallback(() => {
+		setOpenPopover(false)
+		// eslint-disable-next-line
+	}, []);
 
 	return (
 		<div style={{ height: HEIGHT, width: WIDTH, position: 'fixed' }}>
 			{' '}
 			{/*700 * 1443, 945 x 1920*/}
-			<Bar open />
+			<Bar open submitQuery={submitQuery} />
 			<SaveSection open openEvent={openEvent} />
 			<Map open />
 			<Submit />
-			<ImageGrid open height={HEIGHT} maxwidth={WIDTH} openEvent={openEvent} />\
+			<ImageGrid open height={HEIGHT} maxwidth={WIDTH} openEvent={openEvent} submitQuery={submitQuery}/>\
 			<Popover
 				open={openPopover}
 				anchorReference="anchorPosition"
@@ -75,13 +91,13 @@ const Page = ({ getSimilar, getGroups, getNextScenes }) => {
 				onEscapeKeyDown={closeEvent}
 				className={classes.popover}
 			>
-				<EventPopover
+				{openPopover && <EventPopover
 					openEvent={openEvent}
 					closeEvent={closeEvent}
 					group={group}
 					position={position}
 					similar={similar}
-				/>
+				/>}
 			</Popover>
 		</div>
 	);

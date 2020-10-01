@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
+import { useDispatch, useSelector } from 'react-redux'
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import Thumbnail from '../redux/Thumbnail-cnt';
@@ -12,6 +13,7 @@ import PublishIcon from '@material-ui/icons/Publish';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
+import {setKeywords, setMustNot, removeMustNot} from '../redux/actions/search'
 
 const useStyles = makeStyles((theme) => ({
 	section: {
@@ -67,20 +69,20 @@ const useStyles = makeStyles((theme) => ({
 		paddingTop: 10,
 		width: '80%',
 		display: 'flex',
-		flexWrap: 'wrap',
-		justifyContent: 'space-evenly',
 		alignItems: 'center',
 		alignContent: 'space-between',
 		margin: 'auto',
 		color: '#CCCCCC',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        height: "40%",
+        overflow: "scroll"
 	},
 	text: {
 		color: '#CCCCCC',
 		width: '100%',
 		display: 'flex',
-		justifyContent: 'flex-end',
-		flexDirection: 'row'
+		flexDirection: 'row',
+        justifyContent: 'flex-end',
 	},
 	keyword: {
 		top: 5,
@@ -124,21 +126,21 @@ const hiddenGroup = [ 'Hidden' ];
 const Hidden = () => <Thumbnail key="saved: Hidden" hidden saved group={hiddenGroup} scale={0.7} />;
 var isEqual = require('lodash.isequal');
 
-// const areEqual = (prevProps, nextProps) => {
-// 	return (
-// 		isEqual(prevProps.keywords, nextProps.keywords) &&
-// 		isEqual(prevProps.info, nextProps.info) &&
-// 		isEqual(prevProps.saved, nextProps.saved)
-// 	);
-// };
+const areEqual = (prev, next) => {
+    return isEqual(prev.saved, next.saved) && isEqual(prev.info, next.info) && isEqual(prev.keywords, next.keywords) && prev.tabValue === next.tabValue
+}
 
-const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, openEvent }) => {
+const SaveSection = memo(({ open, openEvent }) => {
 	const classes = useStyles({ open });
 	const [ tabValue, setTabValue ] = useState(1);
+    const dispatch = useDispatch();
+    const saved = useSelector(state => state.save.saved, isEqual)
+    const info = useSelector(state => state.search.info, isEqual)
+    const keywords = useSelector(state => state.search.keywords, isEqual)
+    const stats = useSelector(state => state.search.stats, isEqual)
 
 	useEffect(
 		() => {
-			var isEqual = require('lodash.isequal');
 			if (info && info.expansion_score) {
 				var newKeywords = Object.keys(info.expansion_score).map((keyword, index) => [
 					keyword,
@@ -147,9 +149,7 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 				newKeywords.sort(function(a, b) {
 					return b[1] - a[1];
 				});
-				if (!isEqual(keywords, newKeywords)) {
-					setKeywords(newKeywords);
-				}
+                dispatch(setKeywords(newKeywords))
 			}
 		},
 		[ info ]
@@ -158,18 +158,19 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 	const increase = (index) => {
 		var newKeywords = keywords.map((a) => ({ ...a }));
 		newKeywords[index][1] += 1;
-		setKeywords(newKeywords);
+        dispatch(setKeywords(newKeywords))
 	};
 
 	const decrease = (index) => {
 		var newKeywords = keywords.map((a) => ({ ...a }));
 		newKeywords[index][1] -= 1;
-		setKeywords(newKeywords);
+		dispatch(setKeywords(newKeywords))
 	};
 
 	const clear = (index) => {
 		var newKeywords = [ ...keywords.slice(0, index), ...keywords.slice(index + 1) ];
-		setKeywords(newKeywords);
+		dispatch(setMustNot(keywords[index][0]))
+        dispatch(setKeywords(newKeywords))
 	};
 
 	const up = (index) => {
@@ -179,7 +180,7 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 			...newKeywords.slice(0, index),
 			...newKeywords.slice(index + 1)
 		];
-		setKeywords(newKeywords);
+		dispatch(setKeywords(newKeywords));
 	};
 
 	const handleChange = (e, index) => {
@@ -188,7 +189,7 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 			var newKeywords = JSON.parse(JSON.stringify(keywords));
 			newKeywords[index][1] = parseFloat(element.value);
 			if (!isEqual(keywords, newKeywords)) {
-				setKeywords(newKeywords);
+				dispatch(setKeywords(newKeywords))
 			}
 			element.blur();
 		}
@@ -202,12 +203,14 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 		[ saved ]
 	);
 
-	keywords.forEach((keyword, index) => {
+	if (keywords) {
+        keywords.forEach((keyword, index) => {
 		var el = document.getElementById('kw' + keyword[0]);
 		if (el !== null) {
 			el.value = null;
 		}
 	});
+    }
 
 	const changeTab = (e, newValue) => {
 		setTabValue(newValue);
@@ -221,6 +224,7 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 			</StyledTabs>
 			<div className={classes.imageContainer} id="save-section">
 				{tabValue === 0 && info ? (
+                    <>
 					<div className={classes.textList}>
 						{info.weekdays.length > 0 ? <Typography> Weekday: {info.weekdays}</Typography> : null}
 						<Typography>
@@ -238,12 +242,6 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 									placeholder={keyword[1].toPrecision(2)}
 									onKeyDown={(e) => handleChange(e, index)}
 								/>
-								<IconButton className={classes.adjustmentIcon} onClick={() => increase(index)}>
-									<PlusOneIcon />
-								</IconButton>
-								<IconButton className={classes.adjustmentIcon} onClick={() => decrease(index)}>
-									<ExposureNeg1Icon />
-								</IconButton>
 								<IconButton className={classes.adjustmentIcon} onClick={() => clear(index)}>
 									<ClearIcon />
 								</IconButton>
@@ -253,6 +251,26 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 							</div>
 						))}
 					</div>
+                    <div className={classes.textList}>
+                    {Object.keys(info.stats).map((keyword) => (
+							stats.includes(keyword)? (
+                            <div key={keyword} className={classes.text}>
+								<Typography className={classes.keyword}><del>{keyword}:</del></Typography>
+                                <Typography className={classes.keyword}><del>{info.stats[keyword]}</del></Typography>
+								<IconButton className={classes.adjustmentIcon} onClick={() => dispatch(removeMustNot(keyword))}>
+									<ClearIcon />
+								</IconButton>
+							</div>) :
+                            (<div key={keyword} className={classes.text}>
+								<Typography className={classes.keyword}>{keyword}:</Typography>
+                                <Typography className={classes.keyword}>{info.stats[keyword]}</Typography>
+								<IconButton className={classes.adjustmentIcon} onClick={() => dispatch(setMustNot(keyword))}>
+									<ClearIcon />
+								</IconButton>
+							</div>)
+						))}
+                    </div>
+                    </>
 				) : tabValue === 1 ? (
 					<div className={classes.list}>
 						{saved.length % 2 !== 0 ? <Hidden key="Hidden" /> : null}
@@ -286,7 +304,7 @@ const SaveSection = ({ open, saved, removeScene, info, keywords, setKeywords, op
 	// 		</div>
 	// 	);
 	// }
-};
+}, areEqual);
 
 SaveSection.whyDidYouRender=true
 
