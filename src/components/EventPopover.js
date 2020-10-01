@@ -80,22 +80,17 @@ const EventPopover = ({
 		const classes = popStyle();
 		const [ nextScenes, setNextScenes ] = useState(null);
 		const [ currentDisplay, setCurrentDisplay ] = useState(group);
-		const [ groups, setGroups ] = useState(null);
 		const [ highlight, setHighlight ] = useState(0);
-		const [ highlightGroup, setHighlightGroup ] = useState(0);
 		const changed = useRef(false);
 		const pressed = useRef(0);
 		const date = useRef(null);
 		const fetchedScenes = useRef(false);
-		const fetchedGroups = useRef(false);
         const dispatch = useDispatch()
         const nextSceneRespone = useSelector(state => state.search.nextSceneRespone)
         const similarResponse = useSelector(state => state.search.similarResponse)
-        const groupResponse = useSelector(state => state.search.groupResponse)
 
 		const detailedContainer = useRef(null);
 		const sceneContainer = useRef(null);
-		const groupContainer = useRef(null);
 
 		useEffect(() => {
 			return () => dispatch(clearNextEvents());
@@ -107,21 +102,14 @@ const EventPopover = ({
 				if (!similar) {
 					date.current = group[0].split('/')[0];
 					fetchedScenes.current = false;
-					fetchedGroups.current = false;
 				} else {
 					fetchedScenes.current = false;
-					fetchedGroups.current = true;
-					if (groups) {
-						setGroups(null);
-					}
 				}
 				if (!isEqual(currentDisplay, group)) {
 					setCurrentDisplay(group);
 				}
 				return () => {
 					fetchedScenes.current = true;
-					fetchedGroups.current = true;
-					setGroups(null);
 					// console.log('set current display to null', res.data.timeline[index] )
 					// setCurrentDisplay(null)
 					setNextScenes(null);
@@ -136,7 +124,6 @@ const EventPopover = ({
 				if (nextSceneRespone) {
 					nextSceneRespone.then((res) => {
 						setHighlight(res.data.position);
-						setHighlightGroup(res.data.group);
 						if (!fetchedScenes.current) {
 							console.log('next scene');
 							const index = res.data.position;
@@ -162,44 +149,6 @@ const EventPopover = ({
 
 		useEffect(
 			() => {
-				if (similarResponse) {
-					similarResponse.then((res) => {
-						console.log('similar');
-						if (similar && !fetchedScenes.current && res.data.scenes !== undefined) {
-							if (!isEqual(res.data.scenes, nextScenes)) {
-								setNextScenes(res.data.scenes);
-							}
-							if (currentDisplay && !currentDisplay.includes(res.data.scenes[0][0])) {
-								setCurrentDisplay(res.data.scenes[0]);
-							}
-							setHighlight(0);
-						}
-						fetchedScenes.current = true;
-					});
-				}
-			},
-			[ similarResponse ]
-		);
-
-		useEffect(
-			() => {
-				if (groupResponse) {
-					groupResponse.then((res) => {
-						if (!fetchedGroups.current) {
-							console.log('group');
-							if (!isEqual(res.data.timeline, groups) && res.data.timeline) {
-								setGroups(res.data.timeline);
-							}
-						}
-						fetchedGroups.current = true;
-					});
-				}
-			},
-			[ groupResponse ]
-		);
-
-		useEffect(
-			() => {
 				if (highlight >= 0) {
 					const column = Math.floor((highlight + 0.6) * (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 + 8));
 					var el = document.getElementById('scenegrid');
@@ -216,26 +165,6 @@ const EventPopover = ({
 				}
 			},
 			[ nextScenes, highlight ]
-		);
-
-		useEffect(
-			() => {
-				if (highlightGroup >= 0) {
-					const column = Math.floor((highlightGroup + 0.6) * (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 * 0.8 + 8));
-					var el = document.getElementById('groupgrid');
-					var newPos = Math.max(0, column - el.offsetWidth * 0.5);
-					setTimeout(
-						() =>
-							el.scrollTo({
-								top: 0,
-								left: newPos,
-								behavior: 'smooth'
-							}),
-						100
-					);
-				}
-			},
-			[ highlightGroup ]
 		);
 
 		const setDetailedImages = useCallback(
@@ -260,25 +189,10 @@ const EventPopover = ({
 			[ similar, nextScenes ]
 		);
 
-		const setDetailedGroups = useCallback(
-			(image) => {
-				dispatch(getNextScenes([ image ], 'current', 'full'));
-				fetchedScenes.current = false;
-				changed.current = true;
-			},
-			[ similar, groups ]
-		);
-
 		const revert = () => {
 			changed.current = false;
 			setCurrentDisplay(group);
-            if (!similar){
-                dispatch(getNextScenes(group, 'current', 'full'));
-            }
-            else {
-                dispatch(getSimilar(group[0]))
-            }
-
+            dispatch(getNextScenes(group, 'current', 'full'));
 			fetchedScenes.current = false;
 		};
 
@@ -314,20 +228,6 @@ const EventPopover = ({
 								image={scene[0]}
 								scale={index === highlight ? 1.15 : 0.95}
 								onClick={setDetailedImages}
-								openEvent={openEvent}
-								similar={similar}
-							/>
-						))
-					) : null}
-				</div>
-				<div id="groupgrid" className={classes.grid} ref={groupContainer}>
-					{groups ? (
-						groups.map((gr, index) => (
-							<Image
-								key={'group' + gr}
-								image={gr}
-								scale={index === highlightGroup ? 0.95 : 0.75}
-								onClick={setDetailedGroups}
 								openEvent={openEvent}
 								similar={similar}
 							/>

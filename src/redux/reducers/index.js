@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import search, { searchState } from './search';
 import save from './save';
 import select, { selectState } from './select';
-import { NEXT_QUERY, EXPORT_SAVED, START_TIMER, SET_TIMER } from '../actions/submit';
+import { NEXT_QUERY, EXPORT_SAVED, START_TIMER, SET_TIMER, SUBMIT_IMAGE } from '../actions/submit';
 import axios from 'axios';
 
 const appReducer = combineReducers({
@@ -64,6 +64,9 @@ const rootReducer = (state, action) => {
                     timerRunning: true}
         }
 	}
+    else if (action.type == SUBMIT_IMAGE) {
+        alert(action.image)
+    }
 	return state;
 };
 

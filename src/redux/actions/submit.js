@@ -5,7 +5,7 @@ export const START_TIMER = 'START_TIMER'
 export const PAUSE_TIMER = 'PAUSE_TIMER'
 export const DISABLE = 'DISABLE'
 export const SET_TIMER = 'SET_TIMER'
-
+export const SUBMIT_IMAGE = 'SUBMIT_IMAGE'
 export function nextQuery(time) {
     return { type: NEXT_QUERY, time }
 }
@@ -28,4 +28,8 @@ export function disable() {
 
 export function setTimer(time) {
     return {type: SET_TIMER, time}
+}
+
+export function submitImage(image) {
+    return {type: SUBMIT_IMAGE, image}
 }

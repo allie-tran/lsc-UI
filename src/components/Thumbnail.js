@@ -4,13 +4,14 @@ import { makeStyles } from '@material-ui/core/styles';
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
 import IconButton from '@material-ui/core/IconButton';
-// import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
+import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import ImageSearchIcon from '@material-ui/icons/ImageSearch';
 import {useDispatch} from 'react-redux'
 import LazyLoad from 'react-lazy-load';
 import { saveScene, removeScene } from '../redux/actions/save'
 import { sendToMap } from '../redux/actions/select'
 import { getGPS } from '../redux/actions/search'
+import { submitImage } from '../redux/actions/submit'
 
 const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
@@ -71,27 +72,16 @@ const thumbnailStyles = makeStyles((theme) => ({
 			backgroundColor: '#FF6584'
 		},
 		zIndex: (props) => (props.highlight ? 2 : 1),
-		visibility: (props) => (props.hidden ? 'hidden' : 'visible')
-	},
-	similarButton: {
-		position: 'absolute',
-		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 25,
-		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 25,
-		color: '#fff',
-		backgroundColor: 'rgba(255, 255, 255, 0.5)',
-		borderRadius: 3,
-		'&:hover': {
-			backgroundColor: '#FF6584'
-		},
-		zIndex: (props) => (props.highlight ? 2 : 1),
 		visibility: (props) => (props.hidden ? 'hidden' : 'visible'),
-		padding: 0
+        padding: 0
 	}
 }));
 
 
 const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonClick }) => {
 	const classes = thumbnailStyles({ hidden, scale, saved, highlight });
+    const dispatch = useDispatch()
+
 	if (saved === undefined) {
 		return (
 			<div className={classes.card}>
@@ -108,20 +98,19 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 					onClick={(e) => openEvent(e, false)}
 				/>
                 </LazyLoad>
-				<IconButton onClick={onButtonClick} className={classes.saveButton}>
-					<BookmarkBorderRoundedIcon fontSize="small" />
-				</IconButton>
-				<IconButton onClick={(e) => openEvent(e, true)} className={classes.similarButton}>
-					<ImageSearchIcon fontSize="small" />
-				</IconButton>
-				{/* <CheckRoundedIcon fontSize="small" className={classes.submitButton} /> */}
+                <IconButton onClick={onButtonClick} className={classes.saveButton}>
+                    <BookmarkBorderRoundedIcon fontSize="small" />
+                </IconButton>
+                <IconButton onClick={(e) => dispatch(submitImage(img))} className={classes.submitButton}>
+                    <CheckRoundedIcon fontSize="small" />
+                </IconButton>
 			</div>
 		);
 	}
 	return (
 		<div className={classes.card}>
 			{hidden ? (
-				<img alt={img} className={classes.image} onClick={(e) => openEvent(e, false)} />
+				<img alt={img} className={classes.image} onClick={(e) => dispatch(submitImage(img))} />
 			) : (
 				<img
 					alt={img}
@@ -133,10 +122,9 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 			<IconButton onClick={onButtonClick} className={classes.saveButton}>
 				<DeleteOutlineRoundedIcon fontSize="small" />
 			</IconButton>
-			<IconButton onClick={(e) => openEvent(e, true)} className={classes.similarButton}>
-				<ImageSearchIcon fontSize="small" />
+			<IconButton onClick={(e) => openEvent(e, true)} className={classes.submitButton}>
+				<CheckRoundedIcon fontSize="small" />
 			</IconButton>
-			{/* <CheckRoundedIcon fontSize="small" className={classes.submitButton} /> */}
 		</div>
 	);
 };
@@ -203,5 +191,6 @@ const Thumbnail = ({
 		return <Hidden num={1}/>;
 	}
 };
+Thumbnail.whyDidYouRender = true
 
 export default Thumbnail;

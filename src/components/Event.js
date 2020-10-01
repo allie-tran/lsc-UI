@@ -12,6 +12,7 @@ const eventStyles = makeStyles(theme => ({
         width: 465,
         height: IMAGE_HEIGHT / RESIZE_FACTOR * 2,
         alignItems: "center",
+        padding: 10,
     }
 }));
 
@@ -20,13 +21,13 @@ const areEqual = (prevProps, nextProps) => {
     return isEqual(prevProps.scene, nextProps.scene)
 }
 
-const Event = memo(({ index, scene, setRef, openEvent}) => {
+const Event = memo(({ index, group, openEvent}) => {
     const classes = eventStyles();
     return (
         <div className={classes.group}>
-            <Thumbnail key={index+"before"} index={index} group={scene.before} scale={0.7} position="before" openEvent={openEvent} />
-            <Thumbnail key={index+"current"} setRef={setRef} index={index} group={scene.current} scale={1} position="current" openEvent={openEvent}/>
-            <Thumbnail key={index+"after"} index={index} group={scene.after} scale={0.7} position="after" openEvent={openEvent}/>
+            <Thumbnail key={index+"before"} index={index} group={group.before} scale={0.7} position="before" openEvent={openEvent} />
+            <Thumbnail key={index+"current"} index={index} group={group.current} scale={1} position="current" openEvent={openEvent}/>
+            <Thumbnail key={index+"after"} index={index} group={group.after} scale={0.7} position="after" openEvent={openEvent}/>
         </div>
     );
 }, areEqual)

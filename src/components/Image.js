@@ -3,13 +3,12 @@ import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
-// import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
+import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import IconButton from '@material-ui/core/IconButton';
-import ImageSearchIcon from '@material-ui/icons/ImageSearch';
-import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import LazyLoad from 'react-lazy-load';
 import { connect } from 'react-redux'
 import { saveScene } from '../redux/actions/save'
+import { submitImage } from '../redux/actions/submit'
 
 const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
@@ -66,34 +65,6 @@ const imageStyles = makeStyles((theme) => ({
 		zIndex: (props) => (props.highlight ? 2 : 1),
 		visibility: (props) => (props.hidden ? 'hidden' : 'visible')
 	},
-	similarButton: {
-		position: 'absolute',
-		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 - 25,
-		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 - 25,
-		color: '#fff',
-		backgroundColor: 'rgba(255, 255, 255, 0.5)',
-		borderRadius: 3,
-		'&:hover': {
-			backgroundColor: '#FF6584'
-		},
-		zIndex: (props) => (props.highlight ? 2 : 1),
-		visibility: (props) => (props.hidden ? 'hidden' : 'visible'),
-		padding: 0
-	},
-	timeButton: {
-		position: 'absolute',
-		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 - 25,
-		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 - 75,
-		color: '#fff',
-		backgroundColor: 'rgba(255, 255, 255, 0.5)',
-		borderRadius: 3,
-		'&:hover': {
-			backgroundColor: '#FF6584'
-		},
-		zIndex: (props) => (props.highlight ? 2 : 1),
-		visibility: (props) => (props.hidden ? 'hidden' : 'visible'),
-		padding: 0
-	},
 	info: {
 		paddingLeft: 5
 	}
@@ -121,18 +92,9 @@ const Image = ({ image, scale, info, onClick, openEvent, similar }) => {
 				<IconButton onClick={() => dispatch(saveScene([ image ]))} className={classes.saveButton}>
 					<BookmarkBorderRoundedIcon fontSize="small" />
 				</IconButton>
-				<IconButton onClick={(e) => openEvent(e, true, [ image ], 'current')} className={classes.similarButton}>
-					<ImageSearchIcon fontSize="small" />
+                <IconButton onClick={() => dispatch(submitImage(image))} className={classes.submitButton}>
+					<CheckRoundedIcon fontSize="small" />
 				</IconButton>
-				{similar && (
-					<IconButton
-						onClick={(e) => openEvent(e, false, [ image ], 'current')}
-						className={classes.timeButton}
-					>
-						<AccessTimeIcon fontSize="small" />
-					</IconButton>
-				)}
-				{/* <CheckRoundedIcon fontSize="small" className={classes.submitButton} /> */}
 				{info && <Typography className={classes.info}>{image}</Typography>}
 			</div>
 		);

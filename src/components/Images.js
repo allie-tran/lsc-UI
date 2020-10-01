@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { trackPromise, usePromiseTracker } from 'react-promise-tracker';
 import ReactLoading from 'react-loading';
 import Typography from '@material-ui/core/Typography';
-import Thumbnail from './Thumbnail';
+import Event from './Event';
 import Button from '@material-ui/core/Button';
 import { setMap, setQueryBound, setQueryInfo, getImages, setFinishedSearch } from '../redux/actions/search';
 import { resetSelection } from '../redux/actions/select';
@@ -29,7 +29,8 @@ const gridStyles = makeStyles((theme) => ({
 	grid: {
 		width: '100%',
 		display: 'flex',
-		flexDirection: 'column',
+		flexDirection: 'row',
+        flexWrap: 'wrap',
 		// height: props => props.height,
 		// flexGrow: 1,
 		backgroundImage: 'linear-gradient(180deg, rgba(0, 0, 0, 0.15) 50%, transparent 50%)',
@@ -44,17 +45,6 @@ const gridStyles = makeStyles((theme) => ({
 		top: 50,
 		paddingTop: 20,
 		color: '#CCCCCC'
-	},
-	dategrid: {
-		width: '96%',
-		minHeight: IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920,
-		overflow: 'auto',
-		padding: '35px 10px 35px 10px',
-		display: 'flex',
-		alignItems: 'center',
-		flexDirection: 'row',
-		flexShrink: 0,
-		position: 'relative'
 	},
 	popover: {
 		width: '80%',
@@ -161,34 +151,20 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
 				</Typography>
 				<div id="grid" className={classes.grid}>
 					{dates.map((date, index) => (
-						<LazyLoad debounce={false} height={IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 + 70} offset={500} key={'dategrid' + index}>
-							<div className={classes.dategrid} id={'dategrid' + index}>
-								{date.map(
-									(scene, id) =>
-										scene === null ? (
-											<Hidden key={'midhidden' + index + '-' + id} num={1} />
-										) : (
-											<LazyLoad
-												height={IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920}
-												offset={500}
-												key={scene.current[0]}
-                                                debounce={false}
-											>
-												<Thumbnail
-													key={scene.current[0]}
-													index={index + '-' + id}
-													group={scene.current}
-													scale={1}
-													position="current"
-													openEvent={openEvent}
-												/>
-											</LazyLoad>
-										)
-								)}
-								{/* <Hidden key={'endhidden'} num={8} /> */}
-							</div>
-						</LazyLoad>
-					))}
+                        date.map(
+                            (scene, id) =>
+                                scene === null ? (
+                                    <Hidden key={'midhidden' + index + '-' + id} num={1} />
+                                ) : (
+                                        <Event
+                                            key={scene.current[0]}
+                                            index={index + '-' + id}
+                                            group={scene}
+                                            openEvent={openEvent}
+                                        />
+                                )
+                        )
+                    ))}
 					{finished && !(finished % 2000) && finished <= 8000 ? (
 						<Button onClick={() => submitQuery(true, finished)}> MORE </Button>
 					) : null}
