@@ -38,7 +38,7 @@ const Bar = memo(({ open, submitQuery }) => {
             </IconButton>
         </AppBar>
     )
-});
+}, () => true);
 
 Bar.whyDidYouRender = true
 
