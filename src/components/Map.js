@@ -185,6 +185,7 @@ const Map = ({ open }) => {
 					}).addTo(pathLine.current);
 					polyline.on({ click: (e) => map.current.fitBounds(e.target.getBounds()) });
 					path = [];
+            console.log(selected)
 				}
 
 				date_selected.gps_path.forEach((gps) => {

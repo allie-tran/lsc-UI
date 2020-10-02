@@ -81,6 +81,14 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
 	const [ dates, setDates ] = useState([]);
 	const { promiseInProgress } = usePromiseTracker();
 	const finished = useSelector((state) => state.search.finishedSearch);
+    const highlightRef = React.createRef([]);
+
+    const setRef = (index) => {
+        if (highlightRef.current === null){
+            highlightRef.current = []
+        }
+        highlightRef.current.push(index)
+    }
 	const collection = useSelector((state) => state.search.collection);
 	const saveResponse = useSelector((state) => state.save.saveResponse);
 
@@ -173,5 +181,28 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
 		);
 	}
 };
+
+function useOnClickOutside(ref, handler) {
+  useEffect(
+    () => {
+            const listener = event => {
+            // Do nothing if clicking ref's element or descendent elements
+            if (!ref.current || ref.current.includes(event.target)) {
+            return;
+            }
+            handler(event);
+            };
+
+            document.addEventListener('mousedown', listener);
+            document.addEventListener('touchstart', listener);
+
+            return () => {
+                document.removeEventListener('mousedown', listener);
+                document.removeEventListener('touchstart', listener);
+            };
+    },
+    [ref, handler]
+  );
+}
 
 export default ImageGrid;
