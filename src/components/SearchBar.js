@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
 		justifyContent: 'center',
 		alignItems: 'center',
 		width: (props) => (props.type === 'Find:' ?  "100%" : "50%"),
-		height: 100,
+        height: "100%",
 		'& p': {
 			color: '#F4CDD2',
 			padding: 5

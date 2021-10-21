@@ -48,3 +48,11 @@ code {
     background: #6165ff;
     border-radius: 5pt;
 }
+
+.text-below-marker {
+  min-width: 100px;
+  left: -50px;
+  text-align: center;
+  min-height: 1.2em;
+  color: "#FF6584"
+}

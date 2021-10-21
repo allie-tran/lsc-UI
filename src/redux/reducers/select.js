@@ -7,7 +7,8 @@ import {
 export const selectState = {
     selected: null,
     markersSelected: [],
-    currentMarker: -1
+    currentMarker: -1,
+    visualise: []
 };
 var isEqual = require('lodash.isequal');
 

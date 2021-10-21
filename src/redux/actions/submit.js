@@ -6,6 +6,7 @@ export const PAUSE_TIMER = 'PAUSE_TIMER'
 export const DISABLE = 'DISABLE'
 export const SET_TIMER = 'SET_TIMER'
 export const SUBMIT_IMAGE = 'SUBMIT_IMAGE'
+export const SET_SESSION_NAME = 'SET_SESSION_NAME'
 export function nextQuery(time) {
     return { type: NEXT_QUERY, time }
 }
@@ -32,4 +33,8 @@ export function setTimer(time) {
 
 export function submitImage(image) {
     return {type: SUBMIT_IMAGE, image}
+}
+
+export function setSessionName(sessionName) {
+    return { type: SET_SESSION_NAME, sessionName }
 }

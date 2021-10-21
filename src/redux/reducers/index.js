@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import search, { searchState } from './search';
 import save from './save';
 import select, { selectState } from './select';
-import { NEXT_QUERY, EXPORT_SAVED, START_TIMER, SET_TIMER, SUBMIT_IMAGE } from '../actions/submit';
+import { NEXT_QUERY, EXPORT_SAVED, START_TIMER, SET_TIMER, SUBMIT_IMAGE, SET_SESSION_NAME } from '../actions/submit';
 import axios from 'axios';
 
 const appReducer = combineReducers({
@@ -39,7 +39,7 @@ const rootReducer = (state, action) => {
                 currentQuery: newQuery,
                 saved: state.save.saved.length === 0 ? state.save.saved : [],
                 timerRunning: false,
-                saveResponse: axios.post('http://localhost:7999/api/getsaved?query_id=' + newQuery),
+                saveResponse: axios.post('http://mysceal-sv.computing.dcu.ie/api/getsaved?query_id=' + newQuery),
                 finished: newFinished,
                 time: newFinished[newQuery - 1]
             },
@@ -64,8 +64,19 @@ const rootReducer = (state, action) => {
                     timerRunning: true}
         }
 	}
-    else if (action.type == SUBMIT_IMAGE) {
-        alert(action.image)
+    else if (action.type === SET_SESSION_NAME) {
+        return {
+            ...state,
+            save: {
+                ...state.save,
+                sessionName: action.sessionName
+            }
+        }
+    }
+    else if (action.type === SUBMIT_IMAGE) {
+        console.log(state)
+        const response = axios.get('http://duy-be.computing.dcu.ie/submit?session_name=' + state.save.sessionName + '&imageid=' + action.image.split('.')[0].split('/')[1])
+        response.then((res) => {console.log(res.data); alert(res.data.description)})
     }
 	return state;
 };

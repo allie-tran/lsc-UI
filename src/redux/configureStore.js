@@ -6,7 +6,7 @@ import reducer from './reducers'
 // import thunkMiddleware from 'redux-thunk'
 
 const client = axios.create({ //all axios can be used, shown in axios documentation
-  baseURL:'http://localhost:7999/api',
+  baseURL:'http://mysceal-sv.computing.dcu.ie/api',
   responseType: 'json'
 });
 

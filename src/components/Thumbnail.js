@@ -31,7 +31,12 @@ const thumbnailStyles = makeStyles((theme) => ({
 			zIndex: 1,
 			boxShadow: '3px 3px 3px rgba(0, 0, 0, 0.5)'
 		},
-		transition: 'all 150ms ease-in',
+		transition: 'all 100ms ease-in',
+        "&:hover, &:focus": {
+            width: (props) =>  IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 * (props.saved? 1: 3),
+            height: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 * (props.saved? 1: 3),
+            zIndex: 10000,
+        }
 	},
 	highlight: {},
 	row: {
@@ -39,18 +44,20 @@ const thumbnailStyles = makeStyles((theme) => ({
 	},
 	card: {
 		width: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 ,
-		height: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 ,
+        height: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 ,
 		display: 'flex',
 		flexDirection: 'column',
 		position: 'relative',
-		marginBottom: (props) => (props.saved ? 40 : 0),
+		marginTop: (props) => (props.saved ? 40 : 0),
+        marginBottom: (props) => (props.saved ? 40 : 0),
 		marginLeft: 4,
-		marginRight: 4
-	},
+		marginRight: 4,
+    },
 	saveButton: {
 		position: 'absolute',
-		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 25,
-		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 50,
+        top: -25,
+        left: 0,
+        flexShrink: 0,
 		color: '#fff',
 		backgroundColor: 'rgba(255, 255, 255, 0.5)',
 		borderRadius: 3,
@@ -63,8 +70,9 @@ const thumbnailStyles = makeStyles((theme) => ({
 	},
 	submitButton: {
 		position: 'absolute',
-		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 25,
-		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920  - 25,
+        flexShrink: 0,
+        top: -25,
+        left: 25,
 		color: '#fff',
 		backgroundColor: 'rgba(255, 255, 255, 0.5)',
 		borderRadius: 3,
@@ -85,6 +93,12 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 	if (saved === undefined) {
 		return (
 			<div className={classes.card}>
+            <IconButton onClick={onButtonClick} className={classes.saveButton}>
+                    <BookmarkBorderRoundedIcon fontSize="small" />
+                </IconButton>
+                <IconButton onClick={(e) => dispatch(submitImage(img))} className={classes.submitButton}>
+                    <CheckRoundedIcon fontSize="small" />
+                </IconButton>
                 <LazyLoad
 					height={IMAGE_HEIGHT/ RESIZE_FACTOR * scale * window.innerWidth / 1920 }
                     width={IMAGE_WIDTH / RESIZE_FACTOR * scale * window.innerWidth / 1920 }
@@ -98,17 +112,18 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 					onClick={(e) => openEvent(e, false)}
 				/>
                 </LazyLoad>
-                <IconButton onClick={onButtonClick} className={classes.saveButton}>
-                    <BookmarkBorderRoundedIcon fontSize="small" />
-                </IconButton>
-                <IconButton onClick={(e) => dispatch(submitImage(img))} className={classes.submitButton}>
-                    <CheckRoundedIcon fontSize="small" />
-                </IconButton>
+
 			</div>
 		);
 	}
 	return (
 		<div className={classes.card}>
+        <IconButton onClick={onButtonClick} className={classes.saveButton}>
+				<DeleteOutlineRoundedIcon fontSize="small" />
+			</IconButton>
+			<IconButton onClick={(e) => dispatch(submitImage(img))} className={classes.submitButton}>
+				<CheckRoundedIcon fontSize="small" />
+			</IconButton>
 			{hidden ? (
 				<img alt={img} className={classes.image} onClick={(e) => dispatch(submitImage(img))} />
 			) : (
@@ -119,23 +134,18 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 					onClick={(e) => openEvent(e, false)}
 				/>
 			)}
-			<IconButton onClick={onButtonClick} className={classes.saveButton}>
-				<DeleteOutlineRoundedIcon fontSize="small" />
-			</IconButton>
-			<IconButton onClick={(e) => openEvent(e, true)} className={classes.submitButton}>
-				<CheckRoundedIcon fontSize="small" />
-			</IconButton>
+
 		</div>
 	);
 };
 
 const hiddenStyles = makeStyles((theme) => ({
 	hidden: {
-        flexBasis: ({num}) => (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 + 4) * num,
-		minWidth: ({num}) => (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 + 4) * num,
-        width: ({num}) => (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920  + 4) * num,
-		minHeight: IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 ,
-        height: IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 ,
+        flexBasis: ({num, scale}) => (IMAGE_WIDTH / RESIZE_FACTOR * scale *  window.innerWidth / 1920 + 4) * num,
+		minWidth: ({num, scale}) => (IMAGE_WIDTH / RESIZE_FACTOR * scale * window.innerWidth / 1920 + 4) * num,
+        width: ({num, scale}) => (IMAGE_WIDTH / RESIZE_FACTOR * scale * window.innerWidth / 1920  + 4) * num,
+		minHeight: ({scale}) => IMAGE_HEIGHT / RESIZE_FACTOR * scale * window.innerWidth / 1920 ,
+        height: ({scale}) => IMAGE_HEIGHT / RESIZE_FACTOR * scale * window.innerWidth / 1920 ,
         marginLeft: 6,
         marginRight: 6,
         position: 'relative',
@@ -144,8 +154,8 @@ const hiddenStyles = makeStyles((theme) => ({
         visibility: 'hidden'
 	}
 }));
-const Hidden = ({ num }) => {
-	const classes = hiddenStyles({num});
+const Hidden = ({ num, scale }) => {
+	const classes = hiddenStyles({num, scale});
 	return (
 			<div className={classes.hidden}> Hidden </div>
 	);
@@ -188,7 +198,7 @@ const Thumbnail = ({
 			/>
 		);
 	} else {
-		return <Hidden num={1}/>;
+		return <Hidden num={1} scale={scale}/>;
 	}
 };
 Thumbnail.whyDidYouRender = true

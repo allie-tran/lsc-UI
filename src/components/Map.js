@@ -1,40 +1,45 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
-// import KeyboardArrowLeftRoundedIcon from '@material-ui/icons/KeyboardArrowLeftRounded';
-// import KeyboardArrowRightRoundedIcon from '@material-ui/icons/KeyboardArrowRightRounded';
-// import IconButton from '@material-ui/core/IconButton';
+import GpsOffRoundedIcon from '@material-ui/icons/GpsOffRounded';
+import GpsFixedRoundedIcon from '@material-ui/icons/GpsFixedRounded';
+import IconButton from '@material-ui/core/IconButton';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet-polylinedecorator';
 import 'leaflet-area-select';
 import { makeStyles } from '@material-ui/core/styles';
 import { setQueryBound } from '../redux/actions/search';
+import worldmap from '../worldmap'
+import commonPlace from '../commonplace'
+
 var isEqual = require('lodash.isequal');
 
 const PRECISION = 5;
 const useStyles = makeStyles((theme) => ({
 	map: {
 		position: 'fixed',
-		left: (props) => (props.open ? 'calc(80% + 5px)' : 'calc(97% + 5px)'),
-		width: 'calc(20% - 5px)',
-		height: '50%',
+		left: (props) => (props.open ? '75%' : 'calc(97% + 5px)'),
+		width: '30%',
+		height: 'calc(70% - 5px)',
+        paddingLeft: 10,
 		borderRadius: 2,
-		filter: (props) => (props.open ? 'none' : 'brightness(20%)'),
+		filter: (props) => (props.open ? 'none' : 'brightness(25%)'),
 		zIndex: 3,
-		top: '50%',
-		margin: 0
+		top: 60,
+		margin: 0,
+        border: "5px solid #272727",
 	},
 	icon: {
 		padding: 0,
 		backgroundColor: '#f7f7f7',
-		left: (props) => (props.open ? `calc(80% - 25px)` : `calc(97% - 25px)`),
-		top: '90%',
+		right: "0.5%",
+		top: 'calc(100px + 0.5%)',
+        position: "fixed",
 		zIndex: 4
 	},
 	insideIcon: {
-		color: '#FF6584',
-		fontSize: 50
+		color: '#272727',
+		fontSize: 36
 	}
 }));
 
@@ -65,8 +70,11 @@ var cancelIcon = L.Icon.extend({
 
 const Map = ({ open }) => {
 	const classes = useStyles({ open });
+    const [status, setStatus] = useState(true)
 	const dispatch = useDispatch();
 	const stateBounds = useSelector((state) => state.search.bounds);
+    const visualisation = useSelector((state) => state.search.info);
+
 	const dates = useSelector((state) => state.search.dates, isEqual);
 	const selected = useSelector((state) => state.select.selected);
 	const gpsResponse = useSelector((state) => state.search.gpsResponse);
@@ -76,34 +84,74 @@ const Map = ({ open }) => {
 	const pathLine = useRef(null);
 	const boundLine = useRef(null);
 	const pane = useRef(null);
+    const namePane = useRef(null);
+    const nameLayer = useRef(null);
+
+    const style = (geoJsonFeature) => {
+        return {"fillColor": "#FF6584", "fillOpacity": 0.15, "color": "white", "weight": 1}
+    }
+
+    const addLocation = (name, latlon) => {
+        L.circleMarker(latlon,
+                        {radius: 10,
+                         weight: 2,
+                         title: name,
+                         zIndexOffset: 200,
+                         color: "#6C63FF",
+                         pane:namePane.current}).addTo(nameLayer.current);
+        L.marker(latlon,
+                    {
+                    icon: L.divIcon({
+                        html: "<b>" + name + "</b>",
+                        className: 'text-below-marker',
+                        }),
+                    pane:namePane.current,
+                    zIndexOffset: 201,
+                    }).addTo(nameLayer.current);
+    }
+
 
 	useEffect(() => {
 		if (map.current) {
 			return;
 		}
 		map.current = L.map('map', { selectArea: true, maxZoom: 17 }).setView([ 53.384811, -6.26319 ], 13);
-
 		map.current.on('areaselected', (e) => {
 			map.current.fitBounds(e.bounds, { minZoom: map.current._zoom });
 			dispatch(setQueryBound(e.bounds.toBBoxString().split(',')));
 		});
 
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map.current);
 
-		L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
-			maxZoom: 18,
-			attribution:
-				'&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-		}).addTo(map.current);
+		// L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+		// 	maxZoom: 18,
+		// 	attribution:
+		// 		'&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+		// }).addTo(map.current);
 
 		pane.current = map.current.createPane('pathPane');
 		map.current.getPane('pathPane').style.zIndex = 625;
 		map.current.getPane('pathPane').style.pointerEvents = 'none';
+        namePane.current = map.current.createPane('namePane');
+		map.current.getPane('namePane').style.zIndex = 600;
+		map.current.getPane('namePane').style.pointerEvents = 'none';
 		pathLine.current = new L.LayerGroup([]);
 		boundLine.current = new L.LayerGroup([]);
+        nameLayer.current = new L.LayerGroup([]);
+
+        // addLocation("Home", [53.3891, -6.1582])
+        // addLocation("Work", [53.385620932388115, -6.257628756040199])
+        // // addLocation("The Helix", [53.38619606558428, -6.258864863835501])
+        // addLocation("Science Gallery Café ", [53.344411213087845, -6.251248623461222])
+        // addLocation("Clarion Hotel The Edge", [69.6475272599796, 18.95679219883619])
+
         clustersMain.current = new L.markerClusterGroup({
 					spiderfyOnMaxZoom: false,
 					maxClusterRadius: 80,
-					polygonOptions: { weight: 1, opacity: 0.5 },
+					polygonOsptions: { weight: 1, opacity: 0.5 },
 					animate: true,
 					animateAddingMarkers: true,
 					singleMarkerMode: true
@@ -112,12 +160,22 @@ const Map = ({ open }) => {
 
 	useEffect(
 		() => {
-			if (dates.length > 0) {
+			if (status && dates.length > 0) {
 				if (clustersMain.current) {
 					clustersMain.current.clearLayers();
 				}
-				dates.forEach((date, id) => {
-					date.forEach((scene, index) => {
+                if (visualisation){
+                    visualisation.place_to_visualise.forEach(name => {
+                        addLocation(name, [commonPlace[name][0].toPrecision(PRECISION), commonPlace[name][1].toPrecision(PRECISION)])
+                    });
+
+                    visualisation.country_to_visualise.forEach(name => {
+                        console.log(worldmap[name]);
+                        L.geoJson(worldmap[name], {style: style}).addTo(nameLayer.current);
+                    })
+                }
+
+				dates.forEach((scene, id) => {
 						if (scene && scene.gps) {
 							var marker = L.marker(
 								[
@@ -125,28 +183,31 @@ const Map = ({ open }) => {
 									scene.gps[1][0].lon.toPrecision(PRECISION)
 								],
 								{
-									icon: new subIcon({ index: index }),
-									attribution: id + '-' + index
+									icon: new subIcon({ index: id }),
+									attribution: id
 								}
 							);
 							clustersMain.current.addLayer(marker);
 						}
-					});
 				});
 				map.current.addLayer(clustersMain.current);
+                map.current.addLayer(nameLayer.current);
 				map.current.fitBounds(clustersMain.current.getBounds());
 			}
-			return () => clustersMain.current.clearLayers();
+			return () =>
+            {
+                clustersMain.current.clearLayers();
+                nameLayer.current.clearLayers();
+            }
 		}, // eslint-disable-next-line
-		[ dates ]
+		[ dates, status, visualisation]
 	);
 
 	useEffect(
 		() => {
-			if (selected) {
+			if (status && selected) {
                 console.log(selected)
-				var [ index, id ] = selected.split('-');
-				const date_selected = dates[index][id];
+				const date_selected = dates[selected];
 				pathLine.current.clearLayers();
 				const color = [ 'rgb(255, 101, 132)', 'rgb(108, 99, 255)', 'rgb(33, 33, 33)' ];
 				let path = [];
@@ -238,7 +299,7 @@ const Map = ({ open }) => {
 			}
 			return () => pathLine.current.clearLayers();
 		}, // eslint-disable-next-line
-		[ selected ]
+		[ selected, status ]
 	);
 
 	useEffect(
@@ -247,30 +308,43 @@ const Map = ({ open }) => {
 				pathLine.current.clearLayers();
 				gpsResponse.then((res) => {
 					var gps = res.data.gps;
-					if (gps !== null) {
+                    var location = res.data.location;
+					if (status && gps) {
 						var marker = L.marker([ gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION) ], {
 							icon: mainIcon,
 							pane: pane.current,
 							interactive: false
 						}).addTo(pathLine.current);
+
+                        L.marker([gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION)],
+                            {
+                                icon: L.divIcon({
+                                    html: "<b>" + location + "</b>",
+                                    className: 'text-below-marker',
+                                }),
+                                pane: pane.current,
+                                zIndexOffset: 1001,
+                            }).addTo(pathLine.current);
+
 						// Zooming
 						map.current.setView(marker.getLatLng());
 						// map.current.setView(marker.getLatLng());
 						map.current.addLayer(pathLine.current);
 					}
+
 				});
 			}
 
 			return () => pathLine.current.clearLayers();
 		}, // eslint-disable-next-line
-		[ gpsResponse ]
+		[ gpsResponse, status ]
 	);
 
 	useEffect(
 		() => {
             boundLine.current.clearLayers()
 			// map.current.setView(center, zoom);
-			if (stateBounds) {
+			if (status && stateBounds) {
                 var latlngBounds = L.latLngBounds([ parseFloat(stateBounds[3]), parseFloat(stateBounds[0]) ],
 						            [ parseFloat(stateBounds[1]), parseFloat(stateBounds[2]) ])
 				L.rectangle(
@@ -286,17 +360,17 @@ const Map = ({ open }) => {
 				boundLine.current.clearLayers();
 			}
 		},
-		[ stateBounds ]
+		[ stateBounds, status ]
 	);
 	return [
-		<div key="map" id="map" className={classes.map} />
-		// <IconButton key="icon" size="small" className={classes.icon} onClick={changeStatus}>
-		// 	{open ? (
-		// 		<KeyboardArrowRightRoundedIcon className={classes.insideIcon} />
-		// 	) : (
-		// 		<KeyboardArrowLeftRoundedIcon className={classes.insideIcon} />
-		// 	)}
-		// </IconButton>
+		<div key="map" id="map" className={classes.map} />,
+		<IconButton key="icon" size="small" className={classes.icon} onClick={() => setStatus(!status)}>
+			{status ? (
+				<GpsFixedRoundedIcon className={classes.insideIcon} />
+			) : (
+				<GpsOffRoundedIcon className={classes.insideIcon} />
+			)}
+		</IconButton>
 	];
 };
 
