@@ -96,7 +96,10 @@ const imageStyles = makeStyles((theme) => ({
 		padding: 0
 	},
 	info: {
-		paddingLeft: 5
+        color: (props) => (props.scale < 1? '#ccc': '#eee'),
+        fontSize: (props) => (props.scale<1? 13:16),
+		paddingLeft: 5,
+        whiteSpace: "pre-wrap",
 	}
 }));
 

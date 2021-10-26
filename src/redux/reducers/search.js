@@ -10,10 +10,10 @@ import {
     SIMILAR,
     GET_GROUP,
     GET_GPS,
+    GET_INFO,
     SET_MUST_NOT,
     REMOVE_MUST_NOT,
-    SET_FINISH_SEARCH,
-    GET_INFO
+    SET_FINISH_SEARCH
 } from '../actions/search';
 import axios from 'axios';
 
@@ -83,8 +83,8 @@ export default function(state = searchState, action) {
     } else if (action.type === MORE) {
         const response = axios.post('http://mysceal-sv.computing.dcu.ie/api/more/',
             {
-				info: state.info
-			},
+                info: state.info
+            },
             { headers: { 'Content-Type': 'application/json' } }
 		);
 			return {
@@ -122,7 +122,9 @@ export default function(state = searchState, action) {
 		return {
 			...state,
 			nextSceneResponse: null,
-            similarResponse: null
+            groupResponse: null,
+            similarResponse: null,
+            infoResponse: null
 		};
     } else if (action.type === GET_GROUP){
         const response = axios.post(
@@ -148,6 +150,18 @@ export default function(state = searchState, action) {
 			...state,
 			gpsResponse: response
 		};
+    } else if (action.type === GET_INFO) {
+        const response = axios.post(
+            'http://mysceal-sv.computing.dcu.ie/api/timeline/info/',
+            {
+                images: action.images
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+        return {
+            ...state,
+            infoResponse: response
+        };
     }
     else if (action.type === SET_INFO) {
 		if (!isEqual(state.info, action.info)) {
@@ -165,30 +179,18 @@ export default function(state = searchState, action) {
 		}
 	} else if (action.type === SIMILAR) {
         const response = axios.post(
-                'http://mysceal-sv.computing.dcu.ie/similar/group',
-            {
-                image_id: action.image,
-				info: state.info
-			},
-            { headers: { 'Content-Type': 'application/json' } }
-		);
+                'http://mysceal-sv.computing.dcu.ie/api/similar',
+                {
+                    image_id: action.image,
+                    info: state.info,
+                    gps_bounds: state.bounds,
+                },
+                { headers: { 'Content-Type': 'application/json' } }
+        );
 		return {
 			...state,
 			similarResponse: response
 		}
-    } else if (action.type === GET_INFO) {
-        const response = axios.post(
-                'http://mysceal-sv.computing.dcu.ie/api/timeline/info/',
-                {
-                    images:action.images
-                },
-
-            { headers: { 'Content-Type': 'application/json' } }
-        );
-        return {
-            ...state,
-            infoResponse: response
-    }
 	} else if (action.type === SET_MUST_NOT) {
         if (!state.stats.includes(action.keyword)){
             let newStats = state.stats.slice()

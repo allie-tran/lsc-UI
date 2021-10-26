@@ -73,7 +73,7 @@ const EventPopover = ({
 		similar
 	}) => {
 		const classes = popStyle();
-		const [ currentDisplay, setCurrentDisplay ] = useState(detailedScene);
+		const [ currentDisplay, setCurrentDisplay ] = useState(null);
         const [ currentInfo, setCurrentInfo] = useState(null);
         const [ scenes, setScenes ] = useState(null);
 		const [ groups, setGroups ] = useState(null);
@@ -117,7 +117,8 @@ const EventPopover = ({
                     fetchedInfos.current = true;
 					setGroups(null);
 					setScenes(null);
-                    // setCurrentDisplay(null);
+                    setCurrentInfo(null);
+                    setCurrentDisplay(null);
 					dispatch(clearNextEvents());
 				};
 			},
@@ -140,12 +141,12 @@ const EventPopover = ({
 									changed &&
 									res.data.timeline[index] !== undefined
 								) {
-                                    dispatch(getGPS(res.data.timeline[index][0]));
+                                    dispatch(getGPS(res.data.timeline[index][0][0]));
                                     if (
-                                        !res.data.timeline[index].includes(currentDisplay[0])
+                                        currentDisplay === null || !res.data.timeline[index][0].includes(currentDisplay[0])
                                     ){
                                         // console.log('set current display', res.data.timeline[index] )
-                                        setCurrentDisplay(res.data.timeline[index]);
+                                        setCurrentDisplay(res.data.timeline[index][0]);
                                     }
 								}
 							}
@@ -161,7 +162,9 @@ const EventPopover = ({
             () => {
                 console.log('Requesting Info')
                 fetchedInfos.current = false;
-                dispatch(getInfo(currentDisplay));
+                if (currentDisplay){
+                    dispatch(getInfo(currentDisplay));
+                }
             },
             [currentDisplay]
         )
@@ -190,11 +193,11 @@ const EventPopover = ({
 						console.log('similar');
 						if (similar && !fetchedScenes.current && res.data.scenes !== undefined) {
 							if (!isEqual(res.data.scenes, scenes)) {
-                                setScenes([])
+                                // setScenes(null);
 								setScenes(res.data.scenes);
 							}
-							if (currentDisplay && !currentDisplay.includes(res.data.scenes[0][0])) {
-								setCurrentDisplay(res.data.scenes[0]);
+							if (currentDisplay && !currentDisplay.includes(res.data.scenes[0][0][0])) {
+								setCurrentDisplay(res.data.scenes[0][0]);
 							}
 							setHighlight(0);
 						}
@@ -265,11 +268,11 @@ const EventPopover = ({
 		const setDetailedImages = useCallback(
 			(image) => {
 				scenes.forEach((scene, index) => {
-					if (scene[0] === image) {
+					if (scene[0][0] === image) {
                         if (index !== highlight){
-                            setCurrentDisplay(scene);
+                            setCurrentDisplay(scene[0]);
                             if (!similar) {
-                                dispatch(getNextScenes(scene, 'full'));
+                                dispatch(getNextScenes(scene[0], 'full'));
                                 changed.current = true;
                                 fetchedScenes.current = false;
                             }
@@ -287,8 +290,7 @@ const EventPopover = ({
 			(image) => {
                 if (groups){
                     groups.forEach((group, index) => {
-                        if (group === image){
-                            console.log(index, image);
+                        if (group[0] === image){
                             dispatch(getNextScenes([ image ], 'full'));
                             fetchedScenes.current = false;
                             changed.current = true;
@@ -338,9 +340,10 @@ const EventPopover = ({
 					{scenes ? (
 						scenes.map((scene, index) => (
 							<Image
-								key={scene[0]}
+                                info={scene[1]}
+								key={scene[0][0]}
 								index={index}
-								image={scene[0]}
+								image={scene[0][0]}
 								scale={index === highlight ? 1.15 : 0.95}
 								onClick={setDetailedImages}
 								openEvent={openEvent}
@@ -353,9 +356,10 @@ const EventPopover = ({
 					{groups ? (
 						groups.map((gr, index) => (
 							<Image
-								key={'group' + gr}
+                                info={gr[1]}
+								key={'group' + gr[0]}
                                 index={index}
-								image={gr}
+								image={gr[0]}
                                 scale={index === highlightGroup ? 0.95 : 0.75}
 								onClick={setDetailedGroups}
 								openEvent={openEvent}
