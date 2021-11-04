@@ -74,8 +74,7 @@ const rootReducer = (state, action) => {
         }
     }
     else if (action.type === SUBMIT_IMAGE) {
-        console.log(state)
-        const response = axios.get('http://duy-be.computing.dcu.ie/submit?session_name=' + state.save.sessionName + '&imageid=' + action.image.split('.')[0].split('/')[1])
+        const response = axios.get('https://vbs.itec.aau.at:9443/api/v1/submit?session=node01xyjt112wlmb71jtlgxhm1uctu2&item=' + action.image.split('.')[0].split('/')[1])
         response.then((res) => {console.log(res.data); alert(res.data.description)})
     }
 	return state;

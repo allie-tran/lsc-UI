@@ -1,4 +1,4 @@
-import React, {memo} from 'react'
+import React, { memo, useState, useCallback} from 'react'
 import { useSelector } from 'react-redux';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -10,6 +10,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import SearchIcon from '@material-ui/icons/Search';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import Typography from '@material-ui/core/Typography';
+import Checkbox from '@material-ui/core/Checkbox';
 
 
 const useStyles = makeStyles(theme => ({
@@ -55,21 +56,40 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
+const ControlledCheckbox = ({ checked, handleChange}) => {
+    return (
+        <Checkbox
+            checked={checked}
+            onChange={handleChange}
+            inputProps={{ 'aria-label': 'controlled' }}
+        />
+    );
+}
+
 const Bar = memo(({ open, submitQuery }) => {
     const classes = useStyles({ open });
+    const [checked, setChecked] = useState(false);
     const visualisation = useSelector((state) => state.search.info? state.search.info.query_visualisation:null);
+
+    const handleChange = (event) => {
+        setChecked(event.target.checked);
+    };
+    const Submit = useCallback(() => submitQuery(false, 0, checked), [checked, visualisation])
     return ([
         <AppBar key='1' className={classes.appBar}>
             <SearchBar type="Before:" submitQuery={submitQuery} />
             <SearchBar type="Find:" submitQuery={submitQuery} />
             <SearchBar type="After:" submitQuery={submitQuery} />
+            <Tooltip title="Share Info" arrow>
+                <ControlledCheckbox checked={checked} handleChange={handleChange}/>
+            </Tooltip>
             <Tooltip title="Clear All" arrow>
                 <IconButton size="small" className={classes.icon} onClick={() => {window.location.reload();return false}}>
                     <RefreshIcon />
                 </IconButton>
             </Tooltip>
             <Tooltip title="Search" arrow>
-                <IconButton size="small" className={classes.icon} onClick={() => submitQuery(false, 0)}>
+                <IconButton size="small" className={classes.icon} onClick={Submit}>
                     <SearchIcon />
                 </IconButton>
             </Tooltip>

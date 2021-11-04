@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {memo} from 'react';
 import FilledInput from '@material-ui/core/FilledInput';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
@@ -38,33 +38,34 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const SearchBar = ({ open, type, submitQuery }) => {
+
+const SearchBar = memo(({ open, type, submitQuery }) => {
 	const classes = useStyles({ type, open });
 
 	const keyPressed = (event) => {
 		if (event.key === 'Enter') submitQuery(true, 0);
 	};
 
-	const Time = () => {
-		if (type !== 'Find:') {
-			return [
-				<Typography key="text">when</Typography>,
-				<FilledInput
-					key="input"
-					id={type + '-when'}
-					variant="filled"
-					className={classes.timeBar}
-					disableUnderline={true}
-					inputProps={{
-						className: classes.input
-					}}
-					onKeyDown={keyPressed}
-					placeholder="1h"
-				/>
-			];
-		}
-		return null;
-	};
+    const Time = () => {
+            if (type !== 'Find:') {
+                return [
+                    <Typography key="text">when</Typography>,
+                    <FilledInput
+                        key="input"
+                        id={type + '-when'}
+                        variant="filled"
+                        className={classes.timeBar}
+                        disableUnderline={true}
+                        inputProps={{
+                            className: classes.input
+                        }}
+                        onKeyDown={keyPressed}
+                        placeholder="1h"
+                    />
+                ];
+            }
+        return null;
+    };
 
 	return (
 		<div className={classes.searchContainer}>
@@ -78,9 +79,9 @@ const SearchBar = ({ open, type, submitQuery }) => {
 				inputProps={{ className: classes.input }}
 				onKeyDown={keyPressed}
 			/>
-			<Time />
+			<Time type={type}/>
 		</div>
 	);
-};
+});
 
 export default SearchBar;

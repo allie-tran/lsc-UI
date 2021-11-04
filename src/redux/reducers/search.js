@@ -59,7 +59,8 @@ export default function(state = searchState, action) {
 						info: newInfo
 					},
 					gps_bounds: state.bounds,
-                    starting_from: action.starting_from
+                    starting_from: action.starting_from,
+                    share_info: action.share_info
 				},
 				{ headers: { 'Content-Type': 'application/json' } }
 			);
@@ -71,7 +72,7 @@ export default function(state = searchState, action) {
 			const response = axios.post(
 				'http://mysceal-sv.computing.dcu.ie/api/images/',
 				{ query: action.query, gps_bounds: state.bounds,
-                 starting_from: action.starting_from },
+                    starting_from: action.starting_from, share_info: action.share_info },
 				{ headers: { 'Content-Type': 'application/json' } }
 			);
 			return {

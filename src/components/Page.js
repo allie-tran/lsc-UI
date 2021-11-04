@@ -37,7 +37,7 @@ const Page = () => {
 	const [ similar, setSimilar ] = useState(false);
 	const [ detailedScene, setDetailedScene ] = useState(null);
 
-    const submitQuery = useCallback((ignoreInfo, starting_from) => {
+    const submitQuery = useCallback((ignoreInfo, starting_from, share_info) => {
         let query = {
             before: document.getElementById("Before:").value,
             beforewhen: document.getElementById("Before:-when").value,
@@ -49,7 +49,7 @@ const Page = () => {
         window.scrollTo(0, 0);
         dispatch(resetSelection());
         dispatch(setFinishedSearch(starting_from))
-        dispatch(getImages(query, ignoreInfo, starting_from));
+        dispatch(getImages(query, ignoreInfo, starting_from, share_info));
         dispatch(startTimer())
     }, []);
 

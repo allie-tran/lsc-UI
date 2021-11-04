@@ -16,8 +16,8 @@ export const MORE = 'MORE'
 
 
 
-export function getImages(query = {}, ignoreInfo=false, starting_from=0) {
-	return { type: GET_ALL_IMAGES, query, ignoreInfo, starting_from };
+export function getImages(query = {}, ignoreInfo = false, starting_from = 0, share_info=false) {
+    return { type: GET_ALL_IMAGES, query, ignoreInfo, starting_from, share_info };
 }
 export function More() {
     return { type: MORE };

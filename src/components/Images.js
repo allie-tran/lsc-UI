@@ -85,7 +85,6 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
 	const classes = gridStyles({ open, height });
 	const dispatch = useDispatch();
 	const [ dates, setDates ] = useState([]);
-    const [ scores, setScores ] = useState([]);
 	const { promiseInProgress } = usePromiseTracker();
     const [ more , setMore ] = useState(false);
 	const finished = useSelector((state) => state.search.finishedSearch);
@@ -102,9 +101,7 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
                             console.log("huh");
                             console.log(res.data.results)
                             const newDates = [...dates, ...res.data.results];
-                            const newScores = [...scores, ...res.data.scores];
                             setDates(newDates);
-                            setScores(newScores);
                             dispatch(setMap(newDates));
                             setLoaded(loaded + Math.min(30, newDates.length))
                             setMore(false)
@@ -117,7 +114,6 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
                             var isEqual = require('lodash.isequal');
                             if (!isEqual(dates, newDates)) {
                                 setDates(newDates);
-                                setScores(res.data.scores);
                                 dispatch(setMap(newDates));
                                 setLoaded(Math.min(30, newDates.length))
                             }
@@ -191,7 +187,6 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
                                             index={id}
                                             group={scene}
                                             openEvent={openEvent}
-                                            score={scores? scores[id] : ""}
                                         />
                                 ): null))}
                     <Button className={classes.button} onClick={moreButton}> MORE </Button>

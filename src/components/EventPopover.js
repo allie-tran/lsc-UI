@@ -73,7 +73,7 @@ const EventPopover = ({
 		similar
 	}) => {
 		const classes = popStyle();
-		const [ currentDisplay, setCurrentDisplay ] = useState(null);
+		const [ currentDisplay, setCurrentDisplay ] = useState(detailedScene);
         const [ currentInfo, setCurrentInfo] = useState(null);
         const [ scenes, setScenes ] = useState(null);
 		const [ groups, setGroups ] = useState(null);
