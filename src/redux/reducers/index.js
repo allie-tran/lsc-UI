@@ -74,7 +74,7 @@ const rootReducer = (state, action) => {
         }
     }
     else if (action.type === SUBMIT_IMAGE) {
-        const response = axios.get('https://vbs.itec.aau.at:9443/api/v1/submit?session=node01xyjt112wlmb71jtlgxhm1uctu2&item=' + action.image.split('.')[0].split('/')[1])
+        const response = axios.get('https://vbs.itec.aau.at:9443/api/v1/submit?session=node0ws2287io08qhsyt10ynrwbya15&item=' + action.image.split('.')[0].split('/')[1])
         response.then((res) => {console.log(res.data); alert(res.data.description)})
     }
 	return state;

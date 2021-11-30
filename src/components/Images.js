@@ -98,24 +98,27 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
 				trackPromise(
 					collection.then((res) => {
                         if (res.data.more){
-                            console.log("huh");
-                            console.log(res.data.results)
-                            const newDates = [...dates, ...res.data.results];
-                            setDates(newDates);
-                            dispatch(setMap(newDates));
-                            setLoaded(loaded + Math.min(30, newDates.length))
-                            setMore(false)
+                            console.log('Got', res.data.size);
+                            if (res.data.size > 0){
+                                const newDates = [...dates, ...res.data.results];
+                                setDates(newDates);
+                                dispatch(setMap(newDates));
+                                setLoaded(loaded + Math.min(30, newDates.length))
+                                setMore(false)
+                            }
                         }
                         else {
                             console.log('Got', res.data.size);
-                            const newDates = res.data.results;
-                            dispatch(setFinishedSearch(finished + res.data.size));
-                            dispatch(setQueryInfo(res.data.info));
-                            var isEqual = require('lodash.isequal');
-                            if (!isEqual(dates, newDates)) {
-                                setDates(newDates);
-                                dispatch(setMap(newDates));
-                                setLoaded(Math.min(30, newDates.length))
+                            if (res.data.size){
+                                const newDates = res.data.results;
+                                dispatch(setFinishedSearch(finished + res.data.size));
+                                dispatch(setQueryInfo(res.data.info));
+                                var isEqual = require('lodash.isequal');
+                                if (!isEqual(dates, newDates)) {
+                                    setDates(newDates);
+                                    dispatch(setMap(newDates));
+                                    setLoaded(Math.min(30, newDates.length))
+                                }
                             }
                         }
 					})

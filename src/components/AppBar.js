@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: "#FF6584",
     },
     text: {
-        color: "#888888",
+        color: (props) => props.type === "NON-KEYWORD"? "#FF6584" : "#888888",
         cursor: "default"
     }
 }));
@@ -64,6 +64,16 @@ const ControlledCheckbox = ({ checked, handleChange}) => {
             inputProps={{ 'aria-label': 'controlled' }}
         />
     );
+}
+
+const WordVisualise = ({index, word, expanded}) => {
+    const type = expanded.includes("NON-KEYWORD")? "NON-KEYWORD": ""
+    const classes = useStyles({ type });
+    return (<Tooltip key={index.toString() + word} title={expanded} size="medium" arrow>
+                            <Typography variant="body1" className={classes.text}>
+                                {(index > 0? ', ': '') + word}
+                            </Typography>
+                        </Tooltip>)
 }
 
 const Bar = memo(({ open, submitQuery }) => {
@@ -97,13 +107,9 @@ const Bar = memo(({ open, submitQuery }) => {
         <AppBar key='2' className={classes.appBar2}>
             <div className={classes.realSpace}>
                 {visualisation? visualisation.map((text, index) =>{
-                    console.log(text[0], text[1]);
+                    console.log(text[0], text[1])
                     return (
-                        <Tooltip key={index.toString() + text[0]} title={text[1].replace(new RegExp(/,/i, 'g'), '\n')} size="medium" arrow>
-                            <Typography variant="body1" className={classes.text}>
-                                {(index > 0? ', ': '') + text[0]}
-                            </Typography>
-                        </Tooltip>
+                        <WordVisualise key={text[0]} index={index} word={text[0]} expanded={text[1]}/>
                     )
                 }
                 ): null}

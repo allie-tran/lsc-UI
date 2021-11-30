@@ -165,9 +165,12 @@ const Map = ({ open }) => {
 					clustersMain.current.clearLayers();
 				}
                 if (visualisation){
-                    visualisation.place_to_visualise.forEach(name => {
-                        addLocation(name, [commonPlace[name][0].toPrecision(PRECISION), commonPlace[name][1].toPrecision(PRECISION)])
-                    });
+                    console.log(visualisation);
+                    if (visualisation.place_to_visualise){
+                        visualisation.place_to_visualise.forEach(name => {
+                            addLocation(name, [commonPlace[name][0].toPrecision(PRECISION), commonPlace[name][1].toPrecision(PRECISION)])
+                        });
+                    }
 
                     visualisation.country_to_visualise.forEach(name => {
                         console.log(worldmap[name]);
@@ -327,7 +330,7 @@ const Map = ({ open }) => {
                             }).addTo(pathLine.current);
 
 						// Zooming
-						map.current.setView(marker.getLatLng());
+						map.current.setView(marker.getLatLng(), 13);
 						// map.current.setView(marker.getLatLng());
 						map.current.addLayer(pathLine.current);
 					}
