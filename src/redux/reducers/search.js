@@ -183,6 +183,7 @@ export default function(state = searchState, action) {
                 'http://mysceal-sv.computing.dcu.ie/api/similar',
                 {
                     image_id: action.image,
+                    lsc: true,
                     info: state.info,
                     gps_bounds: state.bounds,
                 },
