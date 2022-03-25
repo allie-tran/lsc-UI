@@ -3,16 +3,16 @@ import { makeStyles } from "@material-ui/core/styles";
 import Thumbnail from "./Thumbnail"
 
 const IMAGE_HEIGHT = 768
-const RESIZE_FACTOR = 6.5
+const RESIZE_FACTOR = 5.5
 
 const eventStyles = makeStyles(theme => ({
     group: {
         display: "flex",
         justifyContent: "center",
-        width: 465 * window.innerWidth / 1920,
+        width: 502 * window.innerWidth / 1920,
         height: IMAGE_HEIGHT / RESIZE_FACTOR + 40,
         alignItems: "center",
-        padding: "30px 10px 20px 10px",
+        padding: "20px 5px 20px 5px",
         flexShrink: 0,
         // borderBottom: "8px solid rgba(0,0,0,0.1)",
         backgroundColor: props => Math.floor(props.index / 3) % 2 === 0? 'rgba(0,0,0,0.1)' : null,

@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback} from 'react'
+import React, { memo, useState} from 'react'
 import { useSelector } from 'react-redux';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
         height: 30,
         backgroundColor: "#272727",
         left: "32.6%",
-        zIndex: 1
+        zIndex: 1,
     },
     icon: {
         padding: 10,
@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: "#FF6584",
     },
     text: {
-        color: (props) => props.type === "NON-KEYWORD"? "#FF6584" : "#888888",
+        color: "#888888",
         cursor: "default"
     }
 }));
@@ -66,25 +66,13 @@ const ControlledCheckbox = ({ checked, handleChange}) => {
     );
 }
 
-const WordVisualise = ({index, word, expanded}) => {
-    const type = expanded.includes("NON-KEYWORD")? "NON-KEYWORD": ""
-    const classes = useStyles({ type });
-    return (<Tooltip key={index.toString() + word} title={expanded} size="medium" arrow>
-                            <Typography variant="body1" className={classes.text}>
-                                {(index > 0? ', ': '') + word}
-                            </Typography>
-                        </Tooltip>)
-}
-
 const Bar = memo(({ open, submitQuery }) => {
     const classes = useStyles({ open });
-    const [checked, setChecked] = useState(false);
-    const visualisation = useSelector((state) => state.search.info? state.search.info.query_visualisation:null);
-
     const handleChange = (event) => {
         setChecked(event.target.checked);
     };
-    const Submit = useCallback(() => submitQuery(false, 0, checked), [checked, visualisation])
+    const [checked, setChecked] = useState(false);
+    const visualisation = useSelector((state) => state.search.info? state.search.info.query_visualisation:null);
     return ([
         <AppBar key='1' className={classes.appBar}>
             <SearchBar type="Before:" submitQuery={submitQuery} />
@@ -99,7 +87,7 @@ const Bar = memo(({ open, submitQuery }) => {
                 </IconButton>
             </Tooltip>
             <Tooltip title="Search" arrow>
-                <IconButton size="small" className={classes.icon} onClick={Submit}>
+                <IconButton size="small" className={classes.icon} onClick={() => submitQuery(false, 0, checked)}>
                     <SearchIcon />
                 </IconButton>
             </Tooltip>
@@ -107,9 +95,10 @@ const Bar = memo(({ open, submitQuery }) => {
         <AppBar key='2' className={classes.appBar2}>
             <div className={classes.realSpace}>
                 {visualisation? visualisation.map((text, index) =>{
-                    console.log(text[0], text[1])
                     return (
-                        <WordVisualise key={text[0]} index={index} word={text[0]} expanded={text[1]}/>
+                        <Typography key={index.toString() + text[0]} variant="body1" className={classes.text}>
+                            {(index > 0? ', ': '') + text[0] + ": " + text[1]}
+                        </Typography>
                     )
                 }
                 ): null}

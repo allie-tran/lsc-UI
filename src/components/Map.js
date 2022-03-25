@@ -18,7 +18,7 @@ const PRECISION = 5;
 const useStyles = makeStyles((theme) => ({
 	map: {
 		position: 'fixed',
-		left: (props) => (props.open ? '75%' : 'calc(97% + 5px)'),
+		left: (props) => (props.open ? '80%' : 'calc(97% + 5px)'),
 		width: '30%',
 		height: 'calc(70% - 5px)',
         paddingLeft: 10,
@@ -165,12 +165,13 @@ const Map = ({ open }) => {
 					clustersMain.current.clearLayers();
 				}
                 if (visualisation){
-                    console.log(visualisation);
-                    if (visualisation.place_to_visualise){
-                        visualisation.place_to_visualise.forEach(name => {
-                            addLocation(name, [commonPlace[name][0].toPrecision(PRECISION), commonPlace[name][1].toPrecision(PRECISION)])
-                        });
-                    }
+                    visualisation.place_to_visualise.forEach(name => {
+                        commonPlace.forEach(place => {
+                            if (name === place[0]){
+                                addLocation(name, [place[1][0].toPrecision(PRECISION), place[1][1].toPrecision(PRECISION)])
+                            }
+                        })
+                    });
 
                     visualisation.country_to_visualise.forEach(name => {
                         console.log(worldmap[name]);
@@ -330,7 +331,7 @@ const Map = ({ open }) => {
                             }).addTo(pathLine.current);
 
 						// Zooming
-						map.current.setView(marker.getLatLng(), 13);
+						map.current.setView(marker.getLatLng());
 						// map.current.setView(marker.getLatLng());
 						map.current.addLayer(pathLine.current);
 					}

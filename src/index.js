@@ -25,7 +25,12 @@ const theme = createMuiTheme({
                 whiteSpace: "pre-wrap",
                 fontSize: 12,
             }
-        }
+        },
+        MuiTypography: {
+            button: {
+                fontSize: 16,
+            },
+        },
     },
 	spacing: 4
 });

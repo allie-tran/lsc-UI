@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, {useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
@@ -15,7 +15,7 @@ import { submitImage } from '../redux/actions/submit'
 
 const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
-const RESIZE_FACTOR = 6;
+const RESIZE_FACTOR = 5.5;
 
 const thumbnailStyles = makeStyles((theme) => ({
 	image: {
@@ -30,13 +30,7 @@ const thumbnailStyles = makeStyles((theme) => ({
 			border: '3px solid #FF6584',
 			zIndex: 1,
 			boxShadow: '3px 3px 3px rgba(0, 0, 0, 0.5)'
-		},
-		transition: 'all 100ms ease-in',
-        "&:hover, &:focus": {
-            width: (props) =>  IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 * (props.saved? 1: 3),
-            height: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 * (props.saved? 1: 3),
-            zIndex: 10000,
-        }
+		}
 	},
 	highlight: {},
 	row: {
@@ -52,11 +46,31 @@ const thumbnailStyles = makeStyles((theme) => ({
         marginBottom: (props) => (props.saved ? 40 : 0),
 		marginLeft: 4,
 		marginRight: 4,
+        transition: 'all 100ms ease-in',
+        transformOrigin: 'top left',
+        "&:hover, &:focus": {
+            transform: (props) => props.zoomed? 'scale(3.0)':  'scale(1.0)',
+            zIndex: 10000,
+        }
     },
+    zoomButton: {
+		position: 'absolute',
+		left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 - 25,
+		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 - 25,
+		color: '#fff',
+		backgroundColor: 'rgba(255, 255, 255, 0.5)',
+		borderRadius: 3,
+		'&:hover': {
+			backgroundColor: '#FF6584'
+		},
+		zIndex: (props) => (props.highlight ? 2 : 1),
+		visibility: (props) => (props.hidden ? 'hidden' : 'visible'),
+		padding: 0
+	},
 	saveButton: {
 		position: 'absolute',
-        top: -25,
-        left: 0,
+        left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 - 25,
+		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 - 75,
         flexShrink: 0,
 		color: '#fff',
 		backgroundColor: 'rgba(255, 255, 255, 0.5)',
@@ -71,8 +85,8 @@ const thumbnailStyles = makeStyles((theme) => ({
 	submitButton: {
 		position: 'absolute',
         flexShrink: 0,
-        top: -25,
-        left: 25,
+        left: (props) => IMAGE_WIDTH / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 - 25,
+		top: (props) => IMAGE_HEIGHT / RESIZE_FACTOR * props.scale * window.innerWidth / 1920 - 50,
 		color: '#fff',
 		backgroundColor: 'rgba(255, 255, 255, 0.5)',
 		borderRadius: 3,
@@ -87,38 +101,42 @@ const thumbnailStyles = makeStyles((theme) => ({
 
 
 const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonClick }) => {
-	const classes = thumbnailStyles({ hidden, scale, saved, highlight });
+    const [zoom, setZoom] = useState(false);
+	const classes = thumbnailStyles({ hidden, scale, saved, highlight, zoomed:zoom });
     const dispatch = useDispatch()
 
 	if (saved === undefined) {
 		return (
-			<div className={classes.card}>
-            <IconButton onClick={onButtonClick} className={classes.saveButton}>
-                    <BookmarkBorderRoundedIcon fontSize="small" />
-                </IconButton>
-                <IconButton onClick={(e) => dispatch(submitImage(img))} className={classes.submitButton}>
-                    <CheckRoundedIcon fontSize="small" />
-                </IconButton>
+			<div className={classes.card} onMouseLeave={() => setZoom(false)}>
                 <LazyLoad
 					height={IMAGE_HEIGHT/ RESIZE_FACTOR * scale * window.innerWidth / 1920 }
                     width={IMAGE_WIDTH / RESIZE_FACTOR * scale * window.innerWidth / 1920 }
 					offset={100}
                     debounce={false}
 				>
-				<img
-					alt={img}
-					src={'http://lifeseeker-sv.computing.dcu.ie//' + img}
-					className={clsx(classes.image, { [classes.highlight]: highlight })}
-					onClick={(e) => openEvent(e, false)}
-				/>
+                    <img
+                        alt={img}
+                        src={'http://localhost:5001/' + img}
+                        className={clsx(classes.image, { [classes.highlight]: highlight })}
+                        onClick={(e) => openEvent(e, false)}
+                    />
                 </LazyLoad>
-
+                <IconButton onMouseEnter={() => setZoom(true)}
+                        className={classes.zoomButton}>
+                    <ImageSearchIcon fontSize="small" />
+                </IconButton>
+                <IconButton onClick={onButtonClick} className={classes.saveButton}>
+                    <BookmarkBorderRoundedIcon fontSize="small" />
+                </IconButton>
+                <IconButton onClick={(e) => dispatch(submitImage(img))} className={classes.submitButton}>
+                    <CheckRoundedIcon fontSize="small" />
+                </IconButton>
 			</div>
 		);
 	}
 	return (
 		<div className={classes.card}>
-        <IconButton onClick={onButtonClick} className={classes.saveButton}>
+            <IconButton onClick={onButtonClick} className={classes.saveButton}>
 				<DeleteOutlineRoundedIcon fontSize="small" />
 			</IconButton>
 			<IconButton onClick={(e) => dispatch(submitImage(img))} className={classes.submitButton}>
@@ -129,7 +147,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 			) : (
 				<img
 					alt={img}
-					src={'http://lifeseeker-sv.computing.dcu.ie//' + img}
+					src={'http://localhost:5001/' + img}
 					className={classes.image}
 					onClick={(e) => openEvent(e, false)}
 				/>
@@ -192,7 +210,7 @@ const Thumbnail = ({
 				saved={saved}
 				hidden={hidden}
 				scale={scale}
-				img={group[0].split('.')[0] + '.webp'}
+				img={group[0]}
 				highlight={highlight}
 				openEvent={ownOpenEvent}
 			/>

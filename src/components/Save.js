@@ -9,8 +9,8 @@ import Badge from "@material-ui/core/Badge"
 const useStyles = makeStyles(theme => ({
     section: {
         position: "fixed",
-        left: props => props.open ? "75%" : "97%",
-        width: "25%",
+        left: props => props.open ? "80%" : "97%",
+        width: "20%",
         height: "100%",
         filter: props => props.open ? "none" : "brightness(70%)",
         zIndex: 3,

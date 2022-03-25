@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import Map from './Map';
 import Bar from './AppBar';
 import SaveSection from './Save';
+import AutoComplete from './AutoComplete';
 import Popover from '@material-ui/core/Popover';
 import { makeStyles } from '@material-ui/core/styles';
 import EventPopover from './EventPopover';
@@ -16,9 +17,13 @@ const popoverStyles = makeStyles((theme) => ({
 	popover: {
 		width: '75%',
 		color: '#272727'
-	}
+	},
+    autocomplete: {
+        top: 60,
+        right: 5,
+        position: "fixed"
+    }
 }));
-
 
 
 if (process.env.NODE_ENV === 'development') {
@@ -54,14 +59,8 @@ const Page = () => {
     }, []);
 
 	const openEvent = useCallback((event, newSimilar, newGroup, newPosition) => {
-        setSimilar(newSimilar);
-		if (newSimilar) {
-			dispatch(getSimilar(newGroup[0]));
-		}   
-        else {
-            dispatch(getGroups(newGroup[0].split('/')[0]));
-            dispatch(getNextScenes(newGroup, 'full'));
-        }
+        dispatch(getSimilar(newGroup[0]))
+        dispatch(getNextScenes(newGroup, 'full'));
         setDetailedScene(newGroup);
 		setOpenPopover(true); // eslint-disable-next-line
 	}, []);
