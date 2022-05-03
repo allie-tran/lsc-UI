@@ -119,7 +119,7 @@ const Image = ({ image, scale, info, onClick, openEvent, zoomed, disableLazyLoad
              className={classes.card}>
             {disableLazyLoad? <img
                     alt={image}
-                    src={'http://localhost:5001/' + image}
+                    src={'http://localhost:8001/' + image}
                     className={classes.image}
                     onClick={ownOnClick}
                 />:
@@ -131,7 +131,7 @@ const Image = ({ image, scale, info, onClick, openEvent, zoomed, disableLazyLoad
             >
                 <img
                     alt={image}
-                    src={'http://localhost:5001/' + image}
+                    src={'http://localhost:8001/' + image}
                     className={classes.image}
                     onClick={ownOnClick}
                 />

@@ -17,14 +17,15 @@ const RESIZE_FACTOR = 6;
 
 const gridStyles = makeStyles((theme) => ({
 	grid: {
-        width: "100%",
+        width: "80%",
         height: `calc(100% - 90px)`,
         position: 'absolute',
         top: 90,
 		display: 'flex',
 		flexDirection: 'row',
         flexWrap: 'wrap',
-		overflow: 'auto'
+		overflowY: 'auto',
+        paddingRight: "20%"
 	},
 	text: {
 		top: 50,

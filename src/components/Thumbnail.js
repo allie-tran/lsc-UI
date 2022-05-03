@@ -116,7 +116,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 				>
                     <img
                         alt={img}
-                        src={'http://localhost:5001/' + img}
+                        src={'http://localhost:8001/' + img}
                         className={clsx(classes.image, { [classes.highlight]: highlight })}
                         onClick={(e) => openEvent(e, false)}
                     />
@@ -147,7 +147,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 			) : (
 				<img
 					alt={img}
-					src={'http://localhost:5001/' + img}
+					src={'http://localhost:8001/' + img}
 					className={classes.image}
 					onClick={(e) => openEvent(e, false)}
 				/>

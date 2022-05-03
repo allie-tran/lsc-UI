@@ -9,13 +9,13 @@ const eventStyles = makeStyles(theme => ({
     group: {
         display: "flex",
         justifyContent: "center",
-        width: 502 * window.innerWidth / 1920,
+        // width: 502 * window.innerWidth / 1920 / 2,
         height: IMAGE_HEIGHT / RESIZE_FACTOR + 40,
         alignItems: "center",
         padding: "20px 5px 20px 5px",
         flexShrink: 0,
         // borderBottom: "8px solid rgba(0,0,0,0.1)",
-        backgroundColor: props => Math.floor(props.index / 3) % 2 === 0? 'rgba(0,0,0,0.1)' : null,
+        // backgroundColor: props => Math.floor(props.index / 3) % 2 === 0? 'rgba(0,0,0,0.1)' : null,
     }
 }));
 
