@@ -8,13 +8,21 @@ export const SET_INFO = 'SET_INFO';
 export const SET_KEYWORDS = 'SET_KEYWORDS';
 export const SIMILAR = 'SIMILAR'
 export const GET_GPS = 'GET_GPS'
+export const GET_INFO = 'GET_INFO'
 export const SET_MUST_NOT = 'SET_MUST_NOT';
 export const REMOVE_MUST_NOT = 'REMOVE_MUST_NOT'
 export const SET_FINISH_SEARCH = 'SET_FINISH_SEARCH'
+export const MORE = 'MORE'
 
-export function getImages(query = {}, ignoreInfo=false, starting_from=0) {
-	return { type: GET_ALL_IMAGES, query, ignoreInfo, starting_from };
+
+
+export function getImages(query = {}, ignoreInfo = false, starting_from = 0, share_info=false) {
+    return { type: GET_ALL_IMAGES, query, ignoreInfo, starting_from, share_info };
 }
+export function More() {
+    return { type: MORE };
+}
+
 export function setFinishedSearch(finishedSearch) {
 	return { type: SET_FINISH_SEARCH, finishedSearch };
 }
@@ -23,8 +31,8 @@ export function setMap(dates = []) {
 	return { type: SET_MAP, dates };
 }
 
-export function getNextScenes(images = [], timeline_type = 'after', direction='next') {
-	return { type: NEXT_SCENE, images, timeline_type, direction };
+export function getNextScenes(images = [],  direction='next') {
+	return { type: NEXT_SCENE, images, direction };
 }
 
 export function getGroups(date) {
@@ -47,6 +55,13 @@ export function getGPS(image) {
 		type: GET_GPS,
 		image
 	};
+}
+
+export function getInfo(images) {
+    return {
+        type: GET_INFO,
+        images
+    };
 }
 
 export function setQueryInfo(info) {

@@ -7,13 +7,14 @@ export const saveState = {
 	finished: [ ...Array(10) ].map((i) => 300),
 	timerRunning: false,
 	saveResponse: null,
-    time: 300
+    time: 300,
+    sessionName: 'Default'
 };
 export default function(state = saveState, action) {
 	if (action.type === SAVE_SCENE) {
 		if (state.time >= 0) {
 			axios.post(
-				'http://localhost:7999/api/save?image_id=' + action.scene[0] + '&query_id=' + state.currentQuery + '&time=' + state.time
+				'http://mysceal-sv.computing.dcu.ie/api/save?image_id=' + action.scene[0] + '&query_id=' + state.currentQuery + '&time=' + state.time
 			);
 			return {
 				...state,
@@ -23,7 +24,7 @@ export default function(state = saveState, action) {
 	} else if (action.type === REMOVE_SCENE) {
 		if (state.time) {
 			axios.post(
-				'http://localhost:7999/api/remove?image_id=' +
+				'http://mysceal-sv.computing.dcu.ie/api/remove?image_id=' +
 					state.saved[action.sceneId][0] +
 					'&query_id=' +
 					state.currentQuery + '&time=' + state.time
@@ -34,7 +35,7 @@ export default function(state = saveState, action) {
 			};
 		}
 	} else if (action.type === EXPORT) {
-		axios.post('http://localhost:7999/api/submit/');
+		axios.post('http://mysceal-sv.computing.dcu.ie/api/submit/');
 	} else if (action.type === SET_SAVED) {
 		return {
 			...state,

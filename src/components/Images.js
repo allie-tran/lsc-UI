@@ -1,45 +1,31 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { trackPromise, usePromiseTracker } from 'react-promise-tracker';
 import ReactLoading from 'react-loading';
-import Typography from '@material-ui/core/Typography';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import Event from './Event';
 import Button from '@material-ui/core/Button';
-import { setMap, setQueryBound, setQueryInfo, getImages, setFinishedSearch } from '../redux/actions/search';
-import { resetSelection } from '../redux/actions/select';
+import { setMap, setQueryBound, setQueryInfo, setFinishedSearch, More } from '../redux/actions/search';
 import { setSaved } from '../redux/actions/save';
-import LazyLoad from 'react-lazy-load';
+import AppBar from '@material-ui/core/AppBar';
+import Tooltip from '@material-ui/core/Tooltip'
 
 const IMAGE_HEIGHT = 768;
 const IMAGE_WIDTH = 1024;
 const RESIZE_FACTOR = 6;
 
 const gridStyles = makeStyles((theme) => ({
-	root: {
-		width: (props) => (props.open ? '80%' : '97%'),
-		height: `calc(100% - 60px)`,
-		zIndex: -1,
-		top: 60,
-		position: 'fixed',
-		display: 'flex',
-		flexDirection: 'column',
-		alignItems: 'center'
-	},
 	grid: {
-		width: '100%',
+        width: "80%",
+        height: `calc(100% - 90px)`,
+        position: 'absolute',
+        top: 90,
 		display: 'flex',
 		flexDirection: 'row',
         flexWrap: 'wrap',
-		// height: props => props.height,
-		// flexGrow: 1,
-		backgroundImage: 'linear-gradient(180deg, rgba(0, 0, 0, 0.15) 50%, transparent 50%)',
-		backgroundRepeat: 'repeat',
-		backgroundSize: `148px ${2 * IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 + 140}px`,
-		backgroundAttachment: 'local',
-        backgroundPosition: `0px 5px`,
-		overflow: 'auto',
-		position: 'relative'
+		overflowY: 'auto',
+        paddingRight: "20%"
 	},
 	text: {
 		top: 50,
@@ -49,13 +35,19 @@ const gridStyles = makeStyles((theme) => ({
 	popover: {
 		width: '80%',
 		color: '#272727'
-	}
+	},
+    button: {
+        width: '75%',
+        padding: 10,
+        height: 32,
+        flexShrink: 0
+    }
 }));
 
 const LoadingIndicator = (props) => {
 	const { promiseInProgress } = usePromiseTracker();
 
-	return promiseInProgress && <ReactLoading type={'bubbles'} color={'white'} />;
+    return promiseInProgress && <LinearProgress style={{width: "75%"}}/>;
 };
 
 const hiddenStyles = makeStyles((theme) => ({
@@ -80,6 +72,7 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
 	const dispatch = useDispatch();
 	const [ dates, setDates ] = useState([]);
 	const { promiseInProgress } = usePromiseTracker();
+    const [ more , setMore ] = useState(false);
 	const finished = useSelector((state) => state.search.finishedSearch);
     const highlightRef = React.createRef([]);
 
@@ -91,22 +84,35 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
     }
 	const collection = useSelector((state) => state.search.collection);
 	const saveResponse = useSelector((state) => state.save.saveResponse);
+    const [loaded, setLoaded] = useState(0);
 
 	useEffect(
 		() => {
 			if (collection) {
 				trackPromise(
 					collection.then((res) => {
-						console.log('Got', res.data.size);
-						const newDates = res.data.results;
-						dispatch(setFinishedSearch(finished + res.data.size));
-						var isEqual = require('lodash.isequal');
-						if (!isEqual(dates, newDates)) {
-							setDates(newDates);
-							dispatch(setMap(newDates));
-							// setQueryBound(null);
-							dispatch(setQueryInfo(res.data.info));
-						}
+                        if (res.data.more){
+                            console.log('Got', res.data.size);
+                            if (res.data.size > 0){
+                                const newDates = [...dates, ...res.data.results];
+                                setDates(newDates);
+                                dispatch(setMap(newDates));
+                                setLoaded(loaded + Math.min(30, newDates.length))
+                                setMore(false)
+                            }
+                        }
+                        else {
+                            console.log('Got', res.data.size);
+                            const newDates = res.data.results;
+                            dispatch(setFinishedSearch(finished + res.data.size));
+                            dispatch(setQueryInfo(res.data.info));
+                            var isEqual = require('lodash.isequal');
+                            if (!isEqual(dates, newDates)) {
+                                setDates(newDates);
+                                dispatch(setMap(newDates));
+                                setLoaded(Math.min(30, newDates.length))
+                            }
+                        }
 					})
 				);
 			}
@@ -142,43 +148,45 @@ const ImageGrid = ({ height, maxwidth, open, openEvent, submitQuery }) => {
 				);
 			}
 		},
-		[ saveResponse ]
+		[ saveResponse, dates, dispatch ]
 	);
 
-	if (promiseInProgress) {
+    const moreButton = () => {
+        console.log(loaded, dates.length)
+        if (loaded < dates.length){
+            setLoaded(loaded + 30)
+        }
+        else {
+            setMore(true)
+            dispatch(More())
+        }
+    }
+
+	if (promiseInProgress && !more) {
 		return (
-			<div className={classes.root}>
+			<div className={classes.grid}>
 				<LoadingIndicator />
 			</div>
 		);
 	} else {
 		return (
-			<div className={classes.root}>
-				<Typography variant="subtitle1" className={classes.text}>
-					Click an event thumbnail to view all images.
-				</Typography>
-				<div id="grid" className={classes.grid}>
-					{dates.map((date, index) => (
-                        date.map(
-                            (scene, id) =>
-                                scene === null ? (
-                                    <Hidden key={'midhidden' + index + '-' + id} num={1} />
-                                ) : (
+            <div id="grid" className={classes.grid}>
+					{dates.map((scene, id) => (
+                                id < loaded? scene === null ?
+                                (
+                                    <Hidden key={id} num={1} />
+                                ) :
+                                (
                                         <Event
                                             key={scene.current[0]}
-                                            index={index + '-' + id}
+                                            index={id}
                                             group={scene}
                                             openEvent={openEvent}
                                         />
-                                )
-                        )
-                    ))}
-					{finished && !(finished % 2000) && finished <= 8000 ? (
-						<Button onClick={() => submitQuery(true, finished)}> MORE </Button>
-					) : null}
-				</div>
+                                ): null))}
+                    <Button className={classes.button} onClick={moreButton}> MORE </Button>
 			</div>
-		);
+        );
 	}
 };
 

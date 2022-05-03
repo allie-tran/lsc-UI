@@ -3,41 +3,48 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-
+import { Chrono } from "react-chrono";
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import Image from '../redux/Image-cnt';
-import LazyLoad from 'react-lazy-load';
-import { getNextScenes, getGPS, clearNextEvents, getSimilar} from '../redux/actions/search'
+import Image from './Image';
+import { getNextScenes, getGPS, getInfo, clearNextEvents, getSimilar} from '../redux/actions/search'
+import clsx from 'clsx';
 
-const IMAGE_HEIGHT = 768;
 
 const IMAGE_WIDTH = 1024;
+const IMAGE_HEIGHT = 768;
 const RESIZE_FACTOR = 6;
 
 const popStyle = makeStyles((theme) => ({
 	detailed: {
-		width: '100%',
-		position: 'relative',
+		position: 'fixed',
 		display: 'flex',
-		alignItems: 'center',
+		backgroundColor: '#272727',
+		flexDirection: 'row',
+        height: '85%',
+        width: '77.5%',
+        top: '11.5%',
+        left: '1.5%',
+	},
+    vertical: {
+		display: 'flex',
 		backgroundColor: '#272727',
 		flexDirection: 'column',
-		padding: 10
+        height: 'calc(100% - 10px)',
+        width: 'calc(72.5% - 10px)',
+        marginRight: 10,
+        marginLeft: 10,
+        alignItems: 'center',
+        justifyContent: 'start',
+        overflowX: 'scroll'
 	},
-	grid: {
-		overflowX: 'scroll',
-        overflowY: 'hidden',
-		padding: 10,
-		width: `calc(100% - 32px)`,
-		left: -16,
-		position: 'relative',
+    horizontal: {
 		display: 'flex',
-		alignItems: 'center',
-		flexDirection: 'row'
-	},
-	text: {
-		color: '#F4CDD2'
+		backgroundColor: '#272727',
+		flexDirection: 'row',
+        height: '100%',
+        width: '100%',
+        alignItems: 'center'
 	},
 	button: {
 		marginRight: 10,
@@ -59,181 +66,394 @@ var isEqual = require('lodash.isequal');
 const areEqual = (prevProps, nextProps) => {
 	return (
 		isEqual(prevProps.group, nextProps.group) &&
-		prevProps.position === nextProps.position &&
 		prevProps.similar === nextProps.similar &&
-		isEqual(prevProps.nextScenes, nextProps.nextScenes) &&
-		isEqual(prevProps.currentDisplay, nextProps.currentDisplay) &&
+		isEqual(prevProps.scenes, nextProps.scenes) &&
 		prevProps.highlight === nextProps.highlight &&
-		prevProps.highlightGroup === nextProps.highlightGroup &&
-		isEqual(prevProps.groups, nextProps.groups) &&
-		isEqual(prevProps.nextSceneRespone, nextProps.nextSceneRespone)
+		isEqual(prevProps.sceneResponse, nextProps.sceneResponse)
 	);
 };
 
+const gridStyle = makeStyles((theme) => ({
+    fixedpanel: {
+        width: props => props.width,
+        height: props => props.height,
+		display: 'flex',
+		alignItems: 'center',
+		flexDirection: 'column',
+        zIndex: props => props.zIndex,
+	},
+    panel: {
+		display: 'flex',
+        width: props => props.width,
+        height: "calc(100%  - 20px)",
+        borderRadius: 5,
+		alignItems: 'center',
+		backgroundColor: props => props.color,
+		flexDirection: 'column',
+        overflowX: 'hidden',
+        overflowY: 'scroll',
+        marginRight: 10,
+	},
+    grid: {
+        position: 'relative',
+		overflowX: 'hidden',
+        overflowY: 'scroll',
+		padding: 10,
+		width: '98%',
+		display: 'flex',
+		alignItems: props => props.alignItems? props.alignItems: 'start',
+        justifyContent: props => props.justifyContent? props.justifyContent: 'start',
+		flexDirection: 'row',
+        flexWrap: 'wrap',
+	},
+    normalgrid: {
+		padding: 10,
+		width: '88%',
+        // borderRadius: '5px',
+        borderLeft: "4px solid #6c63ff",
+		display: 'flex',
+        justifyContent: 'start',
+		flexDirection: 'row',
+        flexWrap: 'wrap',
+        // backgroundColor: "#383749cf",
+	},
+	text: {
+        paddingTop: 15,
+		color: '#F4CDD2',
+        width: '90%'
+	},
+    timeline: {
+        display: 'flex',
+        backgroundColor: '#272727',
+        flexDirection: 'row',
+        width: '100%',
+        alignItems: 'start',
+    },
+    placetext: {
+        paddingTop: 15,
+        color: '#6c63ff',
+        width: '12%',
+        fontWeight: "bold",
+        paddingRight: 10,
+        textAlign: 'right',
+        overflowWrap: "break-word",
+        hyphens: "manual"
+    },
+    smalltext: {
+        color:'#494949',
+        fontSize: 14,
+        marginTop: 0,
+        width: '90%'
+    },
+    smalltext_light: {
+        color:'#bebac6',
+        fontSize: 14,
+        marginTop: 0,
+        width: '90%'
+    },
+    darktext: {
+        paddingTop: 15,
+        width: '90%',
+        color:'#272727'
+    }
+}));
+
+/* cardBgColor: "#383749cf",
+primary: "#6c63ff",
+secondary: "#3d3a6e" */
+var isEqual = require('lodash.isequal');
+const areSceneEqual = (prevProps, nextProps) => {
+	return (
+		isEqual(prevProps.scenes, nextProps.scenes) &&
+		prevProps.onClick === nextProps.onClick &&
+        prevProps.highlight === nextProps.highlight
+	);
+};
+const SceneGrid = memo(({ref, name, explanation, scenes, height, width, scale, color, onClick, highlight, zIndex}) => {
+    const classes = gridStyle({height, width, color});
+    const ownOnClick = useCallback(
+        (image) => {
+            scenes.forEach(group => {
+                group[2].forEach(scene =>{
+                    if (scene[1][0] === image) {
+                        onClick(scene[1]);
+                    }
+                })
+            });
+        }, [scenes]
+    )
+    return (<div className={classes.fixedpanel}>
+                <Typography variant="button" className={classes.text}>
+                    {name}
+                </Typography>
+                <p className={classes.smalltext_light}>
+                    The scenes below are from in the same day of the scene you clicked.
+                    Click on them to see all the images in that scene in the right panel.
+                </p>
+                <div id="scenegrid" className={classes.panel} ref={ref}>
+                    {scenes ? scenes.map((group, id) => (
+                        <div key={id} className={classes.timeline}>
+                            <p className={classes.placetext}>
+                                {group[1] ? group[1] : "NONE"}
+                            </p>
+                            <div className={classes.normalgrid} key={group[1]}>
+                                {group[2] ? (
+                                    group[2].map((scene, index) => (
+                                        <Image
+                                            info={scene[2].split('-')[0]}
+                                            key={scene[0]}
+                                            index={index}
+                                            image={scene[1][0]}
+                                            scale={scale}
+                                            highlight={highlight===scene[0]}
+                                            onClick={ownOnClick}
+                                        />
+                                    ))
+                                ) : null}
+                            </div>
+                        </div>
+                    )): null
+                    }
+                </div>
+            </div>)
+}, areSceneEqual);
+
+const SimilarGrid = memo(({name, explanation, scenes, height, width, scale, color, onClick, zIndex}) => {
+    const classes = gridStyle({height, width, color, justifyContent: 'center'});
+    const ownOnClick = useCallback(
+        (image) => {
+            scenes.forEach(scene => {
+                if (scene[0][0] === image){
+                    onClick(scene[0]);
+                }
+            });
+        }, [scenes]
+    )
+    return (<div className={classes.panel}>
+                    <Typography variant="button" className={classes.darktext}>
+                        {name}
+                    </Typography>
+                    <p className={classes.smalltext}>
+                    The scenes below are selected by looking at the visual similarity in the photo contents using colour and shape.
+                    If you find a potential scene, CLICK on it to see all scenes that day.
+                    </p>
+                    <div id="scenegrid" className={classes.grid}>
+                        {scenes ? (
+                            scenes.map((scene, index) => (
+                                <Image
+                                    dark
+                                    info={scene[1]}
+                                    key={scene[1]}
+                                    index={index}
+                                    image={scene[0][0]}
+                                    scale={scale}
+                                    onClick={ownOnClick}
+                                    zoomed
+                                />
+                            ))
+                        ) : null}
+                    </div>
+                </div>)
+}, areSceneEqual);
+
+
+const DetailGrid = memo(({name, explanation, scenes, height, width, scale, color, zIndex, onClick}) => {
+    const classes = gridStyle({height, width, color, justifyContent: 'center'});
+    return (<div className={classes.panel}>
+                    <Typography variant="button" className={classes.text}>
+                        {name}
+                    </Typography>
+                    <p className={classes.smalltext_light}>
+                    These images are grouped together based on their visual similarity.
+                    </p>
+                    <div id="scenegrid" className={classes.grid}>
+                        {scenes ? (
+                            scenes.map((scene, index) => (
+                                <Image
+                                    key={index}
+                                    index={index}
+                                    image={scene}
+                                    scale={scale}
+                                    zoomed
+                                    onClick={onClick}
+                                />
+                            ))
+                        ) : null}
+                    </div>
+                </div>)
+}, areSceneEqual);
+
 const EventPopover = ({
-		group,
+		detailedScene,
 		openEvent,
-		closeEvent,
-		position,
 		similar
 	}) => {
 		const classes = popStyle();
-		const [ nextScenes, setNextScenes ] = useState(null);
-		const [ currentDisplay, setCurrentDisplay ] = useState(group);
+		const [ currentScene, setCurrentScene ] = useState(null);
+        const [ detailed, setDetailed ] = useState(detailedScene);
+        const [ similarScene, setSimilarScene ] = useState(null);
+        const [ currentInfo, setCurrentInfo] = useState(null);
+        const [ scenes, setScenes ] = useState(null);
+        const [ date, setDate ] = useState(null);
+        const [ line, setLine ] = useState(0);
+		const [ space, setSpace ] = useState(0);
 		const [ highlight, setHighlight ] = useState(0);
 		const changed = useRef(false);
-		const pressed = useRef(0);
-		const date = useRef(null);
 		const fetchedScenes = useRef(false);
-        const dispatch = useDispatch()
-        const nextSceneRespone = useSelector(state => state.search.nextSceneRespone)
-        const similarResponse = useSelector(state => state.search.similarResponse)
+        const fetchedInfos = useRef(false);
+        const behavior = useRef("smooth");
 
+        const dispatch = useDispatch();
+        const sceneResponse = useSelector(state => state.search.nextSceneResponse);
+        const similarResponse = useSelector(state => state.search.similarResponse);
+        const groupResponse = useSelector(state => state.search.groupResponse);
+        const infoResponse = useSelector(state => state.search.infoResponse);
 		const detailedContainer = useRef(null);
 		const sceneContainer = useRef(null);
+        const groupContainer = useRef(null);
 
 		useEffect(() => {
 			return () => dispatch(clearNextEvents());
 		});
 
-		useEffect(
+        useEffect(
 			() => {
+                setLine(0);
+                setSpace(0);
 				console.log('rerendering', similar);
 				if (!similar) {
-					date.current = group[0].split('/')[0];
 					fetchedScenes.current = false;
+                    fetchedInfos.current = false;
 				} else {
 					fetchedScenes.current = false;
-				}
-				if (!isEqual(currentDisplay, group)) {
-					setCurrentDisplay(group);
+                    fetchedInfos.current = false;
 				}
 				return () => {
 					fetchedScenes.current = true;
-					// console.log('set current display to null', res.data.timeline[index] )
-					// setCurrentDisplay(null)
-					setNextScenes(null);
-					clearNextEvents();
+                    fetchedInfos.current = true;
+					setScenes(null);
+                    setCurrentInfo(null);
+					dispatch(clearNextEvents());
 				};
 			},
-			[ similar, group ]
+			[ similar, detailedScene ]
 		);
 
 		useEffect(
 			() => {
-				if (nextSceneRespone) {
-					nextSceneRespone.then((res) => {
-						setHighlight(res.data.position);
+				if (sceneResponse) {
+					sceneResponse.then((res) => {
 						if (!fetchedScenes.current) {
+                            setHighlight(res.data.position);
 							console.log('next scene');
+                            console.log(res.data)
 							const index = res.data.position;
-							if (!similar && !isEqual(res.data.timeline, nextScenes)) {
-								setNextScenes(res.data.timeline);
-								if (
-									changed &&
-									res.data.timeline[index] !== undefined &&
-									!res.data.timeline[index].includes(currentDisplay[0])
-								) {
-									// console.log('set current display', res.data.timeline[index] )
-									setCurrentDisplay(res.data.timeline[index]);
-									dispatch(getGPS(res.data.timeline[index][0]));
-								}
-							}
+                            // setScenes([])
+                            setScenes(res.data.timeline);
+                            setLine(res.data.line);
+                            setSpace(res.data.space);
+                            setCurrentScene(res.data.scene_id)
+                            if (
+                                changed &&
+                                res.data.timeline[index] !== undefined
+                            ) {
+                                dispatch(getGPS(res.data.timeline[index][0][0]));
+                            }
 						}
 						fetchedScenes.current = true;
 					});
 				}
 			},
-			[ nextSceneRespone ]
+			[ sceneResponse, currentScene, similar, scenes]
+		);
+
+        useEffect(
+			() => {
+				if (similarResponse) {
+					similarResponse.then((res) => {
+                        setSimilarScene(res.data.scenes);
+					});
+				}
+			},
+			[ similarResponse ]
 		);
 
 		useEffect(
 			() => {
-				if (highlight >= 0) {
-					const column = Math.floor((highlight + 0.6) * (IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 + 8));
+                if (line >= 0) {
+                    const row = Math.floor(line * (IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 + 26)  + space * 20);
 					var el = document.getElementById('scenegrid');
-					var newPos = Math.max(0, column - el.offsetWidth * 0.5);
+                    var newPos = Math.max(0, row - el.offsetHeight * 0.5);
 					setTimeout(
 						() =>
 							el.scrollTo({
-								top: 0,
-								left: newPos,
-								behavior: 'auto'
+                                top: newPos,
+								left: 0,
+								behavior: behavior.current
 							}),
 						100
 					);
 				}
 			},
-			[ nextScenes, highlight ]
+			[ scenes, line, space ]
 		);
 
 		const setDetailedImages = useCallback(
-			(image) => {
-				nextScenes.forEach((scene, index) => {
-					if (scene[0] === image) {
-                        if (index !== highlight){
-                            setCurrentDisplay(scene);
-						if (!similar) {
-							dispatch(getNextScenes(scene, 'current', 'full'));
-							pressed.current = index;
-							changed.current = true;
-							fetchedScenes.current = false;
-						}
-                        else {
-                            setHighlight(index)
-                        }
-                        }
-					}
-				});
+			(images) => {
+                    dispatch(getSimilar(images[0]))
+                    dispatch(getNextScenes(images, 'full'));
+                    setDetailed(images);
+                    fetchedScenes.current = false;
+                    behavior.current = "auto";
 			},
-			[ similar, nextScenes ]
+			[]
 		);
 
-		const revert = () => {
-			changed.current = false;
-			setCurrentDisplay(group);
-            dispatch(getNextScenes(group, 'current', 'full'));
-			fetchedScenes.current = false;
-		};
+        const setTime = useCallback(
+            (images) => {
+                dispatch(getNextScenes(images, 'full'));
+                setDetailed(images);
+                fetchedScenes.current = false;
+                behavior.current = "smooth";
+            },
+            []
+        );
 
+        const findSimilar = useCallback(
+            (image) => {
+                dispatch(getSimilar(image))
+            },
+            []
+        );
 		return (
 			<Paper id="popover" elevation={4} className={classes.detailed}>
-				<Typography variant="button" className={classes.text}>
-					Event images
-				</Typography>
-				<div wrap="nowrap" className={classes.grid} ref={detailedContainer}>
-					{currentDisplay ? (
-						currentDisplay.map((image, index) => (
-							<Image
-								key={'detailed' + image}
-								image={image}
-								scale={3}
-								info
-								openEvent={openEvent}
-								similar={similar}
-							/>
-						))
-					) : null}
-				</div>
-					<Button className={classes.button} onClick={revert}>
-						Show original
-					</Button>
-
-				<div id="scenegrid" className={classes.grid} ref={sceneContainer}>
-					{nextScenes ? (
-						nextScenes.map((scene, index) => (
-							<Image
-								key={scene[0]}
-								index={index}
-								image={scene[0]}
-								scale={index === highlight ? 1.15 : 0.95}
-								onClick={setDetailedImages}
-								openEvent={openEvent}
-								similar={similar}
-							/>
-						))
-					) : null}
-				</div>
+                <div className={classes.horizontal}>
+                    <div className={classes.vertical}>
+                        <SceneGrid name={"ALL SCENES on " + (currentScene !== null? currentScene.split('_')[0]: "")}
+                                scenes={scenes}
+                                scale={1.0}
+                                height="65%" width="100%"
+                                color={"#272727"}
+                                onClick={setDetailedImages}
+                                highlight={currentScene}
+                                zIndex={1}
+                                ref={sceneContainer}/>
+                        <SimilarGrid name={"SIMILAR scenes"}
+                                scenes={similarScene}
+                                scale={1.0}
+                                height="30%" width="99%"
+                                color={"#bebac6"}
+                                zIndex={2}
+                                onClick={setTime}/>
+                    </div>
+                    <DetailGrid name={"IMAGES of the selected scene"}
+                            scenes={detailed}
+                            scale={2.5}
+                            zIndex={0}
+                            height="calc(100% - 10px)" width="calc(32.5% - 20px)"
+                            color={"rgb(56 55 72)"}
+                            onClick={findSimilar}/>
+                </div>
 			</Paper>
 		);
 	}

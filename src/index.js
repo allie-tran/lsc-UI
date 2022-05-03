@@ -19,6 +19,19 @@ const theme = createMuiTheme({
 		error: { main: '#FF6584' },
 		success: { main: '#212121' }
 	},
+    overrides: {
+        MuiTooltip: {
+            tooltip: {
+                whiteSpace: "pre-wrap",
+                fontSize: 12,
+            }
+        },
+        MuiTypography: {
+            button: {
+                fontSize: 16,
+            },
+        },
+    },
 	spacing: 4
 });
 const store = configureStore();

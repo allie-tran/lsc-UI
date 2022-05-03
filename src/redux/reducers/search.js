@@ -1,5 +1,6 @@
 import {
 	GET_ALL_IMAGES,
+    MORE,
 	SET_MAP,
 	NEXT_SCENE,
 	CLEAR_NEXT_SCENE,
@@ -9,6 +10,7 @@ import {
     SIMILAR,
     GET_GROUP,
     GET_GPS,
+    GET_INFO,
     SET_MUST_NOT,
     REMOVE_MUST_NOT,
     SET_FINISH_SEARCH
@@ -18,13 +20,15 @@ import axios from 'axios';
 export const searchState = {
 	collection: null,
 	dates: [],
-	nextSceneRespone: null,
+    visualisation: [],
+	nextSceneResponse: null,
 	bounds: null,
 	info: null,
 	keywords: [],
     similarResponse: null,
     groupResponse: null,
     gpsResponse: null,
+    infoResponse: null,
     stats: [],
     finishedSearch: 0
 };
@@ -46,7 +50,7 @@ export default function(state = searchState, action) {
 			});
             newInfo.must_not_terms = state.stats.slice()
 			const response = axios.post(
-				'http://localhost:7999/api/date/',
+				'http://mysceal-sv.computing.dcu.ie/api/images/',
 				{
 					query: {
 						before: '',
@@ -55,7 +59,8 @@ export default function(state = searchState, action) {
 						info: newInfo
 					},
 					gps_bounds: state.bounds,
-                    starting_from: action.starting_from
+                    starting_from: action.starting_from,
+                    share_info: action.share_info
 				},
 				{ headers: { 'Content-Type': 'application/json' } }
 			);
@@ -65,9 +70,9 @@ export default function(state = searchState, action) {
 			};
 		} else {
 			const response = axios.post(
-				'http://localhost:7999/api/date/',
+				'http://mysceal-sv.computing.dcu.ie/api/images/',
 				{ query: action.query, gps_bounds: state.bounds,
-                 starting_from: action.starting_from },
+                    starting_from: action.starting_from, share_info: action.share_info },
 				{ headers: { 'Content-Type': 'application/json' } }
 			);
 			return {
@@ -76,6 +81,18 @@ export default function(state = searchState, action) {
                 stats: []
 			};
 		}
+    } else if (action.type === MORE) {
+        const response = axios.post('http://mysceal-sv.computing.dcu.ie/api/more/',
+            {
+                info: state.info
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+		);
+			return {
+				...state,
+				collection: response,
+                stats: []
+			};
     } else if (action.type === SET_FINISH_SEARCH) {
         return {
             ...state,
@@ -90,7 +107,7 @@ export default function(state = searchState, action) {
 		}
 	} else if (action.type === NEXT_SCENE) {
 		const response = axios.post(
-			'http://localhost:7999/api/timeline/',
+			'http://mysceal-sv.computing.dcu.ie/api/timeline/',
 			{
 				images: action.images,
 				timeline_type: action.timeline_type,
@@ -100,17 +117,19 @@ export default function(state = searchState, action) {
 		);
 		return {
 			...state,
-			nextSceneRespone: response
+			nextSceneResponse: response
 		};
 	} else if (action.type === CLEAR_NEXT_SCENE) {
 		return {
 			...state,
-			nextSceneRespone: null,
-            similarResponse: null
+			nextSceneResponse: null,
+            groupResponse: null,
+            similarResponse: null,
+            infoResponse: null
 		};
     } else if (action.type === GET_GROUP){
         const response = axios.post(
-			'http://localhost:7999/api/timeline/group/',
+			'http://mysceal-sv.computing.dcu.ie/api/timeline/group/',
 			{
 				date: action.date
 			},
@@ -122,7 +141,7 @@ export default function(state = searchState, action) {
 		};
     } else if (action.type === GET_GPS){
         const response = axios.post(
-			'http://localhost:7999/api/gps/',
+			'http://mysceal-sv.computing.dcu.ie/api/gps/',
 			{
 				image: action.image
 			},
@@ -132,6 +151,18 @@ export default function(state = searchState, action) {
 			...state,
 			gpsResponse: response
 		};
+    } else if (action.type === GET_INFO) {
+        const response = axios.post(
+            'http://mysceal-sv.computing.dcu.ie/api/timeline/info/',
+            {
+                images: action.images
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+        return {
+            ...state,
+            infoResponse: response
+        };
     }
     else if (action.type === SET_INFO) {
 		if (!isEqual(state.info, action.info)) {
@@ -149,7 +180,15 @@ export default function(state = searchState, action) {
 		}
 	} else if (action.type === SIMILAR) {
         const response = axios.post(
-                'http://localhost:7999/similar/group?image_id=' + action.image)
+                'http://mysceal-sv.computing.dcu.ie/api/similar',
+                {
+                    image_id: action.image,
+                    lsc: true,
+                    info: state.info,
+                    gps_bounds: state.bounds,
+                },
+                { headers: { 'Content-Type': 'application/json' } }
+        );
 		return {
 			...state,
 			similarResponse: response

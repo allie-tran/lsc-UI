@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import Map from './Map';
 import Bar from './AppBar';
 import SaveSection from './Save';
-import Submit from './Submit';
+import AutoComplete from './AutoComplete';
 import Popover from '@material-ui/core/Popover';
 import { makeStyles } from '@material-ui/core/styles';
 import EventPopover from './EventPopover';
@@ -15,11 +15,15 @@ import {startTimer} from '../redux/actions/submit'
 
 const popoverStyles = makeStyles((theme) => ({
 	popover: {
-		width: '80%',
+		width: '75%',
 		color: '#272727'
-	}
+	},
+    autocomplete: {
+        top: 60,
+        right: 5,
+        position: "fixed"
+    }
 }));
-
 
 
 if (process.env.NODE_ENV === 'development') {
@@ -30,16 +34,15 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const Page = () => {
-	const WIDTH = 1920; // 1920, 1443
-	const HEIGHT = 945; // 945, 700
+    const WIDTH = window.innerWidth; // 1920, 1443
+    const HEIGHT = window.innerHeight; // 1920; // 945, 700
 	const classes = popoverStyles();
     const dispatch = useDispatch()
 	const [ openPopover, setOpenPopover ] = useState(false);
 	const [ similar, setSimilar ] = useState(false);
-	const [ group, setGroup ] = useState(null);
-	const [ position, setPosition ] = useState(false);
+	const [ detailedScene, setDetailedScene ] = useState(null);
 
-    const submitQuery = useCallback((ignoreInfo, starting_from) => {
+    const submitQuery = useCallback((ignoreInfo, starting_from, share_info) => {
         let query = {
             before: document.getElementById("Before:").value,
             beforewhen: document.getElementById("Before:-when").value,
@@ -51,21 +54,14 @@ const Page = () => {
         window.scrollTo(0, 0);
         dispatch(resetSelection());
         dispatch(setFinishedSearch(starting_from))
-        dispatch(getImages(query, ignoreInfo, starting_from));
+        dispatch(getImages(query, ignoreInfo, starting_from, share_info));
         dispatch(startTimer())
     }, []);
 
 	const openEvent = useCallback((event, newSimilar, newGroup, newPosition) => {
-        setSimilar(newSimilar);
-		if (newSimilar) {
-			dispatch(getSimilar(newGroup[0]));
-		}
-        else {
-            dispatch(getGroups(newGroup[0].split('/')[0]));
-            dispatch(getNextScenes(newGroup, 'current', 'full'));
-        }
-        setGroup(newGroup);
-		setPosition(newPosition);
+        dispatch(getSimilar(newGroup[0]))
+        dispatch(getNextScenes(newGroup, 'full'));
+        setDetailedScene(newGroup);
 		setOpenPopover(true); // eslint-disable-next-line
 	}, []);
 
@@ -79,9 +75,9 @@ const Page = () => {
 			{' '}
 			{/*700 * 1443, 945 x 1920*/}
 			<Bar open submitQuery={submitQuery} />
+            <Map open />
 			<SaveSection open openEvent={openEvent} />
-			<Map open />
-			<Submit />
+			{/* <Submit /> */}
 			<ImageGrid open height={HEIGHT} maxwidth={WIDTH} openEvent={openEvent} submitQuery={submitQuery}/>\
 			<Popover
 				open={openPopover}
@@ -101,9 +97,7 @@ const Page = () => {
 			>
 				{openPopover && <EventPopover
 					openEvent={openEvent}
-					closeEvent={closeEvent}
-					group={group}
-					position={position}
+					detailedScene={detailedScene}
 					similar={similar}
 				/>}
 			</Popover>
