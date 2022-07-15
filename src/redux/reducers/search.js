@@ -1,27 +1,29 @@
 import {
-	GET_ALL_IMAGES,
+    GET_ALL_IMAGES,
     MORE,
-	SET_MAP,
-	NEXT_SCENE,
-	CLEAR_NEXT_SCENE,
-	SET_BOUND,
-	SET_INFO,
-	SET_KEYWORDS,
+    SET_MAP,
+    NEXT_SCENE,
+    CLEAR_NEXT_SCENE,
+    SET_BOUND,
+    SET_INFO,
+    SET_KEYWORDS,
     SIMILAR,
     GET_GROUP,
     GET_GPS,
     GET_INFO,
     SET_MUST_NOT,
     REMOVE_MUST_NOT,
-    SET_FINISH_SEARCH
-} from '../actions/search';
+    SET_FINISH_SEARCH,
+    MORE_SCENES,
+} from "../actions/search";
 import axios from 'axios';
 
 export const searchState = {
 	collection: null,
 	dates: [],
     visualisation: [],
-	nextSceneResponse: null,
+	sceneResponse: null,
+    moreSceneResponse: null,
 	bounds: null,
 	info: null,
 	keywords: [],
@@ -30,7 +32,8 @@ export const searchState = {
     gpsResponse: null,
     infoResponse: null,
     stats: [],
-    finishedSearch: 0
+    finishedSearch: 0,
+    query: null
 };
 
 var isEqual = require('lodash.isequal');
@@ -50,7 +53,7 @@ export default function(state = searchState, action) {
 			});
             newInfo.must_not_terms = state.stats.slice()
 			const response = axios.post(
-				'http://mysceal-sv.computing.dcu.ie/api/images/',
+				'http://localhost:7999/api/images/',
 				{
 					query: {
 						before: '',
@@ -65,24 +68,26 @@ export default function(state = searchState, action) {
 				{ headers: { 'Content-Type': 'application/json' } }
 			);
 			return {
-				...state,
-				collection: response
-			};
+                ...state,
+                collection: response,
+                query: action.query
+            };
 		} else {
 			const response = axios.post(
-				'http://mysceal-sv.computing.dcu.ie/api/images/',
+				'http://localhost:7999/api/images/',
 				{ query: action.query, gps_bounds: state.bounds,
                     starting_from: action.starting_from, share_info: action.share_info },
 				{ headers: { 'Content-Type': 'application/json' } }
 			);
 			return {
-				...state,
-				collection: response,
-                stats: []
-			};
+                ...state,
+                collection: response,
+                stats: [],
+                query: action.query
+            };
 		}
     } else if (action.type === MORE) {
-        const response = axios.post('http://mysceal-sv.computing.dcu.ie/api/more/',
+        const response = axios.post('http://localhost:7999/api/more/',
             {
                 info: state.info
             },
@@ -107,7 +112,7 @@ export default function(state = searchState, action) {
 		}
 	} else if (action.type === NEXT_SCENE) {
 		const response = axios.post(
-			'http://mysceal-sv.computing.dcu.ie/api/timeline/',
+			'http://localhost:7999/api/timeline/',
 			{
 				images: action.images,
 				timeline_type: action.timeline_type,
@@ -117,19 +122,20 @@ export default function(state = searchState, action) {
 		);
 		return {
 			...state,
-			nextSceneResponse: response
+			sceneResponse: response
 		};
 	} else if (action.type === CLEAR_NEXT_SCENE) {
 		return {
-			...state,
-			nextSceneResponse: null,
+            ...state,
+            sceneResponse: null,
             groupResponse: null,
             similarResponse: null,
-            infoResponse: null
-		};
+            moreSceneResponse: null,
+            infoResponse: null,
+        };
     } else if (action.type === GET_GROUP){
         const response = axios.post(
-			'http://mysceal-sv.computing.dcu.ie/api/timeline/group/',
+			'http://localhost:7999/api/timeline/group/',
 			{
 				date: action.date
 			},
@@ -138,80 +144,93 @@ export default function(state = searchState, action) {
         return {
 			...state,
 			groupResponse: response
-		};
-    } else if (action.type === GET_GPS){
+        };
+    } else if (action.type === MORE_SCENES) {
         const response = axios.post(
-			'http://mysceal-sv.computing.dcu.ie/api/gps/',
-			{
-				image: action.image
-			},
-			{ headers: { 'Content-Type': 'application/json' } }
-		);
-        return {
-			...state,
-			gpsResponse: response
-		};
-    } else if (action.type === GET_INFO) {
-        const response = axios.post(
-            'http://mysceal-sv.computing.dcu.ie/api/timeline/info/',
+            "http://localhost:7999/api/timeline/more_scene/",
             {
-                images: action.images
+                group: action.group,
+                direction: action.direction
             },
-            { headers: { 'Content-Type': 'application/json' } }
+            { headers: { "Content-Type": "application/json" } }
         );
         return {
             ...state,
-            infoResponse: response
+            moreSceneResponse: response,
         };
-    }
-    else if (action.type === SET_INFO) {
-		if (!isEqual(state.info, action.info)) {
-			return {
-				...state,
-				info: action.info
-			};
-		}
-	} else if (action.type === SET_KEYWORDS) {
-		if (!isEqual(state.keywords, action.keywords)) {
-			return {
-				...state,
-				keywords: action.keywords
-			};
-		}
-	} else if (action.type === SIMILAR) {
+    } else if (action.type === GET_GPS) {
         const response = axios.post(
-                'http://mysceal-sv.computing.dcu.ie/api/similar',
-                {
-                    image_id: action.image,
-                    lsc: true,
-                    info: state.info,
-                    gps_bounds: state.bounds,
-                },
-                { headers: { 'Content-Type': 'application/json' } }
+            "http://localhost:7999/api/gps/",
+            {
+                image: action.image,
+            },
+            { headers: { "Content-Type": "application/json" } }
         );
-		return {
-			...state,
-			similarResponse: response
-		}
-	} else if (action.type === SET_MUST_NOT) {
-        if (!state.stats.includes(action.keyword)){
-            let newStats = state.stats.slice()
-            newStats.push(action.keyword)
+        return {
+            ...state,
+            gpsResponse: response,
+        };
+    } else if (action.type === GET_INFO) {
+        const response = axios.post(
+            "http://localhost:7999/api/timeline/info/",
+            {
+                image: action.image,
+            },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        return {
+            ...state,
+            infoResponse: response,
+        };
+    } else if (action.type === SET_INFO) {
+        if (!isEqual(state.info, action.info)) {
             return {
                 ...state,
-                stats: newStats
+                info: action.info,
             };
         }
-    }
-    else if (action.type === REMOVE_MUST_NOT) {
-        let newStats = []
-        state.stats.forEach(kw => kw === action.keyword? null: newStats.push(kw))
+    } else if (action.type === SET_KEYWORDS) {
+        if (!isEqual(state.keywords, action.keywords)) {
+            return {
+                ...state,
+                keywords: action.keywords,
+            };
+        }
+    } else if (action.type === SIMILAR) {
+        const response = axios.post(
+            "http://localhost:7999/api/similar",
+            {
+                image_id: action.image,
+                lsc: true,
+                info: state.info,
+                gps_bounds: state.bounds,
+            },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        return {
+            ...state,
+            similarResponse: response,
+        };
+    } else if (action.type === SET_MUST_NOT) {
+        if (!state.stats.includes(action.keyword)) {
+            let newStats = state.stats.slice();
+            newStats.push(action.keyword);
+            return {
+                ...state,
+                stats: newStats,
+            };
+        }
+    } else if (action.type === REMOVE_MUST_NOT) {
+        let newStats = [];
+        state.stats.forEach((kw) =>
+            kw === action.keyword ? null : newStats.push(kw)
+        );
         if (!isEqual(state.stats, newStats)) {
-			return {
-				...state,
-				stats: newStats
-			};
-		}
+            return {
+                ...state,
+                stats: newStats,
+            };
+        }
     }
 	return state;
 }

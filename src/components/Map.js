@@ -9,7 +9,7 @@ import 'leaflet-polylinedecorator';
 import 'leaflet-area-select';
 import { makeStyles } from '@material-ui/core/styles';
 import { setQueryBound } from '../redux/actions/search';
-import worldmap from '../worldmap'
+// import worldmap from '../worldmap'
 import commonPlace from '../commonplace'
 
 var isEqual = require('lodash.isequal');
@@ -20,12 +20,12 @@ const useStyles = makeStyles((theme) => ({
 		position: 'fixed',
 		left: (props) => (props.open ? '80%' : 'calc(97% + 5px)'),
 		width: '30%',
-		height: 'calc(70% - 5px)',
+		height: 'calc(70% - 60px)',
         paddingLeft: 10,
 		borderRadius: 2,
 		filter: (props) => (props.open ? 'none' : 'brightness(25%)'),
 		zIndex: 3,
-		top: 60,
+		top: 115,
 		margin: 0,
         border: "5px solid #272727",
 	},
@@ -76,7 +76,7 @@ const Map = ({ open }) => {
     const visualisation = useSelector((state) => state.search.info);
 
 	const dates = useSelector((state) => state.search.dates, isEqual);
-	const selected = useSelector((state) => state.select.selected);
+	// const selected = useSelector((state) => state.select.selected);
 	const gpsResponse = useSelector((state) => state.search.gpsResponse);
 
 	const map = useRef(null);
@@ -173,18 +173,24 @@ const Map = ({ open }) => {
                         })
                     });
 
-                    visualisation.country_to_visualise.forEach(name => {
-                        console.log(worldmap[name]);
-                        L.geoJson(worldmap[name], {style: style}).addTo(nameLayer.current);
+                    visualisation.country_to_visualise.forEach(({country, geojson}) => {
+                        console.log(country);
+                        L.geoJson(geojson, {style: style}).addTo(nameLayer.current);
+                        // import("../worldmap")
+                            // .then(({ worldmap }) => {
+                                // L.geoJson(worldmap[name], {style: style}).addTo(nameLayer.current);
+                            // })
+                            // .catch((err) => {
+                                // console.log("Can't load worldmap");
+                            // });
                     })
                 }
-
 				dates.forEach((scene, id) => {
 						if (scene && scene.gps) {
 							var marker = L.marker(
 								[
-									scene.gps[1][0].lat.toPrecision(PRECISION),
-									scene.gps[1][0].lon.toPrecision(PRECISION)
+									scene.gps[0].lat.toPrecision(PRECISION),
+									scene.gps[0].lon.toPrecision(PRECISION)
 								],
 								{
 									icon: new subIcon({ index: id }),
@@ -207,105 +213,103 @@ const Map = ({ open }) => {
 		[ dates, status, visualisation]
 	);
 
-	useEffect(
-		() => {
-			if (status && selected) {
-                console.log(selected)
-				const date_selected = dates[selected];
-				pathLine.current.clearLayers();
-				const color = [ 'rgb(255, 101, 132)', 'rgb(108, 99, 255)', 'rgb(33, 33, 33)' ];
-				let path = [];
-				let fullPath = [];
-				let i;
-				let polyline;
-				for (i = 0; i < 3; i++) {
-					if (date_selected.gps[i] !== null && date_selected.gps[i].length > 0) {
-						if (path.length > 0) {
-							var gps = date_selected.gps[i][0];
-							path.push([ gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION) ]);
-							polyline = L.polyline(path, {
-								color: color[i - 1],
-								weight: 2,
-								opacity: 0.5,
-								pane: pane.current
-							}).addTo(pathLine.current);
-							polyline.on({ click: (e) => map.current.fitBounds(e.target.getBounds()) });
-							path = [];
-						}
-						path.push(
-							...date_selected.gps[i].map((gps) => [
-								gps.lat.toPrecision(PRECISION),
-								gps.lon.toPrecision(PRECISION)
-							])
-						);
-					}
-				}
+	// useEffect(
+	// 	() => {
+	// 		if (status && selected) {
+	// 			const date_selected = dates[selected];
+	// 			pathLine.current.clearLayers();
+	// 			const color = [ 'rgb(255, 101, 132)', 'rgb(108, 99, 255)', 'rgb(33, 33, 33)' ];
+	// 			let path = [];
+	// 			let fullPath = [];
+	// 			let i;
+	// 			let polyline;
+	// 			for (i = 0; i < 3; i++) {
+	// 				if (date_selected.gps[i] !== null && date_selected.gps[i].length > 0) {
+	// 					if (path.length > 0) {
+	// 						var gps = date_selected.gps[i][0];
+	// 						path.push([ gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION) ]);
+	// 						polyline = L.polyline(path, {
+	// 							color: color[i - 1],
+	// 							weight: 2,
+	// 							opacity: 0.5,
+	// 							pane: pane.current
+	// 						}).addTo(pathLine.current);
+	// 						polyline.on({ click: (e) => map.current.fitBounds(e.target.getBounds()) });
+	// 						path = [];
+	// 					}
+	// 					path.push(
+	// 						...date_selected.gps[i].map((gps) => [
+	// 							gps.lat.toPrecision(PRECISION),
+	// 							gps.lon.toPrecision(PRECISION)
+	// 						])
+	// 					);
+	// 				}
+	// 			}
 
-				if (path.length > 0) {
-					polyline = L.polyline(path, {
-						color: color[i - 1],
-						weight: 2,
-						opacity: 0.5,
-						pane: pane.current
-					}).addTo(pathLine.current);
-					polyline.on({ click: (e) => map.current.fitBounds(e.target.getBounds()) });
-					path = [];
-            console.log(selected)
-				}
+	// 			if (path.length > 0) {
+	// 				polyline = L.polyline(path, {
+	// 					color: color[i - 1],
+	// 					weight: 2,
+	// 					opacity: 0.5,
+	// 					pane: pane.current
+	// 				}).addTo(pathLine.current);
+	// 				polyline.on({ click: (e) => map.current.fitBounds(e.target.getBounds()) });
+	// 				path = [];
+	// 			}
 
-				date_selected.gps_path.forEach((gps) => {
-					fullPath.push([ gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION) ]);
-				});
+	// 			date_selected.gps_path.forEach((gps) => {
+	// 				fullPath.push([ gps.lat.toPrecision(PRECISION), gps.lon.toPrecision(PRECISION) ]);
+	// 			});
 
-				var fullLine = L.polyline(fullPath, {
-					weight: 2,
-					pane: pane.current,
-					opacity: 0
-				}).addTo(pathLine.current);
+	// 			var fullLine = L.polyline(fullPath, {
+	// 				weight: 2,
+	// 				pane: pane.current,
+	// 				opacity: 0
+	// 			}).addTo(pathLine.current);
 
-				// eslint-disable-next-line
-				// var arrowHead = L.polylineDecorator(polyline, {
-				// 	patterns: [
-				// 		{
-				// 			offset: 0,
-				// 			repeat: '99%',
-				// 			symbol: L.Symbol.arrowHead({
-				// 				pixelSize: 10,
-				// 				polygon: false,
-				// 				pathOptions: {
-				// 					stroke: true,
-				// 					weight: 3,
-				// 					opacity: 1,
-				// 					pane: pane.current,
-				// 					interactive: false
-				// 				}
-				// 			})
-				// 		}
-				// 	]
-				// }).addTo(pathLine.current);
-				// eslint-disable-next-line
-				var marker = L.marker(
-					[
-						date_selected.gps[1][0].lat.toPrecision(PRECISION),
-						date_selected.gps[1][0].lon.toPrecision(PRECISION)
-					],
-					{
-						icon: mainIcon,
-						pane: pane.current,
-						interactive: false
-					}
-				).addTo(pathLine.current);
+	// 			// eslint-disable-next-line
+	// 			// var arrowHead = L.polylineDecorator(polyline, {
+	// 			// 	patterns: [
+	// 			// 		{
+	// 			// 			offset: 0,
+	// 			// 			repeat: '99%',
+	// 			// 			symbol: L.Symbol.arrowHead({
+	// 			// 				pixelSize: 10,
+	// 			// 				polygon: false,
+	// 			// 				pathOptions: {
+	// 			// 					stroke: true,
+	// 			// 					weight: 3,
+	// 			// 					opacity: 1,
+	// 			// 					pane: pane.current,
+	// 			// 					interactive: false
+	// 			// 				}
+	// 			// 			})
+	// 			// 		}
+	// 			// 	]
+	// 			// }).addTo(pathLine.current);
+	// 			// eslint-disable-next-line
+	// 			var marker = L.marker(
+	// 				[
+	// 					date_selected.gps[1][0].lat.toPrecision(PRECISION),
+	// 					date_selected.gps[1][0].lon.toPrecision(PRECISION)
+	// 				],
+	// 				{
+	// 					icon: mainIcon,
+	// 					pane: pane.current,
+	// 					interactive: false
+	// 				}
+	// 			).addTo(pathLine.current);
 
-				// Zooming
-				map.current.fitBounds(fullLine.getBounds());
-				// map.current.setView(marker.getLatLng());
+	// 			// Zooming
+	// 			map.current.fitBounds(fullLine.getBounds());
+	// 			// map.current.setView(marker.getLatLng());
 
-				map.current.addLayer(pathLine.current);
-			}
-			return () => pathLine.current.clearLayers();
-		}, // eslint-disable-next-line
-		[ selected, status ]
-	);
+	// 			map.current.addLayer(pathLine.current);
+	// 		}
+	// 		return () => pathLine.current.clearLayers();
+	// 	}, // eslint-disable-next-line
+	// 	[ selected, status ]
+	// );
 
 	useEffect(
 		() => {
@@ -332,7 +336,7 @@ const Map = ({ open }) => {
                             }).addTo(pathLine.current);
 
 						// Zooming
-						map.current.setView(marker.getLatLng());
+						map.current.setView(marker.getLatLng(), 13);
 						// map.current.setView(marker.getLatLng());
 						map.current.addLayer(pathLine.current);
 					}

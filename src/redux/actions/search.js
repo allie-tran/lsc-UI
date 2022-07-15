@@ -13,7 +13,7 @@ export const SET_MUST_NOT = 'SET_MUST_NOT';
 export const REMOVE_MUST_NOT = 'REMOVE_MUST_NOT'
 export const SET_FINISH_SEARCH = 'SET_FINISH_SEARCH'
 export const MORE = 'MORE'
-
+export const MORE_SCENES = "MORE_SCENES";
 
 
 export function getImages(query = {}, ignoreInfo = false, starting_from = 0, share_info=false) {
@@ -33,6 +33,10 @@ export function setMap(dates = []) {
 
 export function getNextScenes(images = [],  direction='next') {
 	return { type: NEXT_SCENE, images, direction };
+}
+
+export function getMoreScenes(group, direction) {
+    return { type: MORE_SCENES, group, direction };
 }
 
 export function getGroups(date) {
@@ -57,10 +61,10 @@ export function getGPS(image) {
 	};
 }
 
-export function getInfo(images) {
+export function getInfo(image) {
     return {
         type: GET_INFO,
-        images
+        image: image
     };
 }
 

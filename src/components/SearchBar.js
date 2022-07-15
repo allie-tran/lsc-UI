@@ -84,4 +84,5 @@ const SearchBar = memo(({ open, type, submitQuery }) => {
 	);
 });
 
+SearchBar.whyDidYouRender = true;
 export default SearchBar;
