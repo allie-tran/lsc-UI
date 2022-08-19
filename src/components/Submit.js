@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import configData from "../config.json";
+
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -41,7 +43,7 @@ const SubmitSection = () => {
 	const timerRunning = useSelector((state) => state.save.timerRunning);
 
 	useEffect(() => {
-		axios.post('http://localhost:7999/api/restart');
+		axios.post(configData.BACKEND_URL + '/restart');
 	}, []);
 
 	useEffect(
@@ -90,7 +92,7 @@ const SubmitSection = () => {
 		// var blob = new Blob([ saved ], { type: 'text/plain;charset=utf-8' });
 		// FileSaver.saveAs(blob, 'result' + currentQuery + '.csv');
 		dispatch(exportSaved());
-		axios.post('http://localhost:7999/api/submit?time=' + time + '&query_id=' + currentQuery);
+		axios.post('configData.BACKEND_URLsubmit?time=' + time + '&query_id=' + currentQuery);
 	};
 	return (
 		<div className={classes.section}>

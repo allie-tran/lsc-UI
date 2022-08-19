@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React, { memo, useState } from "react";
+import configData from "../config.json";
 import { makeStyles } from '@material-ui/core/styles';
 import DeleteOutlineRoundedIcon from '@material-ui/icons/DeleteOutlineRounded';
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
@@ -147,7 +148,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     loading="lazy"
                     alt={img}
                     src={
-                        "http://lifeseeker-sv.computing.dcu.ie/" +
+                        configData.IMAGEHOST_URL +
                         img.split(".")[0] +
                         ".webp"
                     }
@@ -201,7 +202,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                 <img
                     alt={img}
                     src={
-                        "http://lifeseeker-sv.computing.dcu.ie/" +
+                        configData.IMAGEHOST_URL +
                         img.split(".")[0] +
                         ".webp"
                     }

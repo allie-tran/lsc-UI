@@ -16,6 +16,7 @@ import {
     SET_FINISH_SEARCH,
     MORE_SCENES,
 } from "../actions/search";
+import configData from "../../config.json";
 import axios from 'axios';
 
 export const searchState = {
@@ -53,7 +54,7 @@ export default function(state = searchState, action) {
 			});
             newInfo.must_not_terms = state.stats.slice()
 			const response = axios.post(
-				'http://localhost:7999/api/images/',
+				configData.BACKEND_URL + 'images/',
 				{
 					query: {
 						before: '',
@@ -74,7 +75,7 @@ export default function(state = searchState, action) {
             };
 		} else {
 			const response = axios.post(
-				'http://localhost:7999/api/images/',
+				configData.BACKEND_URL + 'images/',
 				{ query: action.query, gps_bounds: state.bounds,
                     starting_from: action.starting_from, share_info: action.share_info },
 				{ headers: { 'Content-Type': 'application/json' } }
@@ -87,7 +88,7 @@ export default function(state = searchState, action) {
             };
 		}
     } else if (action.type === MORE) {
-        const response = axios.post('http://localhost:7999/api/more/',
+        const response = axios.post(configData.BACKEND_URL + 'more/',
             {
                 info: state.info
             },
@@ -112,7 +113,7 @@ export default function(state = searchState, action) {
 		}
 	} else if (action.type === NEXT_SCENE) {
 		const response = axios.post(
-			'http://localhost:7999/api/timeline/',
+			configData.BACKEND_URL + 'timeline/',
 			{
 				images: action.images,
 				timeline_type: action.timeline_type,
@@ -135,7 +136,7 @@ export default function(state = searchState, action) {
         };
     } else if (action.type === GET_GROUP){
         const response = axios.post(
-			'http://localhost:7999/api/timeline/group/',
+			configData.BACKEND_URL + 'timeline/group/',
 			{
 				date: action.date
 			},
@@ -147,7 +148,7 @@ export default function(state = searchState, action) {
         };
     } else if (action.type === MORE_SCENES) {
         const response = axios.post(
-            "http://localhost:7999/api/timeline/more_scene/",
+            configData.BACKEND_URL + "timeline/more_scene/",
             {
                 group: action.group,
                 direction: action.direction
@@ -160,7 +161,7 @@ export default function(state = searchState, action) {
         };
     } else if (action.type === GET_GPS) {
         const response = axios.post(
-            "http://localhost:7999/api/gps/",
+            configData.BACKEND_URL + "gps/",
             {
                 image: action.image,
             },
@@ -172,7 +173,7 @@ export default function(state = searchState, action) {
         };
     } else if (action.type === GET_INFO) {
         const response = axios.post(
-            "http://localhost:7999/api/timeline/info/",
+            configData.BACKEND_URL + "timeline/info/",
             {
                 image: action.image,
             },
@@ -198,7 +199,7 @@ export default function(state = searchState, action) {
         }
     } else if (action.type === SIMILAR) {
         const response = axios.post(
-            "http://localhost:7999/api/similar",
+            configData.BACKEND_URL + "similar",
             {
                 image_id: action.image,
                 lsc: true,

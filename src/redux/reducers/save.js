@@ -5,6 +5,7 @@ import {
     SET_SAVED,
     CLEAR_SAVED,
 } from "../actions/save";
+import configData from "../../config.json";
 import axios from 'axios';
 
 export const saveState = {
@@ -31,7 +32,7 @@ export default function(state = saveState, action) {
             ],
         };
     } else if (action.type === EXPORT) {
-        axios.post("http://localhost:7999/api/submit/");
+        axios.post(configData.BACKEND_URL + "submit/");
     } else if (action.type === SET_SAVED) {
         return {
             ...state,

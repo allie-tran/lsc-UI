@@ -1,4 +1,5 @@
 import React, { memo, useState, forwardRef } from "react";
+import configData from "../config.json";
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -165,7 +166,7 @@ const Image = forwardRef(({ image, scale, info, onClick, openEvent, zoomed, disa
             >
                 <img
                     alt={image}
-                    src={'http://lifeseeker-sv.computing.dcu.ie/'+ image.split(".")[0] + ".webp"}
+                    src={configData.IMAGEHOST_URL + image.split(".")[0] + ".webp"}
                     className={classes.image}
                     onClick={ownOnClick}
                     loading="lazy"

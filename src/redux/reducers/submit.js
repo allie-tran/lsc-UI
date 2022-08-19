@@ -1,5 +1,6 @@
 import { SUBMIT_IMAGE, LOGIN, SUBMIT_ALL } from "../actions/submit";
 import axios from "axios";
+import configData from "../../config.json";
 
 export const submitState = {
     submitResponse: null
@@ -8,7 +9,7 @@ export const submitState = {
 export default function (state = submitState, action) {
     if (action.type === SUBMIT_IMAGE) {
         const response = axios.get(
-            "http://localhost:7999/api/submit?image_id=" +
+            configData.BACKEND_URL + "submit?image_id=" +
                 action.image +
                 "&scene=" +
                 action.scene
@@ -19,7 +20,7 @@ export default function (state = submitState, action) {
         }
     } else if (action.type === LOGIN) {
         const response = axios.get(
-            "http://localhost:7999/api/login"
+            configData.BACKEND_URL + "login"
         );
         return {
             ...state,
@@ -30,7 +31,7 @@ export default function (state = submitState, action) {
         // });
     } else if (action.type === SUBMIT_ALL) {
         const response = axios.post(
-            "http://localhost:7999/api/submit_saved/",
+            configData.BACKEND_URL + "submit_saved/",
             {
                 saved: action.saved,
             },

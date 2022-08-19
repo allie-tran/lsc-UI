@@ -1,4 +1,6 @@
 import { combineReducers } from "redux";
+import configData from "../../config.json";
+
 import search, { searchState } from "./search";
 import save from "./save";
 import select, { selectState } from "./select";
@@ -42,7 +44,7 @@ const rootReducer = (state, action) => {
                 currentQuery: newQuery,
                 // saved: state.save.saved.length === 0 ? state.save.saved : [],
                 timerRunning: false,
-                // saveResponse: axios.post('http://localhost:8000/api/getsaved?query_id=' + newQuery),
+                // saveResponse: axios.post(configData.BACKEND_URL + "getsaved?query_id="" + newQuery),
                 // finished: newFinished,
                 // time: newFinished[newQuery - 1]
                 time: 300,

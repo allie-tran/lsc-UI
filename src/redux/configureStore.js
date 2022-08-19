@@ -1,4 +1,6 @@
 import {applyMiddleware, createStore} from 'redux';
+import configData from "../config.json";
+
 // import {apiMiddleware} from 'redux/-api-middleware';
 import axios from 'axios';
 import axiosMiddleware from 'redux-axios-middleware';
