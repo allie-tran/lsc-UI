@@ -32,7 +32,7 @@
         "react-onclickoutside": "^6.9.0",
         "react-promise-tracker": "^2.1.0",
         "react-redux": "^7.2.0",
-        "react-scripts": "^3.4.0",
+        "react-scripts": "^5.0.1",
         "react-vertical-timeline-component": "^3.5.2",
         "react-window": "^1.8.5",
         "redux": "^4.0.5",
