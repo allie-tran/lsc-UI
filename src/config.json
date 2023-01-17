@@ -1,4 +1,4 @@
 {
-    "BACKEND_URL": "http://localhost:8001/api/",
+    "BACKEND_URL": "http://localhost:8004/",
     "IMAGEHOST_URL": "http://lifeseeker-sv.computing.dcu.ie/"
 }
