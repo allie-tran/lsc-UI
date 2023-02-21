@@ -4,6 +4,7 @@ import configData from "../config.json";
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+
 import axios from 'axios';
 import { nextQuery, exportSaved, disable, setTimer } from '../redux/actions/submit';
 
@@ -95,18 +96,19 @@ const SubmitSection = () => {
 		axios.post('configData.BACKEND_URLsubmit?time=' + time + '&query_id=' + currentQuery);
 	};
 	return (
-		<div className={classes.section}>
-			<Button onClick={getNextQuery} className={classes.button}>
-				Next Query {currentQuery}
-			</Button>
-			<Button onClick={exportCSV} className={classes.button}>
-				Export
-			</Button>
-			<Button disabled={time < 0} onClick={toggle} className={classes.timer}>
-				{time}s
-			</Button>
-		</div>
-	);
+    <div className={classes.section}>
+      <Button onClick={getNextQuery} className={classes.button}>
+        Next Query {currentQuery}
+      </Button>
+      className={classes.answer}
+      <Button onClick={exportCSV} className={classes.button}>
+        Export
+      </Button>
+      <Button disabled={time < 0} onClick={toggle} className={classes.timer}>
+        {time}s
+      </Button>
+    </div>
+  );
 };
 
 export default SubmitSection;

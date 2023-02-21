@@ -136,7 +136,7 @@ const thumbnailStyles = makeStyles((theme) => ({
 
 
 
-const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonClick, info }) => {
+const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonClick, info, relevance }) => {
     const [zoom, setZoom] = useState(false);
 	const classes = thumbnailStyles({ hidden, scale, saved, highlight, zoomed:zoom });
     const dispatch = useDispatch()
@@ -157,27 +157,28 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     })}
                     onClick={openEvent}
                 />
-                <IconButton
+                {relevance? <IconButton
                     onMouseEnter={() => setZoom(true)}
                     className={classes.zoomButton}
                 >
                     <ImageSearchIcon fontSize="small" />
-                </IconButton>
-                <IconButton
+                </IconButton>:null}
+                
+                {relevance? <IconButton
                     onClick={onButtonClick}
                     className={classes.saveButton}
                 >
                     <BookmarkBorderRoundedIcon fontSize="small" />
-                </IconButton>
-                <IconButton
+                </IconButton> :null}
+                {relevance? <IconButton
                     onClick={(e) => dispatch(submitImage(img, false))}
                     className={classes.submitButton}
                 >
                     <CheckRoundedIcon fontSize="small" />
-                </IconButton>
-                {info && (
+                </IconButton>:null}
+                {relevance? info && (
                     <Typography className={classes.info}>{info}</Typography>
-                )}
+                ):null}
             </div>
         );
 	}
@@ -259,7 +260,8 @@ const Thumbnail = ({
     saved,
     position,
     openEvent,
-    info
+    info,
+    relevance
 }) => {
     // const [rendered, setRendered] = useState(false)
     const Save = () => dispatch(saveScene(group));
@@ -279,13 +281,13 @@ const Thumbnail = ({
             <LazyLoad
                 height={
                     ((IMAGE_HEIGHT / RESIZE_FACTOR) *
-                        scale *
+                        (relevance > 0? scale : scale * 0.5) *
                         window.innerWidth) /
                     1920
                 }
                 width={
                     ((IMAGE_WIDTH / RESIZE_FACTOR) *
-                        scale *
+                        (relevance > 0? scale : scale * 0.5) *
                         window.innerWidth) /
                     1920 + 8
                 }
@@ -295,11 +297,12 @@ const Thumbnail = ({
                     onButtonClick={saved === undefined ? Save : Remove}
                     saved={saved}
                     hidden={hidden}
-                    scale={scale}
+                    scale={relevance > 0? scale : scale * 0.5}
                     img={group[0]}
                     highlight={highlight}
                     openEvent={ownOpenEvent}
                     info={info}
+                    relevance={relevance}
                 />
             </LazyLoad>
         );

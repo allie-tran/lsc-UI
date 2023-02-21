@@ -25,32 +25,49 @@ import KeyboardCommandKeyIcon from "@mui/icons-material/KeyboardCommandKey";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import FilledInput from "@material-ui/core/FilledInput";
+import Typography from "@material-ui/core/Typography";
+
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
 const popoverStyles = makeStyles((theme) => ({
-    popover: {
-        width: "75%",
-        color: "#272727",
-        zIndex: 5,
-    },
-    autocomplete: {
-        top: 60,
-        right: 5,
-        position: "fixed",
-    },
-    snackbar: {
-        whiteSpace: "pre-wrap",
-        zIndex: 10
-    },
-    buttons: {
-        position: "absolute",
-        bottom: 0,
-        right: 0,
-        zIndex: 10
-    }
+  popover: {
+    width: "75%",
+    color: "#272727",
+    zIndex: 5,
+  },
+  autocomplete: {
+    top: 60,
+    right: 5,
+    position: "fixed",
+  },
+  snackbar: {
+    whiteSpace: "pre-wrap",
+    zIndex: 10,
+  },
+  buttons: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  answer: {
+    position: "absolute",
+    left: "calc(80% + 1px)",
+    bottom: 0,
+    height: "48px",
+    width: "12%",
+    zIndex: 5,
+    color: "#eee",
+    backgroundColor: "rgb(208 220 174)",
+  },
+  input: {
+    padding: 15,
+    color: "#000",
+  },
 }));
 
 if (process.env.NODE_ENV === "development") {
@@ -138,14 +155,43 @@ const Page = () => {
         []
     );
 
+    const [isQuestion, setQuestion] = useState(false);
+    const changeQuestion = useCallback(
+      (event) => {
+        setQuestion(event.target.checked);
+        if (event.target.checked){
+            navigator.clipboard.writeText(
+            document.getElementById("Find:").value
+            );
+        }
+        else {
+            navigator.clipboard.writeText(
+              document.getElementById("question").value
+            );
+        }
+      },
+      [isQuestion]
+    );
+
     const submitQuery = useCallback(
         (ignoreInfo, starting_from, share_info) => {
             let query = {
-                before: document.getElementById("Before:").value,
-                beforewhen: document.getElementById("Before:-when").value,
-                current: document.getElementById("Find:").value,
-                after: document.getElementById("After:").value,
-                afterwhen: document.getElementById("After:-when").value,
+              before: document.getElementById("Before:")
+                ? document.getElementById("Before:").value
+                : null,
+              beforewhen: document.getElementById("Before:-when")
+                ? document.getElementById("Before:-when").value
+                : null,
+              current: document.getElementById("Find:").value,
+              after: document.getElementById("After:")
+                ? document.getElementById("After:").value
+                : null,
+              afterwhen: document.getElementById("After:-when")
+                ? document.getElementById("After:-when").value
+                : null,
+              question: document.getElementById("question")
+                ? document.getElementById("question").value
+                : null,
             };
             console.log(query);
             window.scrollTo(0, 0);
@@ -180,70 +226,86 @@ const Page = () => {
     }, []);
 
     return (
-        <div
-            tabIndex="0"
-            onKeyDown={downHandler}
-            onKeyUp={upHandler}
-            style={{ height: HEIGHT, width: WIDTH, position: "fixed" }}
+      <div
+        tabIndex="0"
+        onKeyDown={downHandler}
+        onKeyUp={upHandler}
+        style={{ height: HEIGHT, width: WIDTH, position: "fixed" }}
+      >
+        {" "}
+        {/*700 * 1443, 945 x 1920*/}
+        <Bar
+          open
+          submitQuery={submitQuery}
+          isQuestion={isQuestion}
+          changeQuestion={changeQuestion}
+        />
+        <AutoComplete className={classes.autocomplete} />
+        <Map open />
+        <SaveSection open openEvent={openEvent} />
+        <ToggleButtonGroup className={classes.buttons} value={buttonValues}>
+          <ToggleButton value="Shift" color="warning">
+            <FileUploadIcon />
+          </ToggleButton>
+          <ToggleButton value="Command" color="warning">
+            <KeyboardCommandKeyIcon />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        {/* <Submit /> */}
+        <ImageGrid openEvent={openEvent} isQuestion={isQuestion} />
+        <Popover
+          // disablePortal={true}
+          open={openPopover}
+          anchorReference="anchorPosition"
+          anchorPosition={{ top: 0, left: 0 }}
+          anchorOrigin={{
+            vertical: "center",
+            horizontal: "center",
+          }}
+          transformOrigin={{
+            vertical: "center",
+            horizontal: "center",
+          }}
+          onBackdropClick={closeEvent}
+          onEscapeKeyDown={closeEvent}
+          className={classes.popover}
         >
-            {" "}
-            {/*700 * 1443, 945 x 1920*/}
-            <Bar open submitQuery={submitQuery} />
-            <AutoComplete className={classes.autocomplete} />
-            <Map open />
-            <SaveSection open openEvent={openEvent} />
-            <ToggleButtonGroup className={classes.buttons} value={buttonValues}>
-                <ToggleButton value="Shift" color="warning">
-                    <FileUploadIcon />
-                </ToggleButton>
-                <ToggleButton value="Command" color="warning">
-                    <KeyboardCommandKeyIcon />
-                </ToggleButton>
-            </ToggleButtonGroup>
-            {/* <Submit /> */}
-            <ImageGrid openEvent={openEvent} />
-            <Popover
-                // disablePortal={true}
-                open={openPopover}
-                anchorReference="anchorPosition"
-                anchorPosition={{ top: 0, left: 0 }}
-                anchorOrigin={{
-                    vertical: "center",
-                    horizontal: "center",
-                }}
-                transformOrigin={{
-                    vertical: "center",
-                    horizontal: "center",
-                }}
-                onBackdropClick={closeEvent}
-                onEscapeKeyDown={closeEvent}
-                className={classes.popover}
-            >
-                {openPopover && (
-                    <EventPopover
-                        shiftHeld={shiftHeld}
-                        commandHeld={commandHeld}
-                        openEvent={openEvent}
-                        detailedScene={detailedScene}
-                    />
-                )}
-            </Popover>
-            <Snackbar
-                open={openSnackBar}
-                autoHideDuration={2000}
-                onClose={handleClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            >
-                <Alert
-                    className={classes.snackbar}
-                    onClose={handleClose}
-                    severity={snackBarSeverity}
-                    sx={{ width: "100%" }}
-                >
-                    {snackBarMessage}
-                </Alert>
-            </Snackbar>
-        </div>
+          {openPopover && (
+            <EventPopover
+              shiftHeld={shiftHeld}
+              commandHeld={commandHeld}
+              openEvent={openEvent}
+              detailedScene={detailedScene}
+            />
+          )}
+        </Popover>
+        <Snackbar
+          open={openSnackBar}
+          autoHideDuration={2000}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert
+            className={classes.snackbar}
+            onClose={handleClose}
+            severity={snackBarSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackBarMessage}
+          </Alert>
+        </Snackbar>
+        {isQuestion ? (
+          <FilledInput
+            className={classes.answer}
+            id={"answer"}
+            placeholder="Submit Answer!"
+            variant="filled"
+            disableUnderline={true}
+            inputProps={{ className: classes.input }}
+            // onKeyDown={keyPressed}
+          />
+        ) : null}
+      </div>
     );
 };
 Page.whyDidYouRender = true;

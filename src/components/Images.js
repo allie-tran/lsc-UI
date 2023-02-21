@@ -23,8 +23,8 @@ const gridStyles = makeStyles((theme) => ({
         position: 'absolute',
         top: 90,
 		display: 'flex',
-		flexDirection: 'row',
-        flexWrap: 'wrap',
+		flexDirection: 'column',
+        flexWrap: 'nowrap',
 		overflowY: 'auto',
         paddingRight: "20%"
 	},
@@ -71,148 +71,136 @@ const Hidden = ({ num }) => {
 var isEqual = require("lodash.isequal");
 
 const areEqual = (prevProps, nextProps) => {
-    return isEqual(prevProps.dates, nextProps.dates) &&
+    return isEqual(prevProps.dates, nextProps.dates) && prevProps.isQuestion === nextProps.isQuestion && 
           prevProps.more === nextProps.more;
 };
 
-const ImageGrid = memo(({ openEvent }) => {
-    const classes = gridStyles();
-    const dispatch = useDispatch();
-    const [dates, setDates] = useState([]);
-    const { promiseInProgress } = usePromiseTracker();
-    const [more, setMore] = useState(false);
-    const finished = useSelector((state) => state.search.finishedSearch);
-    // const highlightRef = React.createRef([]);
+const ImageGrid = memo(({ openEvent, isQuestion }) => {
+  const classes = gridStyles({ isQuestion });
+  const dispatch = useDispatch();
+  const [dates, setDates] = useState([]);
+  const { promiseInProgress } = usePromiseTracker();
+  const [more, setMore] = useState(false);
+  const finished = useSelector((state) => state.search.finishedSearch);
+  // const highlightRef = React.createRef([]);
 
-    // const setRef = (index) => {
-    //     if (highlightRef.current === null){
-    //         highlightRef.current = []
-    //     }
-    //     highlightRef.current.push(index)
-    // }
-    const collection = useSelector((state) => state.search.collection);
-    const saveResponse = useSelector((state) => state.save.saveResponse);
-    const [loaded, setLoaded] = useState(0);
+  // const setRef = (index) => {
+  //     if (highlightRef.current === null){
+  //         highlightRef.current = []
+  //     }
+  //     highlightRef.current.push(index)
+  // }
+  const collection = useSelector((state) => state.search.collection);
+  const saveResponse = useSelector((state) => state.save.saveResponse);
+  const [loaded, setLoaded] = useState(0);
 
-    useEffect(
-        () => {
-            if (collection) {
-                trackPromise(
-                    collection.then((res) => {
-                        if (res.data.more) {
-                            console.log("Got", res.data.size);
-                            if (res.data.size > 0) {
-                                const newDates = [
-                                    ...dates,
-                                    ...res.data.results,
-                                ];
-                                setDates(newDates);
-                                dispatch(setMap(newDates));
-                                setLoaded(
-                                    loaded + Math.min(84, newDates.length)
-                                );
-                                setMore(false);
-                            }
-                        } else {
-                            console.log("Got", res.data.size);
-                            const newDates = res.data.results;
-                            dispatch(
-                                setFinishedSearch(finished + res.data.size)
-                            );
-                            dispatch(setQueryInfo(res.data.info));
-                            var isEqual = require("lodash.isequal");
-                            if (!isEqual(dates, newDates)) {
-                                setDates(newDates);
-                                dispatch(setMap(newDates));
-                                setLoaded(Math.min(84, newDates.length));
-                            }
-                        }
-                    })
-                );
+  useEffect(
+    () => {
+      if (collection) {
+        trackPromise(
+          collection.then((res) => {
+            if (res.data.more) {
+              console.log("Got", res.data.size);
+              if (res.data.size > 0) {
+                const newDates = [...dates, ...res.data.results];
+                setDates(newDates);
+                dispatch(setMap(newDates));
+                setLoaded(loaded + Math.min(84, newDates.length));
+                setMore(false);
+              }
+            } else {
+              console.log("Got", res.data.size);
+              const newDates = res.data.results;
+              dispatch(setFinishedSearch(finished + res.data.size));
+              dispatch(setQueryInfo(res.data.info));
+              var isEqual = require("lodash.isequal");
+              if (!isEqual(dates, newDates)) {
+                setDates(newDates);
+                dispatch(setMap(newDates));
+                setLoaded(Math.min(84, newDates.length));
+              }
             }
-        }, // eslint-disable-next-line
-        [collection]
-    );
-
-    useEffect(() => {
-        if (saveResponse) {
-            trackPromise(
-                saveResponse.then((res) => {
-                    if (res.data.saved) {
-                        dispatch(
-                            setSaved(res.data.saved.map((image) => [image]))
-                        );
-                        const newDates = res.data.results;
-                        var isEqual = require("lodash.isequal");
-                        if (!isEqual(dates, newDates)) {
-                            dispatch(setDates(newDates));
-                            dispatch(setMap(newDates));
-                            dispatch(setQueryBound(res.data.gps_bounds));
-                            var query = res.data.query;
-                            if (query.info) {
-                                dispatch(setQueryInfo(query.info));
-                                document.getElementById("Before:").value =
-                                    query.before;
-                                document.getElementById("Before:-when").value =
-                                    query.beforewhen;
-                                document.getElementById("Find:").value =
-                                    query.current;
-                                document.getElementById("After:").value =
-                                    query.after;
-                                document.getElementById("After:-when").value =
-                                    query.afterwhen;
-                            }
-                        }
-                    }
-                })
-            );
-        }
-    }, [saveResponse, dates, dispatch]);
-
-    const moreButton = () => {
-        if (loaded < dates.length) {
-            setLoaded(loaded + 84);
-        } else {
-            setMore(true);
-            dispatch(More());
-        }
-    };
-
-    if (promiseInProgress && !more) {
-        return (
-            <div className={classes.grid}>
-                <LoadingIndicator />
-            </div>
+          })
         );
-    } else {
-        return (
-            <div id="grid" className={classes.grid}>
-                {dates.map((scene, id) =>
-                    id < loaded ? (
-                        scene === null ? (
-                            <Hidden key={id} num={1} />
-                        ) : (
-                            <Suspense key={scene.current[0]} fallback={<div />}>
-                                <Event
-                                    key={scene.current[0]}
-                                    index={id}
-                                    group={scene}
-                                    openEvent={openEvent}
-                                    location={scene.location}
-                                    location_before={scene.location_before}
-                                    location_after={scene.location_after}
-                                />
-                            </Suspense>
-                        )
-                    ) : null
-                )}
-                <Button className={classes.button} onClick={moreButton}>
-                    {" "}
-                    MORE{" "}
-                </Button>
-            </div>
-        );
+      }
+    }, // eslint-disable-next-line
+    [collection]
+  );
+
+  useEffect(() => {
+    if (saveResponse) {
+      trackPromise(
+        saveResponse.then((res) => {
+          if (res.data.saved) {
+            dispatch(setSaved(res.data.saved.map((image) => [image])));
+            const newDates = res.data.results;
+            var isEqual = require("lodash.isequal");
+            if (!isEqual(dates, newDates)) {
+              dispatch(setDates(newDates));
+              dispatch(setMap(newDates));
+              dispatch(setQueryBound(res.data.gps_bounds));
+              var query = res.data.query;
+              if (query.info) {
+                dispatch(setQueryInfo(query.info));
+                document.getElementById("Before:").value = query.before;
+                document.getElementById("Before:-when").value =
+                  query.beforewhen;
+                document.getElementById("Find:").value = query.current;
+                document.getElementById("After:").value = query.after;
+                document.getElementById("After:-when").value = query.afterwhen;
+              }
+            }
+          }
+        })
+      );
     }
+  }, [saveResponse, dates, dispatch]);
+
+  const moreButton = () => {
+    if (loaded < dates.length) {
+      setLoaded(loaded + 84);
+    } else {
+      setMore(true);
+      dispatch(More());
+    }
+  };
+
+  if (promiseInProgress && !more) {
+    return (
+      <div className={classes.grid}>
+        <LoadingIndicator />
+      </div>
+    );
+  } else {
+    return (
+      <div id="grid" className={classes.grid}>
+        {dates.map((scene, id) =>
+          id < loaded ? (
+            scene === null ? (
+              <Hidden key={id} num={1} />
+            ) : (
+              <Suspense key={scene.current[0]} fallback={<div />}>
+                <Event
+                  key={scene.current[0]}
+                  index={id}
+                  group={scene}
+                  openEvent={openEvent}
+                  location={scene.location}
+                  location_before={scene.location_before}
+                  location_after={scene.location_after}
+                  isQuestion={isQuestion}
+                />
+              </Suspense>
+            )
+          ) : null
+        )}
+        <Button className={classes.button} onClick={moreButton}>
+          {" "}
+          MORE{" "}
+        </Button>
+      </div>
+    );
+  }
 }, areEqual);
 
 // function useOnClickOutside(ref, handler) {

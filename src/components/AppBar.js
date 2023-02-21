@@ -1,4 +1,4 @@
-import React, { memo, useState} from 'react'
+import React, { memo, useState, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -70,62 +70,117 @@ const ControlledCheckbox = ({ checked, handleChange}) => {
     );
 }
 
-const Bar = memo(({ open, submitQuery }) => {
+const Bar = memo(({ open, submitQuery, isQuestion, changeQuestion}) => {
     const classes = useStyles({ open });
+    
     const handleChange = (event) => {
         setChecked(event.target.checked);
     };
+
+    
+    const keyPressed = (event) => {
+      if (event.key === "Enter") submitQuery(true, 0);
+    };
+
+
     const dispatch = useDispatch();
     const [checked, setChecked] = useState(false);
+    
+
     const visualisation = useSelector((state) => state.search.info? state.search.info.query_visualisation:null);
+    console.log(isQuestion);
+
     return (
-        <span>
-        <AppBar key='1' className={classes.appBar}>
-            <SearchBar type="Before:" submitQuery={submitQuery} />
-            <SearchBar type="Find:" submitQuery={submitQuery} />
-            <SearchBar type="After:" submitQuery={submitQuery} />
-            <Tooltip title="Share Info" arrow>
+      <span>
+        <AppBar key="1" className={classes.appBar}>
+          {isQuestion ? (
+            <SearchBar
+              type="Find:"
+              submitQuery={submitQuery}
+              changeQuestion={changeQuestion}
+              isQuestion={isQuestion}
+            />
+          ) : (
+            [
+              <SearchBar type="Before:" submitQuery={submitQuery} />,
+              <SearchBar
+                type="Find:"
+                submitQuery={submitQuery}
+                changeQuestion={changeQuestion}
+                isQuestion={isQuestion}
+              />,
+              <SearchBar type="After:" submitQuery={submitQuery} />,
+              <Tooltip title="Share Info" arrow>
                 <span>
-                <ControlledCheckbox checked={checked} handleChange={handleChange}/>
+                  <ControlledCheckbox
+                    checked={checked}
+                    handleChange={handleChange}
+                  />
                 </span>
-            </Tooltip>
-            <Tooltip title="Clear All" arrow>
-                <span>
-                <IconButton size="small" className={classes.icon} onClick={() => {window.location.reload();return false}}>
-                    <RefreshIcon />
-                </IconButton>
-                </span>
-            </Tooltip>
-            <Tooltip title="Login" arrow>
-                <span>
-                <IconButton size="small" className={classes.icon} onClick={() => {dispatch(login())}}>
-                    <LoginIcon />
-                </IconButton>
-                </span>
-            </Tooltip>
-            <Tooltip title="Search" arrow>
-                <span>
-                <IconButton size="small" className={classes.icon} onClick={() => submitQuery(false, 0, checked)}>
-                    <SearchIcon />
-                </IconButton>
-                </span>
-            </Tooltip>
-        </AppBar>,
-        <AppBar key='2' className={classes.appBar2}>
-            <div className={classes.realSpace}>
-                {visualisation? visualisation.map((text, index) =>{
-                    return (
-                        <Typography key={index.toString() + text[0]} variant="body1" className={classes.text}>
-                            {(index > 0? ' | ': '') + text[0] + ": " + text[1]}
-                        </Typography>
-                    )
-                }
-                ): null}
-            </div>
+              </Tooltip>,
+            ]
+          )}
+
+          <Tooltip title="Clear All" arrow>
+            <span>
+              <IconButton
+                size="small"
+                className={classes.icon}
+                onClick={() => {
+                  window.location.reload();
+                  return false;
+                }}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title="Login" arrow>
+            <span>
+              <IconButton
+                size="small"
+                className={classes.icon}
+                onClick={() => {
+                  dispatch(login());
+                }}
+              >
+                <LoginIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title="Search" arrow>
+            <span>
+              <IconButton
+                size="small"
+                className={classes.icon}
+                onClick={() => submitQuery(false, 0, checked)}
+              >
+                <SearchIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
         </AppBar>
-        </span>
-    )
-}, () => true);
+        ,
+        <AppBar key="2" className={classes.appBar2}>
+          <div className={classes.realSpace}>
+            {visualisation
+              ? visualisation.map((text, index) => {
+                  return (
+                    <Typography
+                      key={index.toString() + text[0]}
+                      variant="body1"
+                      className={classes.text}
+                    >
+                      {(index > 0 ? " | " : "") + text[0] + ": " + text[1]}
+                    </Typography>
+                  );
+                })
+              : null}
+          </div>
+        </AppBar>
+      </span>
+    );
+});
 
 Bar.whyDidYouRender = true
 
