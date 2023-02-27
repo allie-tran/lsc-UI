@@ -8,8 +8,8 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Button from '@material-ui/core/Button';
 import { setMap, setQueryBound, setQueryInfo, setFinishedSearch, More } from '../redux/actions/search';
 import { setSaved } from '../redux/actions/save';
-// import AppBar from '@material-ui/core/AppBar';
-// import Tooltip from '@material-ui/core/Tooltip'
+import { setTextAnswers } from "../redux/actions/qa";
+
 const Event = lazy(() => import('./Event'))
 
 const IMAGE_HEIGHT = 768;
@@ -17,32 +17,33 @@ const IMAGE_WIDTH = 1024;
 const RESIZE_FACTOR = 6;
 
 const gridStyles = makeStyles((theme) => ({
-	grid: {
-        width: "80%",
-        height: `calc(100% - 90px)`,
-        position: 'absolute',
-        top: 90,
-		display: 'flex',
-		flexDirection: 'column',
-        flexWrap: 'nowrap',
-		overflowY: 'auto',
-        paddingRight: "20%"
-	},
-	text: {
-		top: 50,
-		paddingTop: 20,
-		color: '#CCCCCC'
-	},
-	popover: {
-		width: '80%',
-		color: '#272727'
-	},
-    button: {
-        width: '100%',
-        padding: 16,
-        height: 48,
-        flexShrink: 0
-    },
+  grid: {
+    width: ({ isQuestion }) => (isQuestion ? "65%" : "80%"),
+    left: ({ isQuestion }) => (isQuestion ? "15%" : "0"),
+    height: `calc(100% - 90px)`,
+    position: "absolute",
+    top: 90,
+    display: "flex",
+    flexDirection: "column",
+    flexWrap: "nowrap",
+    overflowY: "auto",
+    paddingRight: "20%",
+  },
+  text: {
+    top: 50,
+    paddingTop: 20,
+    color: "#CCCCCC",
+  },
+  popover: {
+    width: "80%",
+    color: "#272727",
+  },
+  button: {
+    width: "100%",
+    padding: 16,
+    height: 48,
+    flexShrink: 0,
+  },
 }));
 
 const LoadingIndicator = (props) => {
@@ -118,6 +119,10 @@ const ImageGrid = memo(({ openEvent, isQuestion }) => {
                 setDates(newDates);
                 dispatch(setMap(newDates));
                 setLoaded(Math.min(84, newDates.length));
+              }
+              if (res.data.texts) {
+                dispatch(setTextAnswers(res.data.texts));
+                console.log(res.data.texts);
               }
             }
           })

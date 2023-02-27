@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useState, useRef } from "react";
 import FilledInput from "@material-ui/core/FilledInput";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
@@ -45,7 +45,6 @@ const useStyles = makeStyles((theme) => ({
 
 const SearchBar = memo(({ open, type, submitQuery, changeQuestion, isQuestion}) => {
   const classes = useStyles({ type, open });
-
   const keyPressed = (event) => {
     if (event.key === "Enter") submitQuery(true, 0);
   };
@@ -63,8 +62,8 @@ const SearchBar = memo(({ open, type, submitQuery, changeQuestion, isQuestion}) 
           inputProps={{
             className: classes.input,
           }}
-          onKeyDown={keyPressed}
           placeholder="1h"
+          onKeyDown={keyPressed}
         />,
       ];
     }
@@ -86,12 +85,7 @@ const SearchBar = memo(({ open, type, submitQuery, changeQuestion, isQuestion}) 
       {type === "Find:" ? (
         <FormControlLabel
           className={classes.switch}
-          control={
-            <Switch
-              checked={isQuestion}
-              onChange={changeQuestion}
-            />
-          }
+          control={<Switch checked={isQuestion} onChange={changeQuestion} />}
           label="Question?"
         />
       ) : null}

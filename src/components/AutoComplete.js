@@ -33,7 +33,7 @@ const areEqual = (prevProps, nextProps) => {
 const ComboBox = () => {
     return (
         <Autocomplete
-            //   multiple
+              multiple
             //   disableCloseOnSelect
             //   limitTags={2}
             options={topPlaces}

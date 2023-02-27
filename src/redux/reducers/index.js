@@ -5,6 +5,7 @@ import search, { searchState } from "./search";
 import save from "./save";
 import select, { selectState } from "./select";
 import submit, { submitState } from "./submit";
+import qa, {qaState} from "./qa"
 
 import {
     NEXT_QUERY,
@@ -18,7 +19,8 @@ const appReducer = combineReducers({
     search,
     save,
     select,
-    submit
+    submit,
+    qa
 });
 
 const rootReducer = (state, action) => {

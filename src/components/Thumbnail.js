@@ -150,7 +150,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     src={
                         configData.IMAGEHOST_URL +
                         img.split(".")[0] +
-                        ".webp"
+                        ".jpg"
                     }
                     className={clsx(classes.image, {
                         [classes.highlight]: highlight,
@@ -205,7 +205,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     src={
                         configData.IMAGEHOST_URL +
                         img.split(".")[0] +
-                        ".webp"
+                        ".jpg"
                     }
                     className={classes.image}
                     onClick={openEvent}
@@ -278,33 +278,34 @@ const Thumbnail = ({
 
     if (group && group.length > 0) {
         return (
-            <LazyLoad
-                height={
-                    ((IMAGE_HEIGHT / RESIZE_FACTOR) *
-                        (relevance > 0? scale : scale * 0.5) *
-                        window.innerWidth) /
-                    1920
-                }
-                width={
-                    ((IMAGE_WIDTH / RESIZE_FACTOR) *
-                        (relevance > 0? scale : scale * 0.5) *
-                        window.innerWidth) /
-                    1920 + 8
-                }
-                offset={500}
-            >
-                <ImageCard
-                    onButtonClick={saved === undefined ? Save : Remove}
-                    saved={saved}
-                    hidden={hidden}
-                    scale={relevance > 0? scale : scale * 0.5}
-                    img={group[0]}
-                    highlight={highlight}
-                    openEvent={ownOpenEvent}
-                    info={info}
-                    relevance={relevance}
-                />
-            </LazyLoad>
+          <LazyLoad
+            height={
+              ((IMAGE_HEIGHT / RESIZE_FACTOR) *
+                (relevance ? scale : scale * 0.5) *
+                window.innerWidth) /
+              1920
+            }
+            width={
+              ((IMAGE_WIDTH / RESIZE_FACTOR) *
+                (relevance? scale : scale * 0.5) *
+                window.innerWidth) /
+                1920 +
+              8
+            }
+            offset={500}
+          >
+            <ImageCard
+              onButtonClick={saved === undefined ? Save : Remove}
+              saved={saved}
+              hidden={hidden}
+              scale={relevance ? scale : scale * 0.5}
+              img={group[0]}
+              highlight={highlight}
+              openEvent={ownOpenEvent}
+              info={info}
+              relevance={relevance}
+            />
+          </LazyLoad>
         );
     } else {
         return <Hidden num={1} scale={scale} />;

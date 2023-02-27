@@ -5,6 +5,7 @@
     "dependencies": {
         "@emotion/react": "^11.5.0",
         "@emotion/styled": "^11.3.0",
+        "@geoapify/leaflet-address-search-plugin": "^1.0.1",
         "@material-ui/core": "^4.9.5",
         "@material-ui/icons": "^4.9.1",
         "@material-ui/styles": "^4.9.0",
@@ -33,6 +34,7 @@
         "react-promise-tracker": "^2.1.0",
         "react-redux": "^7.2.0",
         "react-scripts": "^3.4.0",
+        "react-sticky-mouse-tooltip": "0.0.1",
         "react-vertical-timeline-component": "^3.5.2",
         "react-window": "^1.8.5",
         "redux": "^4.0.5",

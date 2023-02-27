@@ -4,6 +4,7 @@ import Map from "./Map";
 import Bar from "./AppBar";
 import SaveSection from "./Save";
 import AutoComplete from "./AutoComplete";
+import QAPane from "./QA"
 import Popover from "@material-ui/core/Popover";
 import { makeStyles } from "@material-ui/core/styles";
 import EventPopover from "./EventPopover";
@@ -25,8 +26,6 @@ import KeyboardCommandKeyIcon from "@mui/icons-material/KeyboardCommandKey";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import FilledInput from "@material-ui/core/FilledInput";
-import Typography from "@material-ui/core/Typography";
 
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -53,20 +52,6 @@ const popoverStyles = makeStyles((theme) => ({
     bottom: 0,
     right: 0,
     zIndex: 10,
-  },
-  answer: {
-    position: "absolute",
-    left: "calc(80% + 1px)",
-    bottom: 0,
-    height: "48px",
-    width: "12%",
-    zIndex: 5,
-    color: "#eee",
-    backgroundColor: "rgb(208 220 174)",
-  },
-  input: {
-    padding: 15,
-    color: "#000",
   },
 }));
 
@@ -159,48 +144,49 @@ const Page = () => {
     const changeQuestion = useCallback(
       (event) => {
         setQuestion(event.target.checked);
-        if (event.target.checked){
-            navigator.clipboard.writeText(
-            document.getElementById("Find:").value
-            );
-        }
-        else {
-            navigator.clipboard.writeText(
-              document.getElementById("question").value
-            );
-        }
+        // if (event.target.checked){
+        navigator.clipboard.writeText(
+        document.getElementById("Find:").value
+        );
+        // }
+        // else {
+        //     navigator.clipboard.writeText(
+        //       document.getElementById("question").value
+        //     );
+        // }
       },
       [isQuestion]
     );
 
     const submitQuery = useCallback(
-        (ignoreInfo, starting_from, share_info) => {
-            let query = {
-              before: document.getElementById("Before:")
-                ? document.getElementById("Before:").value
-                : null,
-              beforewhen: document.getElementById("Before:-when")
-                ? document.getElementById("Before:-when").value
-                : null,
-              current: document.getElementById("Find:").value,
-              after: document.getElementById("After:")
-                ? document.getElementById("After:").value
-                : null,
-              afterwhen: document.getElementById("After:-when")
-                ? document.getElementById("After:-when").value
-                : null,
-              question: document.getElementById("question")
-                ? document.getElementById("question").value
-                : null,
-            };
-            console.log(query);
-            window.scrollTo(0, 0);
-            dispatch(resetSelection());
-            dispatch(setFinishedSearch(starting_from));
-            dispatch(getImages(query, ignoreInfo, starting_from, share_info));
-            dispatch(startTimer());
-        },
-        [dispatch]
+      (ignoreInfo, starting_from, share_info) => {
+        let query = {
+          before: document.getElementById("Before:")
+            ? document.getElementById("Before:").value
+            : null,
+          beforewhen: document.getElementById("Before:-when")
+            ? document.getElementById("Before:-when").value
+            : null,
+          current: document.getElementById("Find:").value,
+          after: document.getElementById("After:")
+            ? document.getElementById("After:").value
+            : null,
+          afterwhen: document.getElementById("After:-when")
+            ? document.getElementById("After:-when").value
+            : null,
+          question: document.getElementById("question")
+            ? document.getElementById("question").value
+            : null,
+          isQuestion: isQuestion,
+        };
+        console.log(query);
+        window.scrollTo(0, 0);
+        dispatch(resetSelection());
+        dispatch(setFinishedSearch(starting_from));
+        dispatch(getImages(query, ignoreInfo, starting_from, share_info));
+        dispatch(startTimer());
+      },
+      [dispatch, isQuestion]
     );
 
     const openEvent = useCallback(
@@ -242,6 +228,7 @@ const Page = () => {
         />
         <AutoComplete className={classes.autocomplete} />
         <Map open />
+        <QAPane isQuestion={isQuestion} />
         <SaveSection open openEvent={openEvent} />
         <ToggleButtonGroup className={classes.buttons} value={buttonValues}>
           <ToggleButton value="Shift" color="warning">
@@ -294,17 +281,6 @@ const Page = () => {
             {snackBarMessage}
           </Alert>
         </Snackbar>
-        {isQuestion ? (
-          <FilledInput
-            className={classes.answer}
-            id={"answer"}
-            placeholder="Submit Answer!"
-            variant="filled"
-            disableUnderline={true}
-            inputProps={{ className: classes.input }}
-            // onKeyDown={keyPressed}
-          />
-        ) : null}
       </div>
     );
 };
