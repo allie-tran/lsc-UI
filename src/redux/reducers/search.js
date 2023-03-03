@@ -6,6 +6,7 @@ import {
     CLEAR_NEXT_SCENE,
     SET_BOUND,
     SET_INFO,
+    SET_AGGS,
     SET_KEYWORDS,
     SIMILAR,
     GET_GROUP,
@@ -34,7 +35,8 @@ export const searchState = {
     infoResponse: null,
     stats: [],
     finishedSearch: 0,
-    query: null
+    query: null,
+    aggs: null
 };
 
 var isEqual = require('lodash.isequal');
@@ -54,20 +56,20 @@ export default function(state = searchState, action) {
 			});
             newInfo.must_not_terms = state.stats.slice()
 			const response = axios.post(
-				configData.BACKEND_URL + 'images/',
-				{
-					query: {
-						before: '',
-						after: '',
-						current: '',
-						info: newInfo
-					},
-					gps_bounds: state.bounds,
-                    starting_from: action.starting_from,
-                    share_info: action.share_info
-				},
-				{ headers: { 'Content-Type': 'application/json' } }
-			);
+        configData.BACKEND_URL + "images/",
+        {
+          query: {
+            before: "",
+            after: "",
+            current: "",
+            info: newInfo,
+          },
+          gps_bounds: state.bounds,
+          starting_from: action.starting_from,
+          share_info: action.share_info,
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
 			return {
                 ...state,
                 collection: response,
@@ -75,7 +77,7 @@ export default function(state = searchState, action) {
             };
 		} else {
 			const response = axios.post(
-				configData.BACKEND_URL + 'images/',
+				configData.BACKEND_URL + "images/",
 				{ query: action.query, gps_bounds: state.bounds,
                     starting_from: action.starting_from, share_info: action.share_info },
 				{ headers: { 'Content-Type': 'application/json' } }
@@ -188,6 +190,13 @@ export default function(state = searchState, action) {
             return {
                 ...state,
                 info: action.info,
+            };
+        }
+    } else if (action.type === SET_AGGS) {
+        if (!isEqual(state.aggs, action.aggs)) {
+            return {
+                ...state,
+                aggs: action.aggs,
             };
         }
     } else if (action.type === SET_KEYWORDS) {

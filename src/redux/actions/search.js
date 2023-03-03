@@ -5,6 +5,7 @@ export const GET_GROUP = 'GET_GROUP';
 export const CLEAR_NEXT_SCENE = 'CLEAR_NEXT_SCENE';
 export const SET_BOUND = 'SET_BOUND';
 export const SET_INFO = 'SET_INFO';
+export const SET_AGGS = 'SET_AGGS';
 export const SET_KEYWORDS = 'SET_KEYWORDS';
 export const SIMILAR = 'SIMILAR'
 export const GET_GPS = 'GET_GPS'
@@ -72,6 +73,13 @@ export function setQueryInfo(info) {
 	return {
 		type: SET_INFO,
 		info
+	};
+}
+
+export function setQueryAggs(aggs) {
+	return {
+		type: SET_AGGS,
+		aggs
 	};
 }
 

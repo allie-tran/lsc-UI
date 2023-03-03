@@ -643,7 +643,7 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
     useEffect(() => {
         if (currentImage && typeof currentImage !== "undefined") {
             const controller = new AbortController();
-            dispatch(getGPS(currentImage));
+            // dispatch(getGPS(currentImage));
             dispatch(getInfo(currentImage));
             fetchedInfos.current = false;
             return () => {

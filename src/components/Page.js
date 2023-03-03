@@ -189,9 +189,9 @@ const Page = () => {
             {" "}
             {/*700 * 1443, 945 x 1920*/}
             <Bar open submitQuery={submitQuery} />
-            <AutoComplete className={classes.autocomplete} />
-            <Map open />
-            <SaveSection open openEvent={openEvent} />
+            {/* <AutoComplete className={classes.autocomplete} /> */}
+            {/* <Map open /> */}
+            <SaveSection open openEvent={openEvent} fixedWidth={WIDTH} fixedHeight={HEIGHT} />
             <ToggleButtonGroup className={classes.buttons} value={buttonValues}>
                 <ToggleButton value="Shift" color="warning">
                     <FileUploadIcon />

@@ -6,7 +6,7 @@ import { trackPromise, usePromiseTracker } from 'react-promise-tracker';
 import LinearProgress from '@material-ui/core/LinearProgress';
 // import Event from './Event';
 import Button from '@material-ui/core/Button';
-import { setMap, setQueryBound, setQueryInfo, setFinishedSearch, More } from '../redux/actions/search';
+import { setMap, setQueryBound, setQueryInfo, setFinishedSearch, More, setQueryAggs } from '../redux/actions/search';
 import { setSaved } from '../redux/actions/save';
 // import AppBar from '@material-ui/core/AppBar';
 // import Tooltip from '@material-ui/core/Tooltip'
@@ -18,7 +18,7 @@ const RESIZE_FACTOR = 6;
 
 const gridStyles = makeStyles((theme) => ({
 	grid: {
-        width: "80%",
+        width: "75%",
         height: `calc(100% - 90px)`,
         position: 'absolute',
         top: 90,
@@ -119,6 +119,7 @@ const ImageGrid = memo(({ openEvent }) => {
                             dispatch(
                                 setFinishedSearch(finished + res.data.size)
                             );
+                            dispatch(setQueryAggs(res.data.aggregations));
                             dispatch(setQueryInfo(res.data.info));
                             var isEqual = require("lodash.isequal");
                             if (!isEqual(dates, newDates)) {

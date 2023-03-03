@@ -16,7 +16,7 @@ const eventStyles = makeStyles((theme) => ({
         alignItems: "center",
         padding: 10,
         flexShrink: 0,
-        borderBottom: "8px solid rgba(0,0,0,0.1)",
+        // borderBottom: "8px solid rgba(0,0,0,0.1)",
         backgroundColor: (props) =>
             Math.floor(props.index / props.numDisplay) % 2 === 0
                 ? "rgba(0,0,0,0.1)"

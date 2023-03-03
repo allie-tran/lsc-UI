@@ -7,7 +7,7 @@ const useStyles = makeStyles((theme) => ({
 	searchContainer: {
 		position: 'relative',
 		display: 'flex',
-		justifyContent: 'center',
+		justifyContent: 'start',
 		alignItems: 'center',
 		width: (props) => (props.type === 'Find:' ?  "100%" : "50%"),
         height: "100%",
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 	searchBar: {
 		marginLeft: theme.spacing(1),
 		marginRight: theme.spacing(1),
-		width: (props) => (props.type === 'Find:' ? "70%" : "50%"),
+		width: (props) => (props.type === 'Find:' ? "85%" : "50%"),
 		height: 40,
 		backgroundColor: '#3B3B3B',
 		borderRadius: '15px'
@@ -35,7 +35,10 @@ const useStyles = makeStyles((theme) => ({
 	input: {
 		padding: 15,
 		color: '#CCCCCC'
-	}
+	},
+    text: {
+        marginLeft: 20,
+    }
 }));
 
 
@@ -69,7 +72,7 @@ const SearchBar = memo(({ open, type, submitQuery }) => {
 
 	return (
 		<div className={classes.searchContainer}>
-			<Typography>{type}</Typography>
+			<Typography className={classes.text}>{type}</Typography>
 			<FilledInput
 				id={type}
 				variant="filled"

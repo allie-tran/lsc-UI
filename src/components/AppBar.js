@@ -84,11 +84,6 @@ const Bar = memo(({ open, submitQuery }) => {
             <SearchBar type="Before:" submitQuery={submitQuery} />
             <SearchBar type="Find:" submitQuery={submitQuery} />
             <SearchBar type="After:" submitQuery={submitQuery} />
-            <Tooltip title="Share Info" arrow>
-                <span>
-                <ControlledCheckbox checked={checked} handleChange={handleChange}/>
-                </span>
-            </Tooltip>
             <Tooltip title="Clear All" arrow>
                 <span>
                 <IconButton size="small" className={classes.icon} onClick={() => {window.location.reload();return false}}>
