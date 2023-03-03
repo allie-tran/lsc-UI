@@ -281,13 +281,13 @@ const Thumbnail = ({
           <LazyLoad
             height={
               ((IMAGE_HEIGHT / RESIZE_FACTOR) *
-                (relevance ? scale : scale * 0.5) *
+                (relevance ? scale : scale * 0.75) *
                 window.innerWidth) /
               1920
             }
             width={
               ((IMAGE_WIDTH / RESIZE_FACTOR) *
-                (relevance? scale : scale * 0.5) *
+                (relevance? scale : scale * 0.75) *
                 window.innerWidth) /
                 1920 +
               8
@@ -298,7 +298,7 @@ const Thumbnail = ({
               onButtonClick={saved === undefined ? Save : Remove}
               saved={saved}
               hidden={hidden}
-              scale={relevance ? scale : scale * 0.5}
+              scale={relevance ? scale : scale * 0.75}
               img={group[0]}
               highlight={highlight}
               openEvent={ownOpenEvent}

@@ -101,18 +101,27 @@ const Event = memo(({ index, group, openEvent, location, location_before, locati
       <div className={classes.row}>
         <Typography className={classes.info}>{location}</Typography>
         <div className={classes.event}>
-          {query.before ? (
-            <Thumbnail
-              key={index + "before"}
-              index={index}
-              group={group.before}
-              scale={0.7}
-              position="before"
-              openEvent={openEvent}
-              info={location_before}
-            />
-          ) : null}
-
+          {group.before
+            ? group.before.map((img, ind) => (
+                <div>
+                  <Thumbnail
+                    key={index + "before" + ind.toString()}
+                    index={index}
+                    group={[img[0]]}
+                    scale={0.7}
+                    position="before"
+                    openEvent={openEvent}
+                    relevance={img[2]}
+                  />
+                  <p className={classes.score}>{img[1]}</p>
+                </div>
+              ))
+            : null}
+          <Thumbnail
+            key={"before"}
+            scale={0.2}
+            position="before"
+          />
           {group.current
             ? group.current.map((img, ind) => (
                 <div>
@@ -129,17 +138,22 @@ const Event = memo(({ index, group, openEvent, location, location_before, locati
                 </div>
               ))
             : null}
-          {query.after ? (
-            <Thumbnail
-              key={index + "after"}
-              index={index}
-              group={group.after}
-              scale={0.7}
-              position="after"
-              openEvent={openEvent}
-              info={location_after}
-            />
-          ) : null}
+          {group.after
+            ? group.after.map((img, ind) => (
+                <div>
+                  <Thumbnail
+                    key={index + "after" + ind.toString()}
+                    index={index}
+                    group={[img[0]]}
+                    scale={0.7}
+                    position="after"
+                    openEvent={openEvent}
+                    relevance={img[2]}
+                  />
+                  <p className={classes.score}>{img[1]}</p>
+                </div>
+              ))
+            : null}
         </div>
         {isQuestion ? (
           <Tooltip title="Answer Question" arrow>
