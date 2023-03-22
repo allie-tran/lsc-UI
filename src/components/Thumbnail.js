@@ -157,25 +157,25 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     })}
                     onClick={openEvent}
                 />
-                {relevance? <IconButton
+                <IconButton
                     onMouseEnter={() => setZoom(true)}
                     className={classes.zoomButton}
                 >
                     <ImageSearchIcon fontSize="small" />
-                </IconButton>:null}
+                </IconButton>
                 
-                {relevance? <IconButton
+                <IconButton
                     onClick={onButtonClick}
                     className={classes.saveButton}
                 >
                     <BookmarkBorderRoundedIcon fontSize="small" />
-                </IconButton> :null}
-                {relevance? <IconButton
+                </IconButton>
+                <IconButton
                     onClick={(e) => dispatch(submitImage(img, false))}
                     className={classes.submitButton}
                 >
                     <CheckRoundedIcon fontSize="small" />
-                </IconButton>:null}
+                </IconButton>
                 {relevance? info && (
                     <Typography className={classes.info}>{info}</Typography>
                 ):null}
@@ -216,22 +216,33 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 };
 
 const hiddenStyles = makeStyles((theme) => ({
-	hidden: {
-        flexBasis: ({num, scale}) => (IMAGE_WIDTH / RESIZE_FACTOR * scale *  window.innerWidth / 1920 + 4) * num,
-		minWidth: ({num, scale}) => (IMAGE_WIDTH / RESIZE_FACTOR * scale * window.innerWidth / 1920 + 4) * num,
-        width: ({num, scale}) => (IMAGE_WIDTH / RESIZE_FACTOR * scale * window.innerWidth / 1920  + 4) * num,
-		minHeight: ({scale}) => IMAGE_HEIGHT / RESIZE_FACTOR * scale * window.innerWidth / 1920 ,
-        height: ({scale}) => IMAGE_HEIGHT / RESIZE_FACTOR * scale * window.innerWidth / 1920 ,
-        marginLeft: 6,
-        marginRight: 6,
-        position: 'relative',
-        flexShrink: 0,
-        display: 'block',
-        visibility: 'hidden'
-	}
+  hidden: {
+    flexBasis: ({ num, scale }) =>
+      (((IMAGE_WIDTH / RESIZE_FACTOR) * scale * window.innerWidth) / 1920) *
+        num +
+      (num - 1) * 4,
+    minWidth: ({ num, scale }) =>
+      (((IMAGE_WIDTH / RESIZE_FACTOR) * scale * window.innerWidth) / 1920) *
+        num +
+      (num - 1) * 4,
+    width: ({ num, scale }) =>
+      (((IMAGE_WIDTH / RESIZE_FACTOR) * scale * window.innerWidth) / 1920) *
+        num +
+      (num - 1) * 4,
+    minHeight: ({ scale }) =>
+      ((IMAGE_HEIGHT / RESIZE_FACTOR) * scale * window.innerWidth) / 1920,
+    height: ({ scale }) =>
+      ((IMAGE_HEIGHT / RESIZE_FACTOR) * scale * window.innerWidth) / 1920,
+    marginLeft: 4,
+    marginRight: 4,
+    position: "relative",
+    flexShrink: 0,
+    display: "block",
+    visibility: "hidden",
+  },
 }));
-const Hidden = ({ num, scale }) => {
-	const classes = hiddenStyles({num, scale});
+const Hidden = ({ num, scale, relevance }) => {
+	const classes = hiddenStyles({ num, scale, relevance });
 	return (
 			<div className={classes.hidden}> Hidden </div>
 	);
@@ -276,39 +287,39 @@ const Thumbnail = ({
         // }
     };
 
-    if (group && group.length > 0) {
-        return (
-          <LazyLoad
-            height={
-              ((IMAGE_HEIGHT / RESIZE_FACTOR) *
-                (relevance ? scale : scale * 0.75) *
-                window.innerWidth) /
-              1920
-            }
-            width={
-              ((IMAGE_WIDTH / RESIZE_FACTOR) *
-                (relevance? scale : scale * 0.75) *
-                window.innerWidth) /
-                1920 +
-              8
-            }
-            offset={500}
-          >
-            <ImageCard
-              onButtonClick={saved === undefined ? Save : Remove}
-              saved={saved}
-              hidden={hidden}
-              scale={relevance ? scale : scale * 0.75}
-              img={group[0]}
-              highlight={highlight}
-              openEvent={ownOpenEvent}
-              info={info}
-              relevance={relevance}
-            />
-          </LazyLoad>
-        );
+    if (group && group.length > 0 && group[0] !== "") {
+      return (
+        <LazyLoad
+          height={
+            ((IMAGE_HEIGHT / RESIZE_FACTOR) *
+              (relevance ? scale : scale * 0.75) *
+              window.innerWidth) /
+            1920
+          }
+          width={
+            ((IMAGE_WIDTH / RESIZE_FACTOR) *
+              (relevance ? scale : scale * 0.75) *
+              window.innerWidth) /
+              1920 +
+            8
+          }
+          offset={500}
+        >
+          <ImageCard
+            onButtonClick={saved === undefined ? Save : Remove}
+            saved={saved}
+            hidden={hidden}
+            scale={relevance ? scale : scale * 0.75}
+            img={group[0]}
+            highlight={highlight}
+            openEvent={ownOpenEvent}
+            info={info}
+            relevance={relevance}
+          />
+        </LazyLoad>
+      );
     } else {
-        return <Hidden num={1} scale={scale} />;
+      return <Hidden num={1} scale={relevance ? scale : scale * 0.75} />;
     }
 };
 Thumbnail.whyDidYouRender = true

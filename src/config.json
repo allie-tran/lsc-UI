@@ -1,4 +1,4 @@
 {
-    "BACKEND_URL": "http://localhost:8003/",
-    "IMAGEHOST_URL": "http://localhost:9001/"
+    "BACKEND_URL": "https://mysceal-web.computing.dcu.ie/be/",
+    "IMAGEHOST_URL": "https://mysceal-web.computing.dcu.ie/images/"
 }
