@@ -1,4 +1,4 @@
 {
-    "BACKEND_URL": "https://deakin-be.computing.dcu.ie/",
-    "IMAGEHOST_URL": "https://deakin-im.computing.dcu.ie/"
+    "BACKEND_URL": "https://mysceal-deakin.computing.dcu.ie/be/",
+    "IMAGEHOST_URL": "https://mysceal-deakin.computing.dcu.ie/images/"
 }

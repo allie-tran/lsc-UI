@@ -156,24 +156,6 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     })}
                     onClick={openEvent}
                 />
-                <IconButton
-                    onMouseEnter={() => setZoom(true)}
-                    className={classes.zoomButton}
-                >
-                    <ImageSearchIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                    onClick={onButtonClick}
-                    className={classes.saveButton}
-                >
-                    <BookmarkBorderRoundedIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                    onClick={(e) => dispatch(submitImage(img, false))}
-                    className={classes.submitButton}
-                >
-                    <CheckRoundedIcon fontSize="small" />
-                </IconButton>
                 {info && (
                     <Typography className={classes.info}>{info}</Typography>
                 )}
