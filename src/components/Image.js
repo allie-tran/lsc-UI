@@ -178,18 +178,6 @@ const Image = forwardRef(({ image, scale, info, onClick, openEvent, zoomed, disa
             >
                 <ImageSearchIcon fontSize="small" />
             </IconButton>
-            <IconButton
-                onClick={() => dispatch(saveScene([image]))}
-                className={classes.saveButton}
-            >
-                <BookmarkBorderRoundedIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-                onClick={() => dispatch(submitImage(image, scene))}
-                className={classes.submitButton}
-            >
-                <CheckRoundedIcon fontSize="small" />
-            </IconButton>
             {info && <Typography className={classes.info}>{info}</Typography>}
         </div>
     );

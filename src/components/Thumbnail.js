@@ -156,6 +156,12 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     })}
                     onClick={openEvent}
                 />
+                <IconButton
+                    onMouseEnter={() => setZoom(true)}
+                    className={classes.zoomButton}
+                >
+                    <ImageSearchIcon fontSize="small" />
+                </IconButton>
                 {info && (
                     <Typography className={classes.info}>{info}</Typography>
                 )}
