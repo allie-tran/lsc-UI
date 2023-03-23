@@ -110,14 +110,14 @@ const Bar = memo(({ open, submitQuery, isQuestion, changeQuestion}) => {
                 isQuestion={isQuestion}
               />,
               <SearchBar type="After:" submitQuery={submitQuery} />,
-              <Tooltip title="Share Info" arrow>
-                <span>
-                  <ControlledCheckbox
-                    checked={checked}
-                    handleChange={handleChange}
-                  />
-                </span>
-              </Tooltip>,
+            //   <Tooltip title="Share Info" arrow>
+            //     <span>
+            //       <ControlledCheckbox
+            //         checked={checked}
+            //         handleChange={handleChange}
+            //       />
+            //     </span>
+            //   </Tooltip>,
             ]
           )}
 

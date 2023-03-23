@@ -1,7 +1,6 @@
 export const GET_ALL_IMAGES = 'GET_ALL_IMAGES';
 export const SET_MAP = 'SET_MAP';
 export const NEXT_SCENE = 'NEXT_SCENE';
-export const GET_GROUP = 'GET_GROUP';
 export const CLEAR_NEXT_SCENE = 'CLEAR_NEXT_SCENE';
 export const SET_BOUND = 'SET_BOUND';
 export const SET_INFO = 'SET_INFO';
@@ -37,10 +36,6 @@ export function getNextScenes(images = [],  direction='next') {
 
 export function getMoreScenes(group, direction) {
     return { type: MORE_SCENES, group, direction };
-}
-
-export function getGroups(date) {
-	return { type: GET_GROUP, date};
 }
 
 export function clearNextEvents() {

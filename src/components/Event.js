@@ -142,7 +142,7 @@ const Event = memo(({ index, group, openEvent, location, location_before, locati
             openEvent={openEvent}
             index={index}
             location={group.location_before}
-            scale={0.7}
+            scale={0.6}
           ></SubEvent>
           {group.before ? (
             <Thumbnail key={"before"} scale={0.2} position="before" />
@@ -164,7 +164,7 @@ const Event = memo(({ index, group, openEvent, location, location_before, locati
             openEvent={openEvent}
             index={index}
             location={group.location_after}
-            scale={0.7}
+            scale={0.6}
           ></SubEvent>
         </div>
         {isQuestion ? (

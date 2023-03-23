@@ -8,7 +8,6 @@ import {
     SET_INFO,
     SET_KEYWORDS,
     SIMILAR,
-    GET_GROUP,
     GET_GPS,
     GET_INFO,
     SET_MUST_NOT,
@@ -133,18 +132,6 @@ export default function(state = searchState, action) {
             similarResponse: null,
             moreSceneResponse: null,
             infoResponse: null,
-        };
-    } else if (action.type === GET_GROUP){
-        const response = axios.post(
-			configData.BACKEND_URL + 'timeline/group/',
-			{
-				date: action.date
-			},
-			{ headers: { 'Content-Type': 'application/json' } }
-		);
-        return {
-			...state,
-			groupResponse: response
         };
     } else if (action.type === MORE_SCENES) {
         const response = axios.post(

@@ -89,7 +89,7 @@ const SearchBar = memo(({ open, type, submitQuery, changeQuestion, isQuestion}) 
           label="Question?"
         />
       ) : null}
-      {isQuestion ? (
+      {/* {isQuestion ? (
         <FilledInput
           id={"question"}
           variant="filled"
@@ -98,7 +98,7 @@ const SearchBar = memo(({ open, type, submitQuery, changeQuestion, isQuestion}) 
           inputProps={{ className: classes.input }}
           onKeyDown={keyPressed}
         />
-      ) : null}
+      ) : null} */}
       <Time type={type} />
     </div>
   );
