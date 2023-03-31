@@ -1,4 +1,4 @@
 {
-    "BACKEND_URL": "http://localhost:8004/",
-    "IMAGEHOST_URL": "http://lifeseeker-sv.computing.dcu.ie/"
+    "BACKEND_URL": "https://dd-annotation.computing.dcu.ie/be/",
+    "IMAGEHOST_URL": "https://mysceal-web.computing.dcu.ie/images/"
 }

@@ -149,8 +149,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     alt={img}
                     src={
                         configData.IMAGEHOST_URL +
-                        img.split(".")[0] +
-                        ".webp"
+                        img
                     }
                     className={clsx(classes.image, {
                         [classes.highlight]: highlight,
@@ -203,8 +202,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     alt={img}
                     src={
                         configData.IMAGEHOST_URL +
-                        img.split(".")[0] +
-                        ".webp"
+                        img
                     }
                     className={classes.image}
                     onClick={openEvent}
