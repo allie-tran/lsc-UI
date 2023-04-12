@@ -56,3 +56,21 @@ code {
   min-height: 1.2em;
   color: "#FF6584"
 }
+
+.leaflet-bar.autocomplete {
+    border-radius: 5px;
+}
+
+.autocomplete .geoapify-address-input {
+    line-height: 36px;
+    height: 36px;
+    font-size: 16px;
+}
+
+.autocomplete .geoapify-clear-button {
+    height: 36px;
+}
+
+.autocomplete .address {
+    font-size: 14px;
+}

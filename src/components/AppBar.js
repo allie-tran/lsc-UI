@@ -14,8 +14,16 @@ import Checkbox from '@material-ui/core/Checkbox';
 import LoginIcon from "@mui/icons-material/Login";
 import { login } from "../redux/actions/submit";
 
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 
-const useStyles = makeStyles(theme => ({
+import TextField from "@mui/material/TextField";
+import Button from "@material-ui/core/Button";
+
+
+const useStyles = makeStyles((theme) => ({
     appBar: {
         position: 'fixed',
         display: 'flex',
@@ -56,7 +64,10 @@ const useStyles = makeStyles(theme => ({
     text: {
         color: "#888888",
         cursor: "default",
-        flexShrink: 0
+    flexShrink: 0,
+  },
+  button: {
+    color: "#000000",
     }
 }));
 
@@ -72,11 +83,31 @@ const ControlledCheckbox = ({ checked, handleChange}) => {
 
 const Bar = memo(({ open, submitQuery }) => {
     const classes = useStyles({ open });
+    const [openLogin, setOpenLogin] = useState(false);
+    const [sessionID, setSessionID] = useState("test");
+
+    const dispatch = useDispatch();
+    const [checked, setChecked] = useState(false);
+
     const handleChange = (event) => {
         setChecked(event.target.checked);
     };
-    const dispatch = useDispatch();
-    const [checked, setChecked] = useState(false);
+
+    const handleClickOpen = () => {
+      setOpenLogin(true);
+    };
+
+    const handleClose = () => {
+      setOpenLogin(false);
+    };
+    
+    const keyPressed = (event) => {
+      if (event.key === "Enter") submitQuery(true, 0);
+    };
+
+
+    
+
     const visualisation = useSelector((state) => state.search.info? state.search.info.query_visualisation:null);
     return (
         <span>
@@ -98,7 +129,11 @@ const Bar = memo(({ open, submitQuery }) => {
             </Tooltip>
             <Tooltip title="Login" arrow>
                 <span>
-                <IconButton size="small" className={classes.icon} onClick={() => {dispatch(login())}}>
+              <IconButton
+                size="small"
+                className={classes.icon}
+                onClick={handleClickOpen}
+              >
                     <LoginIcon />
                 </IconButton>
                 </span>
@@ -123,6 +158,33 @@ const Bar = memo(({ open, submitQuery }) => {
                 ): null}
             </div>
         </AppBar>
+        <Dialog open={openLogin} onClose={handleClose}>
+          <DialogTitle>Log In</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="login"
+              label="session_id"
+              variant="standard"
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setSessionID(event.target.value);
+              }}
+              value={sessionID}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button className={classes.button} onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button
+              className={classes.button}
+              onClick={() => {handleClose(); dispatch(login(sessionID));}}
+            >
+              Log In
+            </Button>
+          </DialogActions>
+        </Dialog>
         </span>
     )
 }, () => true);

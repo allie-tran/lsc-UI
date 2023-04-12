@@ -20,7 +20,7 @@ export default function (state = submitState, action) {
         }
     } else if (action.type === LOGIN) {
         const response = axios.get(
-            configData.BACKEND_URL + "login"
+            configData.BACKEND_URL + "login?session_id=" + action.sessionID
         );
         return {
             ...state,
