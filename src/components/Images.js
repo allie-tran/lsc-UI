@@ -184,9 +184,8 @@ const ImageGrid = memo(({ openEvent, isQuestion }) => {
             scene === null ? (
               <Hidden key={id} num={1} />
             ) : (
-              <Suspense key={scene.current[0]} fallback={<div />}>
+              <Suspense key={id} fallback={<div />}>
                 <Event
-                  key={scene.current[0]}
                   index={id}
                   group={scene}
                   openEvent={openEvent}

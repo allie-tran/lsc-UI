@@ -276,6 +276,7 @@ const Map = ({ open }) => {
       return () => {
         clustersMain.current.clearLayers();
         nameLayer.current.clearLayers();
+        pathLine.current.clearLayers();
       };
     }, // eslint-disable-next-line
     [dates, status, visualisation]

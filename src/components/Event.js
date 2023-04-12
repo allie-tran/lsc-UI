@@ -17,7 +17,7 @@ const eventStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "center",
     width: (props) => "calc(100%/" + props.numDisplay + " - 20px)",
-    height: "calc(100%/3 - 20px)",
+    // height: "calc(100%/3 - 20px)",
     alignItems: "center",
     padding: 10,
     flexDirection: "column",
@@ -35,7 +35,6 @@ const eventStyles = makeStyles((theme) => ({
     width: (props) => "calc(100%/" + props.numDisplay + " - 20px)",
     height: "calc(100%/3 - 20px)",
     alignItems: "center",
-    padding: 10,
     flexDirection: "column",
     flexShrink: 0,
     // overflow : "auto",
@@ -45,7 +44,6 @@ const eventStyles = makeStyles((theme) => ({
     justifyContent: "center",
     alignItems: "center",
     // overflowX: "auto",
-    padding: 10,
     flexShrink: 0,
   },
   text: {
@@ -59,10 +57,9 @@ const eventStyles = makeStyles((theme) => ({
   },
   info: {
     color: "#eee",
-    fontSize: 16,
-    paddingLeft: 5,
-    paddingTop: 2,
+    fontSize: 14,
     whiteSpace: "pre-wrap",
+    textAlign: "center"
   },
   morebutton: {
     width: "100%",
@@ -72,8 +69,8 @@ const eventStyles = makeStyles((theme) => ({
   },
   icon: {
     padding: 10,
-    marginTop: -10,
-    marginBottom: 10,
+    margin: 5,
+    top: 8,
     backgroundColor: "#FF6584",
   },
 }));
@@ -104,9 +101,8 @@ const SubEvent = ({ group, name, openEvent, index, location, scale }) => {
         <div className={classes.event}>
           {group
             ? group.map((img, ind) => (
-                <div>
+                <div key={index.toString() + "_" + name + "_" + ind.toString()}>
                   <Thumbnail
-                    key={index + name + ind.toString()}
                     index={index}
                     group={[img[0]]}
                     scale={scale}
@@ -137,6 +133,7 @@ const Event = memo(({ index, group, openEvent, location, location_before, locati
       <div className={classes.row}>
         <div className={classes.event}>
           <SubEvent
+            key={index + "before"}
             group={group.before}
             name="before"
             openEvent={openEvent}
@@ -148,6 +145,7 @@ const Event = memo(({ index, group, openEvent, location, location_before, locati
             <Thumbnail key={"before"} scale={0.2} position="before" />
           ) : null}
           <SubEvent
+            key={index + "current"}
             group={group.current}
             name="current"
             openEvent={openEvent}
@@ -159,6 +157,7 @@ const Event = memo(({ index, group, openEvent, location, location_before, locati
             <Thumbnail key={"after"} scale={0.2} position="after" />
           ) : null}
           <SubEvent
+            key={index + "after"}
             group={group.after}
             name="after"
             openEvent={openEvent}

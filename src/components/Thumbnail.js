@@ -18,7 +18,7 @@ import Typography from "@material-ui/core/Typography";
 
 const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
-const RESIZE_FACTOR = 5.5;
+const RESIZE_FACTOR = 6;
 
 const thumbnailStyles = makeStyles((theme) => ({
     image: {

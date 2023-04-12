@@ -10,8 +10,8 @@ export const SUBMIT_IMAGE = 'SUBMIT_IMAGE'
 export const SUBMIT_ALL = "SUBMIT_ALL";
 export const SET_SESSION_NAME = 'SET_SESSION_NAME'
 
-export function login() {
-    return {type: LOGIN}
+export function login(sessionID) {
+  return { type: LOGIN, sessionID };
 }
 
 export function nextQuery(time) {

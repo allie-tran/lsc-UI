@@ -70,7 +70,8 @@ export default function(state = searchState, action) {
 			return {
                 ...state,
                 collection: response,
-                query: action.query
+                query: action.query,
+                gpsResponse: null,
             };
 		} else {
 			const response = axios.post(
@@ -83,7 +84,8 @@ export default function(state = searchState, action) {
                 ...state,
                 collection: response,
                 stats: [],
-                query: action.query
+                query: action.query,
+                gpsResponse: null,
             };
 		}
     } else if (action.type === MORE) {

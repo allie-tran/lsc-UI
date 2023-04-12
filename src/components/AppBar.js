@@ -14,50 +14,64 @@ import Checkbox from '@material-ui/core/Checkbox';
 import LoginIcon from "@mui/icons-material/Login";
 import { login } from "../redux/actions/submit";
 
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 
-const useStyles = makeStyles(theme => ({
-    appBar: {
-        position: 'fixed',
-        display: 'flex',
-        justifyContent: 'space-evenly',
-        alignItems: 'center',
-        flexDirection: 'row',
-        width: "100%",
-        height: 60,
-        backgroundColor: "#212121",
-        top: 0, left: 0,
-        zIndex: 4
-    },
-    appBar2: {
-        position: 'fixed',
-        width: "80%",
-        height: 30,
-        backgroundColor: "#272727",
-        top: 60, left: 0,
-        zIndex: 3
-    },
-    realSpace: {
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        flexDirection: 'row',
-        alignSelf: 'center',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-        height: 30,
-        backgroundColor: "#272727",
-        zIndex: 1,
-    },
-    icon: {
-        padding: 10,
-        marginRight: 10,
-        backgroundColor: "#FF6584",
-    },
-    text: {
-        color: "#888888",
-        cursor: "default",
-        flexShrink: 0
-    }
+import TextField from "@mui/material/TextField";
+import Button from "@material-ui/core/Button";
+
+
+const useStyles = makeStyles((theme) => ({
+  appBar: {
+    position: "fixed",
+    display: "flex",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    flexDirection: "row",
+    width: "100%",
+    height: 60,
+    backgroundColor: "#212121",
+    top: 0,
+    left: 0,
+    zIndex: 4,
+  },
+  appBar2: {
+    position: "fixed",
+    width: "80%",
+    height: 30,
+    backgroundColor: "#272727",
+    top: 60,
+    left: 0,
+    zIndex: 3,
+    paddingLeft: ({ isQuestion }) => (isQuestion ? "16%" : 0),
+  },
+  realSpace: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "row",
+    alignSelf: "center",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    height: 30,
+    backgroundColor: "#272727",
+    zIndex: 1,
+  },
+  icon: {
+    padding: 10,
+    marginRight: 10,
+    backgroundColor: "#FF6584",
+  },
+  text: {
+    color: "#888888",
+    cursor: "default",
+    flexShrink: 0,
+  },
+  button: {
+    color: "#000000",
+  }
 }));
 
 const ControlledCheckbox = ({ checked, handleChange}) => {
@@ -71,20 +85,30 @@ const ControlledCheckbox = ({ checked, handleChange}) => {
 }
 
 const Bar = memo(({ open, submitQuery, isQuestion, changeQuestion}) => {
-    const classes = useStyles({ open });
-    
+    const classes = useStyles({ open, isQuestion });
+    const [openLogin, setOpenLogin] = useState(false);
+    const [sessionID, setSessionID] = useState("test");
+
+    const dispatch = useDispatch();
+    const [checked, setChecked] = useState(false);
+
     const handleChange = (event) => {
         setChecked(event.target.checked);
     };
 
+    const handleClickOpen = () => {
+      setOpenLogin(true);
+    };
+
+    const handleClose = () => {
+      setOpenLogin(false);
+    };
     
     const keyPressed = (event) => {
       if (event.key === "Enter") submitQuery(true, 0);
     };
 
 
-    const dispatch = useDispatch();
-    const [checked, setChecked] = useState(false);
     
 
     const visualisation = useSelector((state) => state.search.info? state.search.info.query_visualisation:null);
@@ -93,34 +117,14 @@ const Bar = memo(({ open, submitQuery, isQuestion, changeQuestion}) => {
     return (
       <span>
         <AppBar key="1" className={classes.appBar}>
-          {isQuestion ? (
-            <SearchBar
-              type="Find:"
-              submitQuery={submitQuery}
-              changeQuestion={changeQuestion}
-              isQuestion={isQuestion}
-            />
-          ) : (
-            [
-              <SearchBar type="Before:" submitQuery={submitQuery} />,
-              <SearchBar
-                type="Find:"
-                submitQuery={submitQuery}
-                changeQuestion={changeQuestion}
-                isQuestion={isQuestion}
-              />,
-              <SearchBar type="After:" submitQuery={submitQuery} />,
-            //   <Tooltip title="Share Info" arrow>
-            //     <span>
-            //       <ControlledCheckbox
-            //         checked={checked}
-            //         handleChange={handleChange}
-            //       />
-            //     </span>
-            //   </Tooltip>,
-            ]
-          )}
-
+          <SearchBar type="Before:" submitQuery={submitQuery} />
+          <SearchBar
+            type="Find:"
+            submitQuery={submitQuery}
+            changeQuestion={changeQuestion}
+            isQuestion={isQuestion}
+          />
+          <SearchBar type="After:" submitQuery={submitQuery} />
           <Tooltip title="Clear All" arrow>
             <span>
               <IconButton
@@ -140,9 +144,7 @@ const Bar = memo(({ open, submitQuery, isQuestion, changeQuestion}) => {
               <IconButton
                 size="small"
                 className={classes.icon}
-                onClick={() => {
-                  dispatch(login());
-                }}
+                onClick={handleClickOpen}
               >
                 <LoginIcon />
               </IconButton>
@@ -160,7 +162,6 @@ const Bar = memo(({ open, submitQuery, isQuestion, changeQuestion}) => {
             </span>
           </Tooltip>
         </AppBar>
-        ,
         <AppBar key="2" className={classes.appBar2}>
           <div className={classes.realSpace}>
             {visualisation
@@ -178,6 +179,33 @@ const Bar = memo(({ open, submitQuery, isQuestion, changeQuestion}) => {
               : null}
           </div>
         </AppBar>
+        <Dialog open={openLogin} onClose={handleClose}>
+          <DialogTitle>Log In</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="login"
+              label="session_id"
+              variant="standard"
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setSessionID(event.target.value);
+              }}
+              value={sessionID}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button className={classes.button} onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button
+              className={classes.button}
+              onClick={() => {handleClose(); dispatch(login(sessionID));}}
+            >
+              Log In
+            </Button>
+          </DialogActions>
+        </Dialog>
       </span>
     );
 });
