@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar2: {
     position: "fixed",
-    width: "80%",
+    width: ({open}) => (open ? "80%" : "100%"),
     height: 30,
     backgroundColor: "#272727",
     top: 60,

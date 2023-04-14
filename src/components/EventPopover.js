@@ -852,7 +852,8 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
         const timer = setTimeout(() => {
             if (highlightRef.current) {
                 highlightRef.current.scrollIntoView({
-                    behavior: "smooth",
+                  behavior: "smooth",
+                  block: "center",
                 });
             }
             if (highlightDetailedRef.current) {

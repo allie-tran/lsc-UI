@@ -150,7 +150,6 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
                 document.getElementById("Before:").value = query.before;
                 document.getElementById("Before:-when").value =
                   query.beforewhen;
-                document.getElementById("Find:").value = query.current;
                 document.getElementById("After:").value = query.after;
                 document.getElementById("After:-when").value = query.afterwhen;
               }

@@ -220,15 +220,15 @@ const Page = () => {
         {" "}
         {/*700 * 1443, 945 x 1920*/}
         <Bar
-          open
+          open={true}
           submitQuery={submitQuery}
           isQuestion={isQuestion}
           changeQuestion={changeQuestion}
         />
         <AutoComplete className={classes.autocomplete} />
-        <Map open />
+        <Map open={true} />
         <QAPane isQuestion={isQuestion} />
-        <SaveSection open openEvent={openEvent} />
+        <SaveSection open={true} openEvent={openEvent} />
         <ToggleButtonGroup className={classes.buttons} value={buttonValues}>
           <ToggleButton value="Shift" color="warning">
             <FileUploadIcon />
@@ -238,7 +238,7 @@ const Page = () => {
           </ToggleButton>
         </ToggleButtonGroup>
         {/* <Submit /> */}
-        <ImageGrid openEvent={openEvent} isQuestion={isQuestion} />
+        <ImageGrid open={true}  openEvent={openEvent} isQuestion={isQuestion} />
         <Popover
           // disablePortal={true}
           open={openPopover}
