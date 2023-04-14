@@ -1,11 +1,10 @@
 import { combineReducers } from "redux";
-import configData from "../../config.json";
 
 import search, { searchState } from "./search";
 import save from "./save";
 import select, { selectState } from "./select";
 import submit, { submitState } from "./submit";
-import qa, {qaState} from "./qa"
+import qa from "./qa"
 
 import {
     NEXT_QUERY,

@@ -77,6 +77,7 @@ const Page = () => {
     const [openSnackBar, setOpenSnackBar] = useState(false);
     const [snackBarSeverity, setSnackBarSeverity] = useState("info");
     const [snackBarMessage, setSnackBarMessage] = useState("");
+    const [initialImage, setInitialImage] = useState(null);
     const submitResponse = useSelector((state) => state.submit.submitResponse);
 
     useEffect(() => {
@@ -144,18 +145,11 @@ const Page = () => {
     const changeQuestion = useCallback(
       (event) => {
         setQuestion(event.target.checked);
-        // if (event.target.checked){
         navigator.clipboard.writeText(
         document.getElementById("Find:").value
         );
-        // }
-        // else {
-        //     navigator.clipboard.writeText(
-        //       document.getElementById("question").value
-        //     );
-        // }
       },
-      [isQuestion]
+      []
     );
 
     const submitQuery = useCallback(
@@ -201,15 +195,20 @@ const Page = () => {
                 dispatch(getInfo(newGroup[0]));
                 setDetailedScene(newGroup);
                 setOpenPopover(true);
+                setInitialImage(newGroup[0]);
             }
         },
         [play]
     );
 
-    const closeEvent = useCallback(() => {
-        setOpenPopover(false);
+    const closeEvent = useCallback((event, reason) => {
+        if (reason === "backdropClick" || reason === "escapeKeyDown" || reason === "clickaway") {
+            setOpenPopover(false);
+        }
         // eslint-disable-next-line
     }, []);
+
+    
 
     return (
       <div
@@ -253,8 +252,7 @@ const Page = () => {
             vertical: "center",
             horizontal: "center",
           }}
-          onBackdropClick={closeEvent}
-          onEscapeKeyDown={closeEvent}
+          onClose={closeEvent}
           className={classes.popover}
         >
           {openPopover && (
@@ -263,6 +261,7 @@ const Page = () => {
               commandHeld={commandHeld}
               openEvent={openEvent}
               detailedScene={detailedScene}
+              initialImage={initialImage}
             />
           )}
         </Popover>

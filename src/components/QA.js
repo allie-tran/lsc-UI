@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import FilledInput from "@material-ui/core/FilledInput";
@@ -7,9 +7,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import { setTextAnswers, answerForScene } from "../redux/actions/qa";
-import MouseTooltip from "react-sticky-mouse-tooltip";
-
+import { setTextAnswers } from "../redux/actions/qa";
 
 const QAstyles = makeStyles((theme) => ({
   pane: {
@@ -52,19 +50,10 @@ const QAPane = ({ isQuestion, changeQuestion }) => {
   const answerSceneResponse = useSelector(
     (state) => state.qa.answerSceneResponse
   );
-  const [isMouseTooltipVisible, setMouseTooltipVisible] = useState(false);
-
-  const toggleMouseTooltip = (value) => {
-    setMouseTooltipVisible(value);
-  };
 
   const copyText = (value) => {
     document.getElementById("answer").value = value;
     navigator.clipboard.writeText(value);
-    toggleMouseTooltip(true);
-    setTimeout(function () {
-        toggleMouseTooltip(false);
-    }, 2000);
     }
 
   useEffect(

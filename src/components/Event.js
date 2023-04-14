@@ -7,10 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import Tooltip from "@material-ui/core/Tooltip";
-import { setTextAnswers, answerForScene } from "../redux/actions/qa";
-
-const IMAGE_HEIGHT = 768
-const RESIZE_FACTOR = 5.5
+import { answerForScene } from "../redux/actions/qa";
 
 const eventStyles = makeStyles((theme) => ({
   row: {
@@ -23,7 +20,7 @@ const eventStyles = makeStyles((theme) => ({
     flexDirection: "column",
     flexShrink: 0,
     // overflow : "auto",
-    borderBottom: "8px solid rgba(0,0,0,0.1)",
+    // borderBottom: "8px solid rgba(0,0,0,0.1)",
     backgroundColor: (props) =>
       Math.floor(props.index / props.numDisplay) % 2 === 0
         ? "rgba(0,0,0,0.1)"
@@ -81,7 +78,6 @@ const areEqual = (prevProps, nextProps) => {
 }
 
 const SubEvent = ({ group, name, openEvent, index, location, scale }) => {
-  const dispatch = useDispatch();
   const numDisplay = useSelector((state) => {
     var num = 1;
     if (state.search.query.before) {
@@ -125,7 +121,7 @@ const SubEvent = ({ group, name, openEvent, index, location, scale }) => {
   }
 };
 
-const Event = memo(({ index, group, openEvent, location, location_before, location_after, isQuestion}) => {
+const Event = memo(function Event({ index, group, openEvent, location, location_before, location_after, isQuestion}) {
     const dispatch = useDispatch();
     const classes = eventStyles({ index, numDisplay : 1 });
 

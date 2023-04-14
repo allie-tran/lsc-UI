@@ -74,7 +74,7 @@ const areEqual = (prev, next) => {
     return isEqual(prev.saved, next.saved);
 }
 
-const SaveSection = memo(({ open, openEvent }) => {
+const SaveSection = memo(function SaveSection({ open, openEvent }) {
     const [play] = useSound(sfxSound);
 	const classes = useStyles({ open });
     const saved = useSelector(state => state.save.saved, isEqual)
@@ -90,7 +90,7 @@ const SaveSection = memo(({ open, openEvent }) => {
     <div id="save" className={classes.section}>
       <Typography variant="subtitle1" className={classes.title}>
         SAVED SCENES
-        <Badge badgeContent={saved.length} color="primary">
+        <Badge badgeContent={saved.length} color="primary" overlap="rectangular">
           <BookmarkRoundedIcon />
         </Badge>
       </Typography>

@@ -6,7 +6,6 @@ import React, {
     memo,
     lazy,
     forwardRef,
-    Suspense,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
@@ -29,7 +28,8 @@ import useSound from "use-sound";
 import sfxSound from "../navigation_transition-right.wav";
 import saveSound from "../navigation_forward-selection.wav";
 
-const Image = lazy(() => import("./Image"));
+// const Image = lazy(() => import("./Image"));
+import Image from "./Image";
 
 // const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
@@ -224,7 +224,7 @@ const areSceneEqual = (prevProps, nextProps) => {
 };
 const SceneGrid = memo(
     forwardRef(
-        (
+        function SceneGrid(
             {
                 name,
                 explanation,
@@ -243,7 +243,7 @@ const SceneGrid = memo(
                 textBold
             },
             highlightRef
-        ) => {
+        ) {
             const classes = gridStyle({
                 height,
                 width,
@@ -265,89 +265,84 @@ const SceneGrid = memo(
                 [scenes, onClick]
             );
 
+            // const [highlightSceneIndex, setHighlightSceneIndex] = useState(0)
+            // const [highlightGroupIndex, setHighlightGroupIndex] = useState(0);
+
+            // useEffect(() => {
+            //     if (scenes){
+            //         scenes.forEach((group, id) => {
+            //             if (group[2]) {
+            //             group[2].forEach((scene, index) => {
+            //                 if (highlight === scene[0]) {
+            //                 setHighlightSceneIndex(index);
+            //                 setHighlightGroupIndex(id);
+            //                 }
+            //             });
+            //             } 
+            //         })
+            //     }
+            // }, [scenes, highlight])
+
             return (
-                <div className={classes.fixedpanel}>
-                    <Typography variant="button" className={classes.text}>
-                        {name}
-                    </Typography>
-                    <p className={classes.smalltext_light}>
-                        The scenes below are from in the same day of the scene
-                        you clicked. Click on them to see all the images in that
-                        scene in the right panel.
-                    </p>
-                    <div
-                        id="scenegrid"
-                        className={classes.panel}
-                        onScroll={handleScroll}
-                    >
-                        <Button
-                            className={classes.morebutton}
-                            onClick={moreTop}
-                        >
-                            {" "}
-                            MORE{" "}
-                        </Button>
-                        {scenes
-                            ? scenes.map((group, id) => (
-                                  <div key={id} className={classes.timeline}>
-                                      <p className={classes.placetext}>
-                                          {group[1] ? group[1] : "NONE"}
-                                      </p>
-                                      <div
-                                          className={classes.normalgrid}
-                                          key={group[1]}
-                                      >
-                                          {group[2]
-                                              ? group[2].map((scene, index) => (
-                                                    <Suspense
-                                                        key={scene[0]}
-                                                        fallback={
-                                                            <div
-                                                                className={
-                                                                    classes.placeholder
-                                                                }
-                                                            />
-                                                        }
-                                                    >
-                                                        <Image
-                                                            ref={
-                                                                highlight ===
-                                                                scene[0]
-                                                                    ? highlightRef
-                                                                    : null
-                                                            }
-                                                            info={
-                                                                scene[2].split(
-                                                                    "-"
-                                                                )[0]
-                                                            }
-                                                            key={scene[0]}
-                                                            index={index}
-                                                            image={scene[1][0]}
-                                                            scale={scale}
-                                                            highlight={
-                                                                highlight ===
-                                                                scene[0]
-                                                            }
-                                                            onClick={ownOnClick}
-                                                            scene={true}
-                                                        />
-                                                    </Suspense>
-                                                ))
-                                              : null}
-                                      </div>
-                                  </div>
-                              ))
-                            : null}
-                        <Button
-                            className={classes.morebutton}
-                            onClick={moreBottom}
-                        >
-                            {" "}
-                            MORE{" "}
-                        </Button>
-                    </div>
+              <div className={classes.fixedpanel}>
+                <Typography variant="button" className={classes.text}>
+                  {name}
+                </Typography>
+                <p className={classes.smalltext_light}>
+                  The scenes below are from in the same day of the scene you
+                  clicked. Click on them to see all the images in that scene in
+                  the right panel.
+                </p>
+                <div
+                  id="scenegrid"
+                  className={classes.panel}
+                  onScroll={handleScroll}
+                >
+                  <Button className={classes.morebutton} onClick={moreTop}>
+                    {" "}
+                    MORE{" "}
+                  </Button>
+                  {scenes
+                    ? scenes.map((group, id) => (
+                        <div key={id} className={classes.timeline}>
+                          <p className={classes.placetext}>
+                            {group[1] ? group[1] : "NONE"}
+                          </p>
+                          <div className={classes.normalgrid} key={group[1]}>
+                            {group[2]
+                              ? group[2].map((scene, index) => (
+                                  <Image
+                                    ref={
+                                      highlight === scene[0]
+                                        ? highlightRef
+                                        : null
+                                    }
+                                    // disableLazyLoad={
+                                    //   id < highlightGroupIndex ||
+                                    //   (id === highlightGroupIndex &&
+                                    //     index < highlightSceneIndex)
+                                    // }
+                                    info={scene[2].split("-")[0]}
+                                    key={scene[0]}
+                                    index={index}
+                                    image={scene[1][0]}
+                                    scale={scale}
+                                    highlight={highlight === scene[0]}
+                                    onClick={ownOnClick}
+                                    scene={true}
+                                  />
+                                ))
+                              : null}
+                          </div>
+                        </div>
+                      ))
+                    : null}
+                  <Button className={classes.morebutton} onClick={moreBottom}>
+                    {" "}
+                    MORE{" "}
+                  </Button>
                 </div>
+              </div>
             );
         }
     ),
@@ -355,7 +350,7 @@ const SceneGrid = memo(
 );
 
 const SimilarGrid = memo(
-    ({
+    function SimilarGrid ({
         name,
         explanation,
         scenes,
@@ -367,7 +362,7 @@ const SimilarGrid = memo(
         onClick,
         zIndex,
         textBold,
-    }) => {
+    }) {
         const classes = gridStyle({
             height,
             width,
@@ -402,7 +397,7 @@ const SimilarGrid = memo(
                     that day.
                 </p>
 
-                <div id="scenegrid" className={classes.panel}>
+                <div className={classes.panel}>
                     {scenes
                         ? scenes.map((group, id) => (
                               <div key={id} className={classes.timeline}>
@@ -415,16 +410,6 @@ const SimilarGrid = memo(
                                   >
                                       {group[0]
                                           ? group[0].map((image, index) => (
-                                                <Suspense
-                                                    key={image}
-                                                    fallback={
-                                                        <div
-                                                            className={
-                                                                classes.placeholder
-                                                            }
-                                                        />
-                                                    }
-                                                >
                                                     <Image
                                                         dark
                                                         key={image}
@@ -436,7 +421,6 @@ const SimilarGrid = memo(
                                                         scene={false}
                                                         zoomed
                                                     />
-                                                </Suspense>
                                             ))
                                           : null}
                                   </div>
@@ -476,17 +460,22 @@ const SimilarGrid = memo(
 );
 
 const DetailGrid = memo(
-    ({
-        name,
-        explanation,
-        scenes,
-        height,
-        width,
-        scale,
-        color,
-        zIndex,
-        onClick,
-    }) => {
+    forwardRef(
+        function DetailGrid(
+        {
+            name,
+            explanation,
+            scenes,
+            height,
+            width,
+            scale,
+            color,
+            zIndex,
+            onClick,
+            initialImage
+        },
+        ref
+        ) {
         const classes = gridStyle({
             height,
             width,
@@ -495,55 +484,50 @@ const DetailGrid = memo(
             justifyContent: "center",
         });
         return (
-            <div className={classes.panel}>
-                <Typography variant="button" className={classes.text}>
-                    {name}
-                </Typography>
-                <p className={classes.smalltext_light}>
-                    These images are grouped together based on their visual
-                    similarity.
-                </p>
-                <div className={classes.detailedgrid}>
-                    {scenes
-                        ? scenes.map((image, index) => (
-                              <Suspense
-                                  key={image}
-                                  fallback={
-                                      <div className={classes.placeholder} />
-                                  }
-                              >
-                                  <Image
-                                      key={image}
-                                      index={index}
-                                      image={image}
-                                      scale={scale}
-                                      zoomed
-                                      onClick={onClick}
-                                      scene={false}
-                                      info={image}
-                                  />
-                              </Suspense>
-                          ))
-                        : null}
-                </div>
+          <div className={classes.panel}>
+            <Typography variant="button" className={classes.text}>
+              {name}
+            </Typography>
+            <p className={classes.smalltext_light}>
+              These images are grouped together based on their visual
+              similarity.
+            </p>
+            <div id="detailedgrid" className={classes.detailedgrid}>
+              {scenes
+                ? scenes.map((image, index) => (
+                    <Image
+                      ref={initialImage === image ? ref : null}
+                      key={image}
+                      index={index}
+                      image={image}
+                      scale={scale}
+                      zoomed
+                      onClick={onClick}
+                      scene={false}
+                      info={image}
+                      highlight={initialImage === image}
+                    />
+                  ))
+                : null}
             </div>
+          </div>
         );
-    },
-    areSceneEqual
-);
+},
+areSceneEqual));
 
 const areEqual = (prevProps, nextProps) => {
     return (
-        isEqual(prevProps.scenes, nextProps.scenes) &&
-        isEqual(prevProps.similarScenes, nextProps.similarScenes) &&
-        isEqual(prevProps.detailed, nextProps.detailed) &&
-        prevProps.info === nextProps.info &&
-        prevProps.currentImage === nextProps.currentImage &&
-        isEqual(prevProps.currentScene, nextProps.currentScene)
+      isEqual(prevProps.scenes, nextProps.scenes) &&
+      isEqual(prevProps.similarScenes, nextProps.similarScenes) &&
+      isEqual(prevProps.detailed, nextProps.detailed) &&
+      prevProps.info === nextProps.info &&
+      prevProps.initialImage === nextProps.initialImage &&
+      prevProps.currentImage === nextProps.currentImage &&
+      isEqual(prevProps.currentScene, nextProps.currentScene)
     );
 };
 
-const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld }) => {
+const EventPopover = memo(function EventPopper({ initialImage, openEvent, detailedScene, shiftHeld, commandHeld }) {
     const classes = popStyle();
     const [play] = useSound(sfxSound);
     const [playSave] = useSound(saveSound);
@@ -610,25 +594,38 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
     }, []);
 
     useEffect(() => {
-        if (sceneResponse) {
-            sceneResponse.then((res) => {
-                if (!fetchedScenes.current) {
-                    moreScroll.current = null;
-                    if (!isEqual(scenes, res.data.timeline)) {
-                        setScenes(res.data.timeline);
-                    }
-                    // console.log("scene", res.data)
-                    setLine(res.data.line);
-                    setSpace(res.data.space);
-                    setCurrentScene(res.data.scene_id);
-                    if (!firstScene) {
-                        setFirstScene(res.data.scene_id);
-                    }
-                    setCurrentImage(res.data.image);
+      if (sceneResponse) {
+        sceneResponse.then((res) => {
+          if (!fetchedScenes.current) {
+            moreScroll.current = null;
+            if (!isEqual(scenes, res.data.timeline)) {
+              setScenes(res.data.timeline);
+              var done = false;
+              for (let i = 0; i < res.data.timeline.length; i++) {
+                for (let j = 0; j < res.data.timeline[i][2].length; j++) {
+                  if (res.data.timeline[i][2][j][0] === res.data.scene_id) {
+                    setDetailed(res.data.timeline[i][2][j][1]);
+                    done = true;
+                    break;
+                  }
                 }
-                fetchedScenes.current = true;
-            });
-        }
+                if (done){
+                    break;
+                }
+              }
+            }
+            // console.log("scene", res.data)
+            setLine(res.data.line);
+            setSpace(res.data.space);
+            setCurrentScene(res.data.scene_id);
+            if (!firstScene) {
+              setFirstScene(res.data.scene_id);
+            }
+            setCurrentImage(res.data.image);
+          }
+          fetchedScenes.current = true;
+        });
+      }
     }, [sceneResponse, scenes, firstScene]);
 
     useEffect(() => {
@@ -665,7 +662,7 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                         moreScroll.current = res.data.direction;
                         if (res.data.direction === "bottom") {
                             setScenes([...scenes, ...res.data.timeline]);
-                        } else {
+                        } else if (res.data.direction === "top") {
                             setScenes([...res.data.timeline, ...scenes]);
                             var el = document.getElementById("scenegrid");
                             const row = Math.floor(
@@ -704,12 +701,11 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
     }, [similarResponse, similarScene]);
 
     useEffect(() => {
-        // console.log(moreScroll.current);
         var el = document.getElementById("scenegrid");
-        // console.log(el.scrollTop);
+        var timer;
         if (fetchedMore.current && moreScroll.current) {
             if (moreScroll.current === "bottom") {
-                setTimeout(
+                timer = setTimeout(
                     () =>
                         el.scrollTo({
                             top: el.scrollTop + 20,
@@ -718,8 +714,8 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                         }),
                     50
                 );
-            } else {
-                setTimeout(
+            } else if (moreScroll.current === "top") {
+                timer = setTimeout(
                     () =>
                         el.scrollTo({
                             top: el.scrollTop - 20,
@@ -729,7 +725,9 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                     50
                 );
             }
+            console.log(moreScroll.current)
             setLine(-1);
+            return () => {if (timer) {clearTimeout(timer)}};
         }
     }, [scenes, line, space]);
 
@@ -756,6 +754,7 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
 
     const setTime = useCallback(
         (images) => {
+            var timer;
             if (shiftHeld.current) {
                 play();
                 dispatch(submitImage(images[0], false));
@@ -765,17 +764,22 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                 if (!isEqual(detailed, images)) {
                     setDetailed(images);
                 }
-                setTimeout(() => {
+                timer = setTimeout(() => {
                         if (highlightRef.current) {
                             highlightRef.current.scrollIntoView({
                                 behavior: "smooth",
                             });
+                            console.log("Scroll SetTime");
                         }
                     },
                     100
                 );
+                
                 behavior.current = "smooth";
             }
+            return () => {if (timer) {
+              clearTimeout(timer);
+            }}
         },
         [play, detailed]
     );
@@ -799,21 +803,45 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
     );
 
     const highlightRef = useRef();
+    const highlightDetailedRef = useRef();
     useEffect(() => {
+        var timer;
         if (firstTime.current && currentImage && highlightRef.current) {
             // console.log("Scrolling to", highlightRef.current);
-            setTimeout(() => {
+            timer = setTimeout(() => {
                 if (highlightRef.current){
                     highlightRef.current.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center",
+                      behavior: "smooth",
+                      block: "center",
                     });
                 }
-            }, 250)
+            }, 1000)
             firstTime.current = false;
         }
-        return () => (firstTime.current = true);
+        return () => {firstTime.current = true; if (timer) {
+          clearTimeout(timer);
+        }};
     }, [currentImage]);
+
+    useEffect(() => {
+      var timer;
+      if (initialImage && highlightDetailedRef.current) {
+        // console.log("Scrolling to", highlightRef.current);
+        timer = setTimeout(() => {
+          if (highlightDetailedRef.current) {
+            highlightDetailedRef.current.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+        }, 2000);
+      }
+      return () => {
+        if (timer) {
+          clearTimeout(timer);
+        }
+      };
+    }, [initialImage, detailedScene]);
 
     const reset = useCallback(() => {
         fetchedScenes.current = false;
@@ -821,69 +849,74 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
         if (!isEqual(detailed, detailedScene)) {
             setDetailed(detailedScene);
         }
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             if (highlightRef.current) {
                 highlightRef.current.scrollIntoView({
                     behavior: "smooth",
                 });
             }
-        }, 100);
+            if (highlightDetailedRef.current) {
+              highlightDetailedRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }
+        }, 250);
         behavior.current = "smooth";
+        return () => clearTimeout(timer);
     }, [detailedScene, detailed]);
 
     return (
-        <Paper id="popover" elevation={4} className={classes.detailed}>
-            <Button
-                className={classes.fixedbutton}
-                onClick={reset}
-            >
-                {" "}
-                Reset
-                {" "}
-            </Button>
-            <div className={classes.horizontal}>
-                <div className={classes.vertical}>
-                    <SceneGrid
-                        name={"ALL SCENES on " + info}
-                        scenes={scenes}
-                        scale={1.0}
-                        height="65%"
-                        width="100%"
-                        color={"#272727"}
-                        borderColor={"#6c63ff"}
-                        textBold={"bold"}
-                        onClick={setDetailedImages}
-                        highlight={currentScene}
-                        zIndex={1}
-                        ref={highlightRef}
-                        moreTop={moreTop}
-                        moreBottom={moreBottom}
-                    />
-                    <SimilarGrid
-                        name={"SIMILAR scenes"}
-                        scenes={similarScene}
-                        scale={1.0}
-                        borderColor={"#272727"}
-                        textBold={""}
-                        height="30%"
-                        width="99%"
-                        color={"#bebac6"}
-                        zIndex={2}
-                        onClick={setTime}
-                    />
-                </div>
-                <DetailGrid
-                    name={"IMAGES of the selected scene"}
-                    scenes={detailed}
-                    scale={2.5}
-                    zIndex={0}
-                    height="calc(100% - 10px)"
-                    width="calc(32.5% - 20px)"
-                    color={"rgb(56 55 72)"}
-                    onClick={findSimilar}
-                />
-            </div>
-        </Paper>
+      <Paper id="popover" elevation={4} className={classes.detailed}>
+        <Button className={classes.fixedbutton} onClick={reset}>
+          {" "}
+          Reset{" "}
+        </Button>
+        <div className={classes.horizontal}>
+          <div className={classes.vertical}>
+            <SceneGrid
+              name={"ALL SCENES on " + info}
+              scenes={scenes}
+              scale={1.0}
+              height="65%"
+              width="100%"
+              color={"#272727"}
+              borderColor={"#6c63ff"}
+              textBold={"bold"}
+              onClick={setDetailedImages}
+              highlight={currentScene}
+              zIndex={1}
+              ref={highlightRef}
+              moreTop={moreTop}
+              moreBottom={moreBottom}
+            />
+            <SimilarGrid
+              name={"SIMILAR scenes"}
+              scenes={similarScene}
+              scale={1.0}
+              borderColor={"#272727"}
+              textBold={""}
+              height="30%"
+              width="99%"
+              color={"#bebac6"}
+              zIndex={2}
+              onClick={setTime}
+            />
+          </div>
+          <DetailGrid
+            name={"IMAGES of the selected scene"}
+            scenes={detailed}
+            scale={2.5}
+            zIndex={0}
+            height="calc(100% - 10px)"
+            width="calc(32.5% - 20px)"
+            color={"rgb(56 55 72)"}
+            onClick={findSimilar}
+            ref={highlightDetailedRef}
+            initialImage={initialImage}
+          />
+        </div>
+      </Paper>
     );
 }, areEqual);
 SceneGrid.whyDidYouRender = true;

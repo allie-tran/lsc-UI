@@ -1,5 +1,4 @@
 import {applyMiddleware, createStore} from 'redux';
-import configData from "../config.json";
 
 // import {apiMiddleware} from 'redux/-api-middleware';
 import axios from 'axios';
@@ -12,8 +11,10 @@ const client = axios.create({ //all axios can be used, shown in axios documentat
   responseType: 'json'
 });
 
-export default function configureStore(initialState = {}) {
+function configureStore(initialState = {}) {
   const middlewares = [axiosMiddleware(client)]
   const createStoreWithMiddleware = applyMiddleware(...middlewares)(createStore);
   return createStoreWithMiddleware(reducer, initialState);
 }
+
+export default configureStore;

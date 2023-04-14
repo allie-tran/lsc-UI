@@ -84,4 +84,5 @@ const ComboBox = () => {
 };
 
 ComboBox.whyDidYouRender = true;
-export default memo(ComboBox, areEqual);
+const MemoAutoComplete = memo(ComboBox, areEqual);
+export default MemoAutoComplete;

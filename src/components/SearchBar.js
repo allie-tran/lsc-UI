@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef } from "react";
+import React, { memo } from "react";
 import FilledInput from "@material-ui/core/FilledInput";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SearchBar = memo(({ open, type, submitQuery, changeQuestion, isQuestion}) => {
+const SearchBar = memo(function SearchBar({ open, type, submitQuery, changeQuestion, isQuestion}) {
   const classes = useStyles({ type, open });
   const keyPressed = (event) => {
     if (event.key === "Enter") submitQuery(true, 0);

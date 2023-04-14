@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback } from "react";
+import React, { memo, useState } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -10,7 +10,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import SearchIcon from '@material-ui/icons/Search';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import Typography from '@material-ui/core/Typography';
-import Checkbox from '@material-ui/core/Checkbox';
 import LoginIcon from "@mui/icons-material/Login";
 import { login } from "../redux/actions/submit";
 
@@ -74,27 +73,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const ControlledCheckbox = ({ checked, handleChange}) => {
-    return (
-        <Checkbox
-            checked={checked}
-            onChange={handleChange}
-            inputProps={{ 'aria-label': 'controlled' }}
-        />
-    );
-}
-
-const Bar = memo(({ open, submitQuery, isQuestion, changeQuestion}) => {
+const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion}) {
     const classes = useStyles({ open, isQuestion });
     const [openLogin, setOpenLogin] = useState(false);
     const [sessionID, setSessionID] = useState("test");
 
     const dispatch = useDispatch();
-    const [checked, setChecked] = useState(false);
-
-    const handleChange = (event) => {
-        setChecked(event.target.checked);
-    };
 
     const handleClickOpen = () => {
       setOpenLogin(true);
@@ -104,13 +88,6 @@ const Bar = memo(({ open, submitQuery, isQuestion, changeQuestion}) => {
       setOpenLogin(false);
     };
     
-    const keyPressed = (event) => {
-      if (event.key === "Enter") submitQuery(true, 0);
-    };
-
-
-    
-
     const visualisation = useSelector((state) => state.search.info? state.search.info.query_visualisation:null);
     console.log(isQuestion);
 
@@ -155,7 +132,7 @@ const Bar = memo(({ open, submitQuery, isQuestion, changeQuestion}) => {
               <IconButton
                 size="small"
                 className={classes.icon}
-                onClick={() => submitQuery(false, 0, checked)}
+                onClick={() => submitQuery(false, 0, false)}
               >
                 <SearchIcon />
               </IconButton>

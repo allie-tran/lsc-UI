@@ -76,7 +76,7 @@ const areEqual = (prevProps, nextProps) => {
           prevProps.more === nextProps.more;
 };
 
-const ImageGrid = memo(({ openEvent, isQuestion }) => {
+const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
   const classes = gridStyles({ isQuestion });
   const dispatch = useDispatch();
   const [dates, setDates] = useState([]);

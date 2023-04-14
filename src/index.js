@@ -6,12 +6,12 @@ import './index.css';
 import Page from './components/Page';
 import * as serviceWorker from './serviceWorker';
 import 'typeface-roboto';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Provider } from 'react-redux';
 import configureStore from './redux/configureStore';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
-const theme = createMuiTheme({
+const theme = createTheme({
     palette: {
         type: "dark",
         primary: { main: "#6C63FF" },

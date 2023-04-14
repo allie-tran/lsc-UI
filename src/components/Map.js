@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import GpsOffRoundedIcon from '@material-ui/icons/GpsOffRounded';
 import GpsFixedRoundedIcon from '@material-ui/icons/GpsFixedRounded';
@@ -221,8 +221,7 @@ const Map = ({ open }) => {
 
     map.current.addControl(addressSearchControl);
     L.control.zoom({ position: "bottomright" }).addTo(map.current);
-
-  }, []);
+  }, [addressSearchControl]);
 
   useEffect(
     () => {
