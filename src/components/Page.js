@@ -75,6 +75,7 @@ const Page = () => {
     const [openSnackBar, setOpenSnackBar] = useState(false);
     const [snackBarSeverity, setSnackBarSeverity] = useState("info");
     const [snackBarMessage, setSnackBarMessage] = useState("");
+    const [initialImage, setInitialImage] = useState(null);
     const submitResponse = useSelector((state) => state.submit.submitResponse);
 
     useEffect(() => {
@@ -169,6 +170,7 @@ const Page = () => {
                 dispatch(getInfo(newGroup[0]));
                 setDetailedScene(newGroup);
                 setOpenPopover(true);
+                setInitialImage(newGroup[0]);
             }
         },
         [play]
@@ -225,6 +227,7 @@ const Page = () => {
                         commandHeld={commandHeld}
                         openEvent={openEvent}
                         detailedScene={detailedScene}
+              initialImage={initialImage}
                     />
                 )}
             </Popover>

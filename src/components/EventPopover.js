@@ -6,7 +6,6 @@ import React, {
     memo,
     lazy,
     forwardRef,
-    Suspense,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
@@ -29,7 +28,8 @@ import useSound from "use-sound";
 import sfxSound from "../navigation_transition-right.wav";
 import saveSound from "../navigation_forward-selection.wav";
 
-const Image = lazy(() => import("./Image"));
+// const Image = lazy(() => import("./Image"));
+import Image from "./Image";
 
 // const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
@@ -224,7 +224,7 @@ const areSceneEqual = (prevProps, nextProps) => {
 };
 const SceneGrid = memo(
     forwardRef(
-        (
+        function SceneGrid(
             {
                 name,
                 explanation,
@@ -243,7 +243,7 @@ const SceneGrid = memo(
                 textBold
             },
             highlightRef
-        ) => {
+        ) {
             const classes = gridStyle({
                 height,
                 width,
@@ -271,44 +271,28 @@ const SceneGrid = memo(
                         {name}
                     </Typography>
                     <p className={classes.smalltext_light}>
-                        The scenes below are from in the same day of the scene
-                        you clicked. Click on them to see all the images in that
-                        scene in the right panel.
+                        The scenes below are from in the same day of the scene you
+                        clicked. Click on them to see all the images in that scene in
+                        the right panel.
                     </p>
                     <div
                         id="scenegrid"
                         className={classes.panel}
                         onScroll={handleScroll}
                     >
-                        <Button
-                            className={classes.morebutton}
-                            onClick={moreTop}
-                        >
+                        <Button className={classes.morebutton} onClick={moreTop}>
                             {" "}
                             MORE{" "}
                         </Button>
                         {scenes
                             ? scenes.map((group, id) => (
-                                  <div key={id} className={classes.timeline}>
+                                    <div key={id} className={classes.timeline}>
                                       <p className={classes.placetext}>
                                           {group[1] ? group[1] : "NONE"}
                                       </p>
-                                      <div
-                                          className={classes.normalgrid}
-                                          key={group[1]}
-                                      >
+                                    <div className={classes.normalgrid} key={group[1]}>
                                           {group[2]
                                               ? group[2].map((scene, index) => (
-                                                    <Suspense
-                                                        key={scene[0]}
-                                                        fallback={
-                                                            <div
-                                                                className={
-                                                                    classes.placeholder
-                                                                }
-                                                            />
-                                                        }
-                                                    >
                                                         <Image
                                                             ref={
                                                                 highlight ===
@@ -332,7 +316,6 @@ const SceneGrid = memo(
                                                             onClick={ownOnClick}
                                                             scene={true}
                                                         />
-                                                    </Suspense>
                                                 ))
                                               : null}
                                       </div>
@@ -355,7 +338,7 @@ const SceneGrid = memo(
 );
 
 const SimilarGrid = memo(
-    ({
+    function SimilarGrid ({
         name,
         explanation,
         scenes,
@@ -367,7 +350,7 @@ const SimilarGrid = memo(
         onClick,
         zIndex,
         textBold,
-    }) => {
+    }) {
         const classes = gridStyle({
             height,
             width,
@@ -402,7 +385,7 @@ const SimilarGrid = memo(
                     that day.
                 </p>
 
-                <div id="scenegrid" className={classes.panel}>
+                <div className={classes.panel}>
                     {scenes
                         ? scenes.map((group, id) => (
                               <div key={id} className={classes.timeline}>
@@ -415,16 +398,6 @@ const SimilarGrid = memo(
                                   >
                                       {group[0]
                                           ? group[0].map((image, index) => (
-                                                <Suspense
-                                                    key={image}
-                                                    fallback={
-                                                        <div
-                                                            className={
-                                                                classes.placeholder
-                                                            }
-                                                        />
-                                                    }
-                                                >
                                                     <Image
                                                         dark
                                                         key={image}
@@ -436,7 +409,6 @@ const SimilarGrid = memo(
                                                         scene={false}
                                                         zoomed
                                                     />
-                                                </Suspense>
                                             ))
                                           : null}
                                   </div>
@@ -476,7 +448,9 @@ const SimilarGrid = memo(
 );
 
 const DetailGrid = memo(
-    ({
+    forwardRef(
+        function DetailGrid(
+        {
         name,
         explanation,
         scenes,
@@ -486,7 +460,10 @@ const DetailGrid = memo(
         color,
         zIndex,
         onClick,
-    }) => {
+            initialImage
+        },
+        ref
+        ) {
         const classes = gridStyle({
             height,
             width,
@@ -503,16 +480,11 @@ const DetailGrid = memo(
                     These images are grouped together based on their visual
                     similarity.
                 </p>
-                <div className={classes.detailedgrid}>
+            <div id="detailedgrid" className={classes.detailedgrid}>
                     {scenes
                         ? scenes.map((image, index) => (
-                              <Suspense
-                                  key={image}
-                                  fallback={
-                                      <div className={classes.placeholder} />
-                                  }
-                              >
                                   <Image
+                      ref={initialImage === image ? ref : null}
                                       key={image}
                                       index={index}
                                       image={image}
@@ -521,29 +493,29 @@ const DetailGrid = memo(
                                       onClick={onClick}
                                       scene={false}
                                       info={image}
+                      highlight={initialImage === image}
                                   />
-                              </Suspense>
                           ))
                         : null}
                 </div>
             </div>
         );
     },
-    areSceneEqual
-);
+areSceneEqual));
 
 const areEqual = (prevProps, nextProps) => {
     return (
         isEqual(prevProps.scenes, nextProps.scenes) &&
-        isEqual(prevProps.similarScenes, nextProps.similarScenes) &&
+    //   isEqual(prevProps.similarScenes, nextProps.similarScenes) &&
         isEqual(prevProps.detailed, nextProps.detailed) &&
         prevProps.info === nextProps.info &&
+      prevProps.initialImage === nextProps.initialImage &&
         prevProps.currentImage === nextProps.currentImage &&
         isEqual(prevProps.currentScene, nextProps.currentScene)
     );
 };
 
-const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld }) => {
+const EventPopover = memo(function EventPopper({ initialImage, openEvent, detailedScene, shiftHeld, commandHeld }) {
     const classes = popStyle();
     const [play] = useSound(sfxSound);
     const [playSave] = useSound(saveSound);
@@ -553,7 +525,7 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
     const [currentImage, setCurrentImage] = useState();
     const [info, setInfo] = useState("");
     const [detailed, setDetailed] = useState(detailedScene);
-    const [similarScene, setSimilarScene] = useState(null);
+    // const [similarScene, setSimilarScene] = useState(null);
     const [scenes, setScenes] = useState(null);
 
     const [line, setLine] = useState(-1);
@@ -565,16 +537,14 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
     const moreScroll = useRef(null);
     const firstTime = useRef(true);
 
-    const behavior = useRef("smooth");
-
     const dispatch = useDispatch();
     const sceneResponse = useSelector((state) => state.search.sceneResponse);
     const moreSceneResponse = useSelector(
         (state) => state.search.moreSceneResponse
     );
-    const similarResponse = useSelector(
-        (state) => state.search.similarResponse
-    );
+    // const similarResponse = useSelector(
+    //     (state) => state.search.similarResponse
+    // );
     const infoResponse = useSelector((state) => state.search.infoResponse);
 
     const moreTop = useCallback(() => {
@@ -602,7 +572,7 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
             fetchedMore.current = true;
             fetchedInfos.current = true;
             setScenes(null);
-            setSimilarScene(null);
+            // setSimilarScene(null);
             setDetailed(null);
             dispatch(clearNextEvents());
             firstTime.current = true;
@@ -616,14 +586,27 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                     moreScroll.current = null;
                     if (!isEqual(scenes, res.data.timeline)) {
                         setScenes(res.data.timeline);
+              var done = false;
+              for (let i = 0; i < res.data.timeline.length; i++) {
+                for (let j = 0; j < res.data.timeline[i][2].length; j++) {
+                  if (res.data.timeline[i][2][j][0] === res.data.scene_id) {
+                    setDetailed(res.data.timeline[i][2][j][1]);
+                    if (!firstScene) {
+                      setFirstScene(res.data.timeline[i][2][j][1]);
+                    }
+                    done = true;
+                    break;
+                  }
+                }
+                if (done){
+                    break;
+                }
+              }
                     }
                     // console.log("scene", res.data)
                     setLine(res.data.line);
                     setSpace(res.data.space);
                     setCurrentScene(res.data.scene_id);
-                    if (!firstScene) {
-                        setFirstScene(res.data.scene_id);
-                    }
                     setCurrentImage(res.data.image);
                 }
                 fetchedScenes.current = true;
@@ -665,7 +648,7 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                         moreScroll.current = res.data.direction;
                         if (res.data.direction === "bottom") {
                             setScenes([...scenes, ...res.data.timeline]);
-                        } else {
+                        } else if (res.data.direction === "top") {
                             setScenes([...res.data.timeline, ...scenes]);
                             var el = document.getElementById("scenegrid");
                             const row = Math.floor(
@@ -693,23 +676,22 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
         }
     }, [moreSceneResponse, scenes]);
 
-    useEffect(() => {
-        if (similarResponse) {
-            similarResponse.then((res) => {
-                if (!isEqual(similarScene, res.data.scenes)) {
-                    setSimilarScene(res.data.scenes);
-                }
-            });
-        }
-    }, [similarResponse, similarScene]);
+    // useEffect(() => {
+    //     if (similarResponse) {
+    //         similarResponse.then((res) => {
+    //             if (!isEqual(similarScene, res.data.scenes)) {
+    //                 setSimilarScene(res.data.scenes);
+    //             }
+    //         });
+    //     }
+    // }, [similarResponse, similarScene]);
 
     useEffect(() => {
-        // console.log(moreScroll.current);
         var el = document.getElementById("scenegrid");
-        // console.log(el.scrollTop);
+        var timer;
         if (fetchedMore.current && moreScroll.current) {
             if (moreScroll.current === "bottom") {
-                setTimeout(
+                timer = setTimeout(
                     () =>
                         el.scrollTo({
                             top: el.scrollTop + 20,
@@ -718,8 +700,8 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                         }),
                     50
                 );
-            } else {
-                setTimeout(
+            } else if (moreScroll.current === "top") {
+                timer = setTimeout(
                     () =>
                         el.scrollTo({
                             top: el.scrollTop - 20,
@@ -729,7 +711,9 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                     50
                 );
             }
+            console.log(moreScroll.current)
             setLine(-1);
+            return () => {if (timer) {clearTimeout(timer)}};
         }
     }, [scenes, line, space]);
 
@@ -742,13 +726,12 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                 playSave();
                 dispatch(saveScene(images));
             } else {
-                dispatch(getSimilar(images[0]));
+                // dispatch(getSimilar(images[0]));
                 if (!isEqual(detailed, images)) {
                     setDetailed(images);
                     setCurrentScene(scene_id);
                     setCurrentImage(images[0]);
                 }
-                behavior.current = "auto";
             }
         },
         [play, playSave, detailed]
@@ -756,6 +739,7 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
 
     const setTime = useCallback(
         (images) => {
+            var timer;
             if (shiftHeld.current) {
                 play();
                 dispatch(submitImage(images[0], false));
@@ -765,17 +749,21 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                 if (!isEqual(detailed, images)) {
                     setDetailed(images);
                 }
-                setTimeout(() => {
+                timer = setTimeout(() => {
                         if (highlightRef.current) {
                             highlightRef.current.scrollIntoView({
                                 behavior: "smooth",
                             });
+                            console.log("Scroll SetTime");
                         }
                     },
                     100
                 );
-                behavior.current = "smooth";
+                
             }
+            return () => {if (timer) {
+              clearTimeout(timer);
+            }}
         },
         [play, detailed]
     );
@@ -790,7 +778,7 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                     playSave();
                     dispatch(saveScene([image]));
                 } else {
-                    dispatch(getSimilar(image));
+                    // dispatch(getSimilar(image));
                     dispatch(getInfo(image));
                 }
             }
@@ -799,37 +787,86 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
     );
 
     const highlightRef = useRef();
+    const highlightDetailedRef = useRef();
     useEffect(() => {
-        if (firstTime.current && currentImage && highlightRef.current) {
-            // console.log("Scrolling to", highlightRef.current);
-            setTimeout(() => {
-                if (highlightRef.current){
+        var timer;
+        if (currentImage && highlightRef.current) {
+            console.log("Scrolling", firstTime.current);
+            timer = setTimeout(
+              (highlightRef) => {
+                if (highlightRef.current) {
                     highlightRef.current.scrollIntoView({
                         behavior: "smooth",
                         block: "center",
                     });
                 }
-            }, 250)
+              },
+              firstTime.current? 1000:50 ,
+              highlightRef
+            );
             firstTime.current = false;
         }
-        return () => (firstTime.current = true);
-    }, [currentImage]);
+        return () => {if (timer) {
+          clearTimeout(timer);
+        }};
+    }, [currentImage, detailed]);
+
+    useEffect(() => {
+      var timer;
+      if (initialImage && highlightDetailedRef.current) {
+        // console.log("Scrolling to", highlightRef.current);
+        timer = setTimeout(
+          (highlightDetailedRef) => {
+            highlightDetailedRef.current.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          },
+          2000,
+          highlightDetailedRef
+        );
+      }
+      return () => {
+        if (timer) {
+          clearTimeout(timer);
+        }
+      };
+    }, [initialImage]);
 
     const reset = useCallback(() => {
         fetchedScenes.current = false;
-        dispatch(getNextScenes(detailedScene, "full"));
-        if (!isEqual(detailed, detailedScene)) {
-            setDetailed(detailedScene);
+      dispatch(getNextScenes(firstScene, "full"));
+      if (!isEqual(detailed, firstScene)) {
+        if (firstScene) {
+            setDetailed(firstScene);
         }
-        setTimeout(() => {
-            if (highlightRef.current) {
-                highlightRef.current.scrollIntoView({
-                    behavior: "smooth",
-                });
             }
-        }, 100);
-        behavior.current = "smooth";
-    }, [detailedScene, detailed]);
+      const timer1 = setTimeout(
+        (highlightDetailedRef) => {
+            if (highlightDetailedRef.current) {
+              highlightDetailedRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }
+        },
+        500,
+        highlightDetailedRef
+      );
+      const timer2 = setTimeout(
+        (highlightRef) => {
+          if (highlightRef.current) {
+            highlightRef.current.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+        },
+        1000,
+        highlightRef
+      );
+      return () => {clearTimeout(timer1); clearTimeout(timer2);};
+    }, [firstScene, detailed]);
 
     return (
         <Paper id="popover" elevation={4} className={classes.detailed}>
@@ -847,7 +884,7 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                         name={"ALL SCENES on " + info}
                         scenes={scenes}
                         scale={1.0}
-                        height="65%"
+                        height="100%"
                         width="100%"
                         color={"#272727"}
                         borderColor={"#6c63ff"}
@@ -859,7 +896,7 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                         moreTop={moreTop}
                         moreBottom={moreBottom}
                     />
-                    <SimilarGrid
+                    {/* <SimilarGrid
                         name={"SIMILAR scenes"}
                         scenes={similarScene}
                         scale={1.0}
@@ -870,17 +907,19 @@ const EventPopover = memo(({ openEvent, detailedScene, shiftHeld, commandHeld })
                         color={"#bebac6"}
                         zIndex={2}
                         onClick={setTime}
-                    />
+                    /> */}
                 </div>
                 <DetailGrid
                     name={"IMAGES of the selected scene"}
                     scenes={detailed}
-                    scale={2.5}
+                    scale={2.45}
                     zIndex={0}
                     height="calc(100% - 10px)"
-                    width="calc(32.5% - 20px)"
+                    width="calc(32.5% - 10px)"
                     color={"rgb(56 55 72)"}
-                    onClick={findSimilar}
+                    // onClick={findSimilar}
+                    ref={highlightDetailedRef}
+                    initialImage={initialImage}
                 />
             </div>
         </Paper>
