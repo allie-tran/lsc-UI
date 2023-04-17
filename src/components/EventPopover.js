@@ -518,7 +518,7 @@ areSceneEqual));
 const areEqual = (prevProps, nextProps) => {
     return (
       isEqual(prevProps.scenes, nextProps.scenes) &&
-      isEqual(prevProps.similarScenes, nextProps.similarScenes) &&
+    //   isEqual(prevProps.similarScenes, nextProps.similarScenes) &&
       isEqual(prevProps.detailed, nextProps.detailed) &&
       prevProps.info === nextProps.info &&
       prevProps.initialImage === nextProps.initialImage &&
@@ -537,7 +537,7 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
     const [currentImage, setCurrentImage] = useState();
     const [info, setInfo] = useState("");
     const [detailed, setDetailed] = useState(detailedScene);
-    const [similarScene, setSimilarScene] = useState(null);
+    // const [similarScene, setSimilarScene] = useState(null);
     const [scenes, setScenes] = useState(null);
 
     const [line, setLine] = useState(-1);
@@ -549,16 +549,14 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
     const moreScroll = useRef(null);
     const firstTime = useRef(true);
 
-    const behavior = useRef("smooth");
-
     const dispatch = useDispatch();
     const sceneResponse = useSelector((state) => state.search.sceneResponse);
     const moreSceneResponse = useSelector(
         (state) => state.search.moreSceneResponse
     );
-    const similarResponse = useSelector(
-        (state) => state.search.similarResponse
-    );
+    // const similarResponse = useSelector(
+    //     (state) => state.search.similarResponse
+    // );
     const infoResponse = useSelector((state) => state.search.infoResponse);
 
     const moreTop = useCallback(() => {
@@ -586,7 +584,7 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
             fetchedMore.current = true;
             fetchedInfos.current = true;
             setScenes(null);
-            setSimilarScene(null);
+            // setSimilarScene(null);
             setDetailed(null);
             dispatch(clearNextEvents());
             firstTime.current = true;
@@ -605,6 +603,9 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
                 for (let j = 0; j < res.data.timeline[i][2].length; j++) {
                   if (res.data.timeline[i][2][j][0] === res.data.scene_id) {
                     setDetailed(res.data.timeline[i][2][j][1]);
+                    if (!firstScene) {
+                      setFirstScene(res.data.timeline[i][2][j][1]);
+                    }
                     done = true;
                     break;
                   }
@@ -618,9 +619,6 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
             setLine(res.data.line);
             setSpace(res.data.space);
             setCurrentScene(res.data.scene_id);
-            if (!firstScene) {
-              setFirstScene(res.data.scene_id);
-            }
             setCurrentImage(res.data.image);
           }
           fetchedScenes.current = true;
@@ -690,15 +688,15 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
         }
     }, [moreSceneResponse, scenes]);
 
-    useEffect(() => {
-        if (similarResponse) {
-            similarResponse.then((res) => {
-                if (!isEqual(similarScene, res.data.scenes)) {
-                    setSimilarScene(res.data.scenes);
-                }
-            });
-        }
-    }, [similarResponse, similarScene]);
+    // useEffect(() => {
+    //     if (similarResponse) {
+    //         similarResponse.then((res) => {
+    //             if (!isEqual(similarScene, res.data.scenes)) {
+    //                 setSimilarScene(res.data.scenes);
+    //             }
+    //         });
+    //     }
+    // }, [similarResponse, similarScene]);
 
     useEffect(() => {
         var el = document.getElementById("scenegrid");
@@ -740,13 +738,12 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
                 playSave();
                 dispatch(saveScene(images));
             } else {
-                dispatch(getSimilar(images[0]));
+                // dispatch(getSimilar(images[0]));
                 if (!isEqual(detailed, images)) {
                     setDetailed(images);
                     setCurrentScene(scene_id);
                     setCurrentImage(images[0]);
                 }
-                behavior.current = "auto";
             }
         },
         [play, playSave, detailed]
@@ -775,7 +772,6 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
                     100
                 );
                 
-                behavior.current = "smooth";
             }
             return () => {if (timer) {
               clearTimeout(timer);
@@ -794,7 +790,7 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
                     playSave();
                     dispatch(saveScene([image]));
                 } else {
-                    dispatch(getSimilar(image));
+                    // dispatch(getSimilar(image));
                     dispatch(getInfo(image));
                 }
             }
@@ -806,66 +802,83 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
     const highlightDetailedRef = useRef();
     useEffect(() => {
         var timer;
-        if (firstTime.current && currentImage && highlightRef.current) {
-            // console.log("Scrolling to", highlightRef.current);
-            timer = setTimeout(() => {
-                if (highlightRef.current){
-                    highlightRef.current.scrollIntoView({
-                      behavior: "smooth",
-                      block: "center",
-                    });
+        if (currentImage && highlightRef.current) {
+            console.log("Scrolling", firstTime.current);
+            timer = setTimeout(
+              (highlightRef) => {
+                if (highlightRef.current) {
+                  highlightRef.current.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
                 }
-            }, 1000)
+              },
+              firstTime.current? 1000:50 ,
+              highlightRef
+            );
             firstTime.current = false;
         }
-        return () => {firstTime.current = true; if (timer) {
+        return () => {if (timer) {
           clearTimeout(timer);
         }};
-    }, [currentImage]);
+    }, [currentImage, detailed]);
 
     useEffect(() => {
       var timer;
       if (initialImage && highlightDetailedRef.current) {
         // console.log("Scrolling to", highlightRef.current);
-        timer = setTimeout(() => {
-          if (highlightDetailedRef.current) {
+        timer = setTimeout(
+          (highlightDetailedRef) => {
             highlightDetailedRef.current.scrollIntoView({
-              behavior: "smooth",
-              block: "center",
+            behavior: "smooth",
+            block: "center",
             });
-          }
-        }, 2000);
+          },
+          2000,
+          highlightDetailedRef
+        );
       }
       return () => {
         if (timer) {
           clearTimeout(timer);
         }
       };
-    }, [initialImage, detailedScene]);
+    }, [initialImage]);
 
     const reset = useCallback(() => {
-        fetchedScenes.current = false;
-        dispatch(getNextScenes(detailedScene, "full"));
-        if (!isEqual(detailed, detailedScene)) {
-            setDetailed(detailedScene);
+      fetchedScenes.current = false;
+      dispatch(getNextScenes(firstScene, "full"));
+      if (!isEqual(detailed, firstScene)) {
+        if (firstScene) {
+            setDetailed(firstScene);
         }
-        const timer = setTimeout(() => {
-            if (highlightRef.current) {
-                highlightRef.current.scrollIntoView({
-                  behavior: "smooth",
-                  block: "center",
-                });
-            }
-            if (highlightDetailedRef.current) {
-              highlightDetailedRef.current.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-            }
-        }, 250);
-        behavior.current = "smooth";
-        return () => clearTimeout(timer);
-    }, [detailedScene, detailed]);
+      }
+      const timer1 = setTimeout(
+        (highlightDetailedRef) => {
+          if (highlightDetailedRef.current) {
+            highlightDetailedRef.current.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+        },
+        500,
+        highlightDetailedRef
+      );
+      const timer2 = setTimeout(
+        (highlightRef) => {
+          if (highlightRef.current) {
+            highlightRef.current.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+        },
+        1000,
+        highlightRef
+      );
+      return () => {clearTimeout(timer1); clearTimeout(timer2);};
+    }, [firstScene, detailed]);
 
     return (
       <Paper id="popover" elevation={4} className={classes.detailed}>
@@ -879,7 +892,7 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
               name={"ALL SCENES on " + info}
               scenes={scenes}
               scale={1.0}
-              height="65%"
+              height="100%"
               width="100%"
               color={"#272727"}
               borderColor={"#6c63ff"}
@@ -891,7 +904,7 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
               moreTop={moreTop}
               moreBottom={moreBottom}
             />
-            <SimilarGrid
+            {/* <SimilarGrid
               name={"SIMILAR scenes"}
               scenes={similarScene}
               scale={1.0}
@@ -902,17 +915,17 @@ const EventPopover = memo(function EventPopper({ initialImage, openEvent, detail
               color={"#bebac6"}
               zIndex={2}
               onClick={setTime}
-            />
+            /> */}
           </div>
           <DetailGrid
             name={"IMAGES of the selected scene"}
             scenes={detailed}
-            scale={2.5}
+            scale={2.45}
             zIndex={0}
             height="calc(100% - 10px)"
-            width="calc(32.5% - 20px)"
+            width="calc(32.5% - 10px)"
             color={"rgb(56 55 72)"}
-            onClick={findSimilar}
+            // onClick={findSimilar}
             ref={highlightDetailedRef}
             initialImage={initialImage}
           />

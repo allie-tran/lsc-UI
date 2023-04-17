@@ -13,6 +13,8 @@ import { saveScene, removeScene } from '../redux/actions/save'
 // import { getGPS } from '../redux/actions/search'
 import { submitImage } from '../redux/actions/submit'
 import LazyLoad from 'react-lazy-load';
+import { LazyLoadComponent } from "react-lazy-load-image-component";
+
 import Typography from "@material-ui/core/Typography";
 
 
@@ -137,6 +139,17 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 	if (saved === undefined) {
 		return (
             <div className={classes.card} onMouseLeave={() => setZoom(false)}>
+                <LazyLoadComponent
+                height={
+                    ((IMAGE_HEIGHT / RESIZE_FACTOR) * scale * window.innerWidth) /
+                    1920 +
+                    12
+                }
+                width={
+                    ((IMAGE_WIDTH / RESIZE_FACTOR) * scale * window.innerWidth) / 1920
+                }
+                offset={500}
+                >
                 <img
                     loading="lazy"
                     alt={img}
@@ -150,6 +163,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     })}
                     onClick={openEvent}
                 />
+                </LazyLoadComponent>
                 <IconButton
                     onMouseEnter={() => setZoom(true)}
                     className={classes.zoomButton}
