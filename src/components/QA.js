@@ -7,6 +7,9 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
+import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
 import { setTextAnswers } from "../redux/actions/qa";
 
 const QAstyles = makeStyles((theme) => ({
@@ -72,9 +75,7 @@ const QAPane = ({ isQuestion, changeQuestion }) => {
   return (
     <div className={classes.pane}>
       {isQuestion ? (
-        <Typography className={classes.info}>
-          Here are some possible answers:
-        </Typography>
+        <Typography className={classes.info}>Some possible answers:</Typography>
       ) : null}
       {isQuestion ? (
         <List>
@@ -92,10 +93,21 @@ const QAPane = ({ isQuestion, changeQuestion }) => {
       <FilledInput
         className={classes.answer}
         id={"answer"}
-        placeholder="Submit Answer!"
+        placeholder="Type Answer Here"
         variant="filled"
         disableUnderline={true}
         inputProps={{ className: classes.input }}
+        endAdornment={
+          <InputAdornment position="end">
+            <IconButton
+            //   onClick={handleClickShowPassword}
+            //   onMouseDown={handleMouseDownPassword}
+              edge="end"
+            >
+                <CheckRoundedIcon></CheckRoundedIcon>
+            </IconButton>
+          </InputAdornment>
+        }
         // onKeyDown={keyPressed}
       />
       {/* <MouseTooltip visible={isMouseTooltipVisible} offsetX={15} offsetY={10}>

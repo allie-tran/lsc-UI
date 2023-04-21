@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   searchBar: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    width: (props) => (props.type === "Find:" ? "70%" : "50%"),
+    width: (props) => (props.type === "Find:" ? "85%" : "50%"),
     height: 40,
     backgroundColor: "#3B3B3B",
     borderRadius: "15px",

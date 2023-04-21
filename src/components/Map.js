@@ -219,7 +219,7 @@ const Map = ({ open }) => {
       singleMarkerMode: true,
     });
 
-    map.current.addControl(addressSearchControl);
+    // map.current.addControl(addressSearchControl);
     L.control.zoom({ position: "bottomright" }).addTo(map.current);
   }, [addressSearchControl]);
 
@@ -230,13 +230,17 @@ const Map = ({ open }) => {
           clustersMain.current.clearLayers();
         }
         if (visualisation) {
-          visualisation.place_to_visualise.forEach((name) => {
+          visualisation.place_to_visualise.forEach((name, id) => {
+            let count = 0;
             commonPlace.forEach((place) => {
               if (name === place[0]) {
-                addLocation(name, [
-                  place[1][0].toPrecision(PRECISION),
-                  place[1][1].toPrecision(PRECISION),
-                ]);
+                count += 1;
+                if (count < 5) {
+                    addLocation(name, [
+                      place[1][0].toPrecision(PRECISION),
+                      place[1][1].toPrecision(PRECISION),
+                    ]);
+                }
               }
             });
           });
