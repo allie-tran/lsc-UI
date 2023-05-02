@@ -73,11 +73,9 @@ const QAPane = ({ isQuestion, changeQuestion }) => {
   );
 
   return (
+    isQuestion ?
     <div className={classes.pane}>
-      {isQuestion ? (
         <Typography className={classes.info}>Some possible answers:</Typography>
-      ) : null}
-      {isQuestion ? (
         <List>
           {texts
             ? texts.map((answer, id) => (
@@ -89,7 +87,6 @@ const QAPane = ({ isQuestion, changeQuestion }) => {
               ))
             : null}
         </List>
-      ) : null}
       <FilledInput
         className={classes.answer}
         id={"answer"}
@@ -113,7 +110,7 @@ const QAPane = ({ isQuestion, changeQuestion }) => {
       {/* <MouseTooltip visible={isMouseTooltipVisible} offsetX={15} offsetY={10}>
         <div className={classes.mouse}>Copied!</div>
       </MouseTooltip> */}
-    </div>
+    </div> : null
   );
 };
 

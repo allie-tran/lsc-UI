@@ -14,7 +14,7 @@ import { saveScene, removeScene } from '../redux/actions/save'
 import { submitImage } from '../redux/actions/submit'
 import LazyLoad from 'react-lazy-load';
 import { LazyLoadComponent } from "react-lazy-load-image-component";
-
+import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 
 
@@ -33,6 +33,7 @@ const thumbnailStyles = makeStyles((theme) => ({
     position: "relative",
     border: "1px solid #E6E6E6",
     visibility: (props) => (props.hidden ? "hidden" : "visible"),
+    cursor: "pointer",
     "&$highlight": {
       border: "3px solid #FF6584",
       zIndex: 1,
@@ -312,17 +313,21 @@ const Thumbnail = ({
           }
           offset={500}
         >
-          <ImageCard
-            onButtonClick={saved === undefined ? Save : Remove}
-            saved={saved}
-            hidden={hidden}
-            scale={relevance ? scale : scale * 0.8}
-            img={group[0]}
-            highlight={highlight}
-            openEvent={ownOpenEvent}
-            info={info}
-            relevance={relevance}
-          />
+          <Tooltip title="Click to see Timeline" arrow>
+            <span>
+              <ImageCard
+                onButtonClick={saved === undefined ? Save : Remove}
+                saved={saved}
+                hidden={hidden}
+                scale={relevance ? scale : scale * 0.8}
+                img={group[0]}
+                highlight={highlight}
+                openEvent={ownOpenEvent}
+                info={info}
+                relevance={relevance}
+              />
+            </span>
+          </Tooltip>
         </LazyLoad>
       );
     } else {

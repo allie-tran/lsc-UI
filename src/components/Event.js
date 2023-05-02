@@ -48,7 +48,7 @@ const eventStyles = makeStyles((theme) => ({
     bottom: 0,
   },
   score: {
-    color: "#eee",
+    color: "#bbb",
     margin: 5,
     fontSize: 12,
   },
@@ -104,9 +104,9 @@ const SubEvent = ({
                     openEvent={openEvent}
                     relevance={img[2]}
                   />
-                  {/* {img[0] != "" ? (
+                  {img[0] != "" ? (
                     <p className={classes.score}>{img[1]}</p>
-                  ) : null} */}
+                  ) : null}
                 </div>
               ))
             : null}

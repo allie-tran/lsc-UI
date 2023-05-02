@@ -1,16 +1,30 @@
-import React, { useEffect, useState, memo, lazy, Suspense } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
-import { trackPromise, usePromiseTracker } from 'react-promise-tracker';
+import React, { useEffect, useState, memo, lazy, Suspense } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { makeStyles } from "@material-ui/core/styles";
+import { trackPromise, usePromiseTracker } from "react-promise-tracker";
 // import ReactLoading from 'react-loading';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import LinearProgress from "@material-ui/core/LinearProgress";
 // import Event from './Event';
-import Button from '@material-ui/core/Button';
-import { setMap, setQueryBound, setQueryInfo, setFinishedSearch, More } from '../redux/actions/search';
-import { setSaved } from '../redux/actions/save';
+import Button from "@material-ui/core/Button";
+import {
+  setMap,
+  setQueryBound,
+  setQueryInfo,
+  setFinishedSearch,
+  sortBy,
+  More,
+} from "../redux/actions/search";
+import { setSaved } from "../redux/actions/save";
 import { setTextAnswers } from "../redux/actions/qa";
 
-const Event = lazy(() => import('./Event'))
+// SpeedDial for sorting
+import SpeedDial from "@mui/material/SpeedDial";
+import SpeedDialAction from "@mui/material/SpeedDialAction";
+import SortIcon from "@mui/icons-material/Sort";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import SpeedDialIcon from "@mui/material/SpeedDialIcon";
+
+const Event = lazy(() => import("./Event"));
 
 const IMAGE_HEIGHT = 768;
 const IMAGE_WIDTH = 1024;
@@ -39,6 +53,7 @@ const gridStyles = makeStyles((theme) => ({
     color: "#272727",
   },
   button: {
+    color: ({ end }) => (end ? "#ff6584" : "#DDD"),
     width: "100%",
     padding: 16,
     height: 48,
@@ -47,42 +62,52 @@ const gridStyles = makeStyles((theme) => ({
 }));
 
 const LoadingIndicator = (props) => {
-	const { promiseInProgress } = usePromiseTracker();
+  const { promiseInProgress } = usePromiseTracker();
 
-    return promiseInProgress && <LinearProgress style={{width: "100%"}}/>;
+  return promiseInProgress && <LinearProgress style={{ width: "100%" }} />;
 };
 
 const hiddenStyles = makeStyles((theme) => ({
-	hidden: {
-		minWidth: ({ num }) => IMAGE_WIDTH / RESIZE_FACTOR * window.innerWidth / 1920 * num + 4 * (num - 1),
-		minHeight: IMAGE_HEIGHT / RESIZE_FACTOR * window.innerWidth / 1920 ,
-		marginLeft: 4,
-		marginRight: 4,
-		position: 'relative',
-		flexShrink: 0,
-		display: 'block',
-		visibility: 'hidden'
-	}
+  hidden: {
+    minWidth: ({ num }) =>
+      (((IMAGE_WIDTH / RESIZE_FACTOR) * window.innerWidth) / 1920) * num +
+      4 * (num - 1),
+    minHeight: ((IMAGE_HEIGHT / RESIZE_FACTOR) * window.innerWidth) / 1920,
+    marginLeft: 4,
+    marginRight: 4,
+    position: "relative",
+    flexShrink: 0,
+    display: "block",
+    visibility: "hidden",
+  },
 }));
 const Hidden = ({ num }) => {
-	const classes = hiddenStyles({ num });
-	return <div className={classes.hidden}> Hidden </div>;
+  const classes = hiddenStyles({ num });
+  return <div className={classes.hidden}> Hidden </div>;
 };
 
 var isEqual = require("lodash.isequal");
 
 const areEqual = (prevProps, nextProps) => {
-    return isEqual(prevProps.dates, nextProps.dates) && prevProps.isQuestion === nextProps.isQuestion && 
-          prevProps.more === nextProps.more;
+  return (
+    isEqual(prevProps.dates, nextProps.dates) &&
+    prevProps.isQuestion === nextProps.isQuestion &&
+    prevProps.more === nextProps.more
+  );
 };
 
 const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
-  const classes = gridStyles({ isQuestion });
   const dispatch = useDispatch();
   const [dates, setDates] = useState([]);
   const { promiseInProgress } = usePromiseTracker();
   const [more, setMore] = useState(false);
+  const [moreText, setMoreText] = useState("");
   const finished = useSelector((state) => state.search.finishedSearch);
+  const classes = gridStyles({
+    isQuestion,
+    end: moreText === "No More Results",
+  });
+
   // const highlightRef = React.createRef([]);
 
   // const setRef = (index) => {
@@ -108,9 +133,12 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
                 dispatch(setMap(newDates));
                 setLoaded(loaded + Math.min(84, newDates.length));
                 setMore(false);
+              } else {
+                setMoreText("No More Results");
               }
             } else {
               console.log("Got", res.data.size);
+
               const newDates = res.data.results;
               dispatch(setFinishedSearch(finished + res.data.size));
               dispatch(setQueryInfo(res.data.info));
@@ -123,6 +151,11 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
               if (res.data.texts) {
                 dispatch(setTextAnswers(res.data.texts));
                 console.log(res.data.texts);
+              }
+              if (res.data.size === 0) {
+                setMoreText("No Results");
+              } else {
+                setMoreText("Click for More Results");
               }
             }
           })
@@ -199,8 +232,26 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
         )}
         <Button className={classes.button} onClick={moreButton}>
           {" "}
-          MORE{" "}
+          {moreText}{" "}
         </Button>
+        <SpeedDial
+          ariaLabel="SpeedDial basic example"
+          sx={{ position: "fixed", bottom: 16, right: "calc(20% + 16px)" }}
+          icon={<SpeedDialIcon />}
+        >
+          <SpeedDialAction
+            key={1}
+            onClick={() => dispatch(sortBy("relevance"))}
+            icon={<SortIcon />}
+            tooltipTitle={"Sort by relevance (Default)"}
+          />
+          <SpeedDialAction
+            key={2}
+            onClick={() => dispatch(sortBy("time"))}
+            icon={<AccessTimeIcon />}
+            tooltipTitle={"Sort by time"}
+          />
+        </SpeedDial>
       </div>
     );
   }

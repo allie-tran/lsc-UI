@@ -27,7 +27,7 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
-
+// Alert for submitting
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -208,7 +208,6 @@ const Page = () => {
         // eslint-disable-next-line
     }, []);
 
-    
 
     return (
       <div
@@ -238,7 +237,7 @@ const Page = () => {
           </ToggleButton>
         </ToggleButtonGroup>
         {/* <Submit /> */}
-        <ImageGrid open={true}  openEvent={openEvent} isQuestion={isQuestion} />
+        <ImageGrid open={true} openEvent={openEvent} isQuestion={isQuestion} />
         <Popover
           // disablePortal={true}
           open={openPopover}
@@ -265,6 +264,7 @@ const Page = () => {
             />
           )}
         </Popover>
+        
         <Snackbar
           open={openSnackBar}
           autoHideDuration={2000}
