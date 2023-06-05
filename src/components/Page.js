@@ -25,6 +25,7 @@ import KeyboardCommandKeyIcon from "@mui/icons-material/KeyboardCommandKey";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Collapse from "@mui/material/Collapse";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -67,7 +68,6 @@ const Page = () => {
     const classes = popoverStyles();
     const dispatch = useDispatch();
     const [openPopover, setOpenPopover] = useState(false);
-    const [detailedScene, setDetailedScene] = useState(null);
     const [buttonValues, setButtonValues] = useState([]);
     const shiftHeld = useRef();
     const commandHeld = useRef();
@@ -168,16 +168,19 @@ const Page = () => {
                 dispatch(getSimilar(newGroup[0]));
                 dispatch(getNextScenes(newGroup, "full"));
                 dispatch(getInfo(newGroup[0]));
-                setDetailedScene(newGroup);
                 setOpenPopover(true);
+                if (newGroup[0] !== initialImage)    {
                 setInitialImage(newGroup[0]);
+               }
             }
         },
-        [play]
+        [play, initialImage]
     );
 
-    const closeEvent = useCallback(() => {
+    const closeEvent = useCallback((event, reason) => {
+        if (reason === "backdropClick" || reason === "escapeKeyDown" || reason === "clickaway") {
         setOpenPopover(false);
+        }
         // eslint-disable-next-line
     }, []);
 
@@ -217,19 +220,15 @@ const Page = () => {
                     vertical: "center",
                     horizontal: "center",
                 }}
-                onBackdropClick={closeEvent}
-                onEscapeKeyDown={closeEvent}
-                className={classes.popover}
+                onClose={closeEvent}
+                TransitionComponent={Collapse}
             >
-                {openPopover && (
-                    <EventPopover
-                        shiftHeld={shiftHeld}
-                        commandHeld={commandHeld}
-                        openEvent={openEvent}
-                        detailedScene={detailedScene}
-              initialImage={initialImage}
-                    />
-                )}
+                <EventPopover
+                    shiftHeld={shiftHeld}
+                    commandHeld={commandHeld}
+                    openEvent={openEvent}
+                    initialImage={initialImage}
+                />
             </Popover>
             <Snackbar
                 open={openSnackBar}

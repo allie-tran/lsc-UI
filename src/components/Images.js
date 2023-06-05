@@ -21,7 +21,7 @@ const gridStyles = makeStyles((theme) => ({
         width: "80%",
         height: `calc(100% - 90px)`,
         position: 'absolute',
-        top: 90,
+        top: 60 + 42,
 		display: 'flex',
 		flexDirection: 'row',
         flexWrap: 'wrap',
@@ -38,10 +38,11 @@ const gridStyles = makeStyles((theme) => ({
 		color: '#272727'
 	},
     button: {
-        width: '100%',
+    color: ({ end }) => (end ? "#ff6584" : "#DDD"),
+    width: "100%",
         padding: 16,
         height: 48,
-        flexShrink: 0
+        flexShrink: 0,
     },
 }));
 
@@ -76,12 +77,16 @@ const areEqual = (prevProps, nextProps) => {
 };
 
 const ImageGrid = memo(({ openEvent }) => {
-    const classes = gridStyles();
     const dispatch = useDispatch();
     const [dates, setDates] = useState([]);
     const { promiseInProgress } = usePromiseTracker();
     const [more, setMore] = useState(false);
+    const [moreText, setMoreText] = useState("");
     const finished = useSelector((state) => state.search.finishedSearch);
+    const classes = gridStyles({
+            end: moreText === "No More Results",
+    });
+
     // const highlightRef = React.createRef([]);
 
     // const setRef = (index) => {
@@ -123,8 +128,17 @@ const ImageGrid = memo(({ openEvent }) => {
                             var isEqual = require("lodash.isequal");
                             if (!isEqual(dates, newDates)) {
                                 setDates(newDates);
+                                var grid = document.getElementById("grid");
+                                if (grid) {
+                                grid.scrollTo(0, 0);
+                                }
                                 dispatch(setMap(newDates));
                                 setLoaded(Math.min(84, newDates.length));
+                            }
+                            if (res.data.size === 0) {
+                                setMoreText("No Results");
+                            } else {
+                                setMoreText("Click for More Results");
                             }
                         }
                     })
@@ -186,31 +200,34 @@ const ImageGrid = memo(({ openEvent }) => {
         );
     } else {
         return (
-            <div id="grid" className={classes.grid}>
-                {dates.map((scene, id) =>
-                    id < loaded ? (
-                        scene === null ? (
-                            <Hidden key={id} num={1} />
-                        ) : (
-                            <Suspense key={scene.current[0]} fallback={<div />}>
-                                <Event
-                                    key={scene.current[0]}
-                                    index={id}
-                                    group={scene}
-                                    openEvent={openEvent}
-                                    location={scene.location}
-                                    location_before={scene.location_before}
-                                    location_after={scene.location_after}
-                                />
-                            </Suspense>
-                        )
-                    ) : null
-                )}
-                <Button className={classes.button} onClick={moreButton}>
-                    {" "}
-                    MORE{" "}
-                </Button>
-            </div>
+          <div id="grid" className={classes.grid}>
+            {dates.map((scene, id) =>
+              id < loaded ? (
+                scene === null ? (
+                  <Hidden key={id.toString() + "_null"} num={1} />
+                ) : (
+                  <Suspense
+                    key={id.toString() + scene.current[0]}
+                    fallback={<div />}
+                  >
+                    <Event
+                      key={scene.current[0]}
+                      index={id}
+                      group={scene}
+                      openEvent={openEvent}
+                      location={scene.location}
+                      location_before={scene.location_before}
+                      location_after={scene.location_after}
+                    />
+                  </Suspense>
+                )
+              ) : null
+            )}
+            <Button className={classes.button} onClick={moreButton}>
+              {" "}
+              {moreText}{" "}
+            </Button>
+          </div>
         );
     }
 }, areEqual);

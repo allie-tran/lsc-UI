@@ -1,4 +1,4 @@
-import React, {memo} from 'react';
+import React, {memo, forwardRef} from 'react';
 import FilledInput from '@material-ui/core/FilledInput';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 	searchBar: {
 		marginLeft: theme.spacing(1),
 		marginRight: theme.spacing(1),
-		width: (props) => (props.type === 'Find:' ? "70%" : "50%"),
+		width: (props) => (props.type === 'Find:' ? "85%" : "50%"),
 		height: 40,
 		backgroundColor: '#3B3B3B',
 		borderRadius: '15px'
@@ -38,12 +38,18 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-
-const SearchBar = memo(({ open, type, submitQuery }) => {
+const SearchBar = memo(forwardRef(function SearchBar({ inputRef, open, type, submitQuery, changeQuestion, isQuestion}) {
 	const classes = useStyles({ type, open });
-
 	const keyPressed = (event) => {
-		if (event.key === 'Enter') submitQuery(true, 0);
+    if (event.key === "Enter") submitQuery(true, 0);
+  };
+
+   const handleBlur = () => {
+     // Move the cursor to the end of the input text
+     const input = inputRef.current;
+     if (input) {
+          input.scrollTo(input.scrollWidth, 0);
+     }
 	};
 
     const Time = () => {
@@ -73,16 +79,18 @@ const SearchBar = memo(({ open, type, submitQuery }) => {
 			<FilledInput
 				id={type}
 				variant="filled"
-				autoFocus={type === 'Find:'}
+                autoFocus={type === "Find:"}
 				className={classes.searchBar}
 				disableUnderline={true}
 				inputProps={{ className: classes.input }}
 				onKeyDown={keyPressed}
+                inputRef={inputRef}
+                onBlur={handleBlur}
 			/>
 			<Time type={type}/>
 		</div>
 	);
-});
+}));
 
 SearchBar.whyDidYouRender = true;
 export default SearchBar;

@@ -18,7 +18,7 @@ import Typography from "@material-ui/core/Typography";
 
 const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
-const RESIZE_FACTOR = 5.5;
+const RESIZE_FACTOR = 5.25;
 
 const thumbnailStyles = makeStyles((theme) => ({
     image: {
@@ -33,6 +33,7 @@ const thumbnailStyles = makeStyles((theme) => ({
         position: "relative",
         border: "1px solid #E6E6E6",
         visibility: (props) => (props.hidden ? "hidden" : "visible"),
+        cursor: "pointer",
         "&$highlight": {
             border: "3px solid #FF6584",
             zIndex: 1,
@@ -169,7 +170,7 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
                     <BookmarkBorderRoundedIcon fontSize="small" />
                 </IconButton>
                 <IconButton
-                    onClick={(e) => dispatch(submitImage(img, false))}
+                    onClick={(e) => dispatch(submitImage(img))}
                     className={classes.submitButton}
                 >
                     <CheckRoundedIcon fontSize="small" />

@@ -192,7 +192,7 @@ const Image = forwardRef(({ image, scale, info, onClick, openEvent, zoomed, disa
                 <BookmarkBorderRoundedIcon fontSize="small" />
             </IconButton>
             <IconButton
-                onClick={() => dispatch(submitImage(image, scene))}
+                onClick={() => dispatch(submitImage(image))}
                 className={classes.submitButton}
             >
                 <CheckRoundedIcon fontSize="small" />

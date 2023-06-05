@@ -82,37 +82,37 @@ const SaveSection = memo(({ open, openEvent }) => {
 		[ saved ]
 	);
 	return (
-        <div id="save" className={classes.section}>
-            <Typography variant="subtitle1" className={classes.title}>
-                SAVED SCENES
-                <Badge badgeContent={saved.length} color="primary">
-                    <BookmarkRoundedIcon />
-                </Badge>
-            </Typography>
-            <Button
+    <div id="save" className={classes.section}>
+      <Typography variant="subtitle1" className={classes.title}>
+        SAVED SCENES
+        <Badge badgeContent={saved.length} color="primary" overlap="rectangular">
+          <BookmarkRoundedIcon />
+        </Badge>
+      </Typography>
+      {/*<Button
                 onClick={() => {play(); dispatch(clearSaved()); dispatch(submitAll(saved))}}
                 className={classes.button}
             >
                 Submit All
-            </Button>
-            <div className={classes.imageContainer} id="save-section">
-                <div className={classes.list}>
-                    {/* {saved.length % 2 !== 0 ? <Hidden key="Hidden" /> : null} */}
-                    {saved.map((scene, index) => (
-                        <Thumbnail
-                            key={"saved:" + scene[0] + index}
-                            saved
-                            group={scene}
-                            scale={0.7}
-                            index={index}
-                            last={index === 0}
-                            openEvent={openEvent}
-                        />
-                    ))}
-                </div>
-            </div>
+            </Button>*/}
+      <div className={classes.imageContainer} id="save-section">
+        <div className={classes.list}>
+          {/* {saved.length % 2 !== 0 ? <Hidden key="Hidden" /> : null} */}
+          {saved.map((scene, index) => (
+            <Thumbnail
+              key={"saved:" + scene[0] + index}
+              saved
+              group={scene}
+              scale={0.7}
+              index={index}
+              last={index === 0}
+              openEvent={openEvent}
+            />
+          ))}
         </div>
-    );
+      </div>
+    </div>
+  );
 	// 	);
 	// } else {
 	// 	return (
