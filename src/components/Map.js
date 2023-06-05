@@ -18,31 +18,31 @@ var isEqual = require('lodash.isequal');
 
 const PRECISION = 5;
 const useStyles = makeStyles((theme) => ({
-	map: {
-		position: 'fixed',
-		left: (props) => (props.open ? '80%' : 'calc(97% + 5px)'),
-		width: '30%',
-		height: 'calc(70% - 60px)',
-        paddingLeft: 10,
-		borderRadius: 2,
-		filter: (props) => (props.open ? 'none' : 'brightness(25%)'),
-		zIndex: 3,
-		top: 115,
-		margin: 0,
-        border: "5px solid #272727",
-	},
-	icon: {
-		padding: 0,
-		backgroundColor: '#f7f7f7',
-		right: "0.5%",
-		top: 'calc(100px + 0.5%)',
-        position: "fixed",
-		zIndex: 4
-	},
-	insideIcon: {
-		color: '#272727',
-		fontSize: 36
-	}
+  map: {
+    position: "fixed",
+    left: (props) => (props.open ? "82.5%" : "calc(97% + 5px)"),
+    width: "17.5%",
+    height: "calc(70% - 60px)",
+    paddingLeft: 10,
+    borderRadius: 2,
+    filter: (props) => (props.open ? "none" : "brightness(25%)"),
+    zIndex: 3,
+    top: 115,
+    margin: 0,
+    border: "5px solid #272727",
+  },
+  icon: {
+    padding: 0,
+    backgroundColor: "#f7f7f7",
+    right: "0.5%",
+    top: "calc(125px + 0.5%)",
+    position: "fixed",
+    zIndex: 4,
+  },
+  insideIcon: {
+    color: "#272727",
+    fontSize: 36,
+  },
 }));
 
 var mainIcon = new L.Icon({
@@ -169,7 +169,7 @@ const Map = ({ open }) => {
       singleMarkerMode: true,
     });
 
-    L.control.zoom({ position: "bottomright" }).addTo(map.current);
+    // L.control.zoom({ position: "bottomright" }).addTo(map.current);
   }, []);
 
   useEffect(

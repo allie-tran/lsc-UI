@@ -52,11 +52,24 @@ const eventStyles = makeStyles((theme) => ({
     margin: 5,
     fontSize: 12,
   },
-  info: {
+  info0: {
+    color: "#90cccb",
+    fontSize: 16,
+    whiteSpace: "pre-wrap",
+    textAlign: "center",
+    fontWeight: 450,
+  },
+  info1: {
     color: "#eee",
     fontSize: 14,
     whiteSpace: "pre-wrap",
-    textAlign: "center"
+    textAlign: "center",
+  },
+  info2: {
+    color: "#bbb",
+    fontSize: 12,
+    whiteSpace: "pre-wrap",
+    textAlign: "center",
   },
   morebutton: {
     width: "100%",
@@ -91,7 +104,11 @@ const SubEvent = ({
   if (group) {
     return (
       <div className={classes.subrow}>
-        <Typography className={classes.info}>{location}</Typography>
+        {location ? (location.map((loc, ind) => (
+            <Typography key={ind.toString() + "_" + loc}
+                        className={classes["info" + ind.toString()]}>{loc}</Typography>
+        ))) : null}
+        {/* <Typography className={classes.info}>{location}</Typography> */}
         <div className={classes.event}>
           {group
             ? group.map((img, ind) => (
@@ -122,6 +139,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
     const dispatch = useDispatch();
     const classes = eventStyles({ index, numDisplay : 1 });
 
+
     return (
       <div className={classes.row}>
         <div className={classes.event}>
@@ -132,7 +150,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
             openEvent={openEvent}
             index={index}
             location={group.location_before}
-            scale={group.after ? 0.5 : 0.8}
+            scale={(isQuestion? 5/6 : 1)  * (group.after ? 0.5 : 0.8)}
             numDisplay={group.after ? 3 : 2}
           ></SubEvent>
           {group.before ? (
@@ -145,11 +163,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
             openEvent={openEvent}
             index={index}
             location={group.location}
-            scale={
-              group.before && group.after
-                ? 0.8
-                : 1
-            }
+            scale={(isQuestion? 5/6 : 1)  * (group.before && group.after ? 0.8 : 1)}
             numDisplay={
               group.before && group.after
                 ? 3
@@ -168,7 +182,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
             openEvent={openEvent}
             index={index}
             location={group.location_after}
-            scale={group.before ? 0.5 : 0.8}
+            scale={(isQuestion? 5/6 : 1)  * (group.before ? 0.5 : 0.8)}
             numDisplay={group.before ? 3 : 2}
           ></SubEvent>
         </div>

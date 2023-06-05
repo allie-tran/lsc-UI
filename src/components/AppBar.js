@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useState, useRef, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -21,6 +21,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import Button from "@material-ui/core/Button";
 
+import Chip from "@mui/material/Chip";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -38,13 +40,14 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar2: {
     position: "fixed",
-    width: ({open}) => (open ? "80%" : "100%"),
-    height: 30,
-    backgroundColor: "#272727",
+    width: ({open}) => (open ? "82.5%" : "100%"),
+    height: 42,
+    backgroundColor: "rgba(0,0,0,0)",
     top: 60,
     left: 0,
     zIndex: 3,
-    paddingLeft: ({ isQuestion }) => (isQuestion ? "16%" : 0),
+    paddingLeft: ({ isQuestion }) => (isQuestion ? "12.5%" : 0),
+    boxShadow: "none",
   },
   realSpace: {
     position: "relative",
@@ -54,8 +57,7 @@ const useStyles = makeStyles((theme) => ({
     alignSelf: "center",
     justifyContent: "center",
     flexWrap: "wrap",
-    height: 30,
-    backgroundColor: "#272727",
+    height: 42,
     zIndex: 1,
   },
   icon: {
@@ -64,7 +66,8 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#FF6584",
   },
   text: {
-    color: "#888888",
+    marginLeft: 5,
+    marginRight: 5,
     cursor: "default",
     flexShrink: 0,
   },
@@ -72,12 +75,13 @@ const useStyles = makeStyles((theme) => ({
     color: "#000000",
   }
 }));
+var isEqual = require("lodash.isequal");
 
 const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion}) {
     const classes = useStyles({ open, isQuestion });
     const [openLogin, setOpenLogin] = useState(false);
-    const [sessionID, setSessionID] = useState("test");
-
+    const [sessionID, setSessionID] = useState("vbs");
+    const inputRef = useRef(null);
     const dispatch = useDispatch();
 
     const handleClickOpen = () => {
@@ -87,15 +91,49 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
     const handleClose = () => {
       setOpenLogin(false);
     };
+
+    const visualisation = useSelector((state) =>
+      state.search.info ? state.search.info.query_visualisation : null
+    );
+    const [chips, setChips] = useState(visualisation);
+
+    const handleDelete = useCallback((indices, infoType, text) => {
+        var input = inputRef.current;
+        if (input) {
+          switch (infoType) {
+            case "LOCATION":
+              input.value = input.value += " --disable-location " + text;
+              break;
+            case "REGION":
+              input.value = input.value += " --disable-region " + text;
+              break;
+            case "WEEKDAY":
+              input.value = input.value += " --disable-time " + text;
+              break;
+          }
+          input.scrollTo(input.scrollWidth, 0);
+          // remove chips[index1][index2]
+          var newChips = [...chips];
+          newChips[indices[0]][1] = newChips[indices[0]][1].filter(
+            (_, i) => i !== indices[1]
+          );
+          console.log("set chips")
+          setChips(newChips);
+        }
+    }, [chips]);
+
     
-    const visualisation = useSelector((state) => state.search.info? state.search.info.query_visualisation:null);
-    console.log(isQuestion);
+    
+    useEffect(() => {
+        setChips(visualisation);
+    }, [visualisation]);
 
     return (
       <span>
         <AppBar key="1" className={classes.appBar}>
           <SearchBar type="Before:" submitQuery={submitQuery} />
           <SearchBar
+            inputRef={inputRef}
             type="Find:"
             submitQuery={submitQuery}
             changeQuestion={changeQuestion}
@@ -141,18 +179,24 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
         </AppBar>
         <AppBar key="2" className={classes.appBar2}>
           <div className={classes.realSpace}>
-            {visualisation
-              ? visualisation.map((text, index) => {
-                  return (
-                    <Typography
-                      key={index.toString() + text[0]}
-                      variant="body1"
+            {chips
+              ? chips.map((text, index) =>
+                  text[1]? text[1].map((text2, index2) => (
+                    <Chip
+                      key={text[0] + ": " + text2}
+                      label={text[0] + ": " + text2}
+                      clickable={false}
+                      variant="outlined"
                       className={classes.text}
-                    >
-                      {(index > 0 ? " | " : "") + text[0] + ": " + text[1]}
-                    </Typography>
-                  );
-                })
+                      color="info"
+                      onDelete={
+                        ["LOCATION", "REGION", "WEEKDAY"].includes(text[0])
+                          ? () => handleDelete([index, index2], text[0], text2)
+                          : undefined
+                      }
+                    />
+                  )): null
+                )
               : null}
           </div>
         </AppBar>
@@ -177,7 +221,10 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
             </Button>
             <Button
               className={classes.button}
-              onClick={() => {handleClose(); dispatch(login(sessionID));}}
+              onClick={() => {
+                handleClose();
+                dispatch(login(sessionID));
+              }}
             >
               Log In
             </Button>
@@ -185,6 +232,10 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
         </Dialog>
       </span>
     );
+}, (prevProps, nextProps) => {
+    return prevProps.open === nextProps.open && prevProps.isQuestion === nextProps.isQuestion &&
+    isEqual(prevProps.chips, nextProps.chips) &&
+    isEqual(prevProps.visualisation, nextProps.visualisation)
 });
 
 Bar.whyDidYouRender = true

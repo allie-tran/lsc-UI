@@ -26,6 +26,7 @@ import KeyboardCommandKeyIcon from "@mui/icons-material/KeyboardCommandKey";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Collapse from "@mui/material/Collapse";
 
 // Alert for submitting
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -33,11 +34,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 const popoverStyles = makeStyles((theme) => ({
-  popover: {
-    width: "75%",
-    color: "#272727",
-    zIndex: 5,
-  },
   autocomplete: {
     top: 60,
     right: 5,
@@ -69,7 +65,6 @@ const Page = () => {
     const classes = popoverStyles();
     const dispatch = useDispatch();
     const [openPopover, setOpenPopover] = useState(false);
-    const [detailedScene, setDetailedScene] = useState(null);
     const [buttonValues, setButtonValues] = useState([]);
     const shiftHeld = useRef();
     const commandHeld = useRef();
@@ -188,17 +183,19 @@ const Page = () => {
             if (shiftHeld.current) {
                 setOpenSnackBar(false);
                 play();
-                dispatch(submitImage(newGroup[0]));
+                dispatch(submitImage(newGroup[0], false, false));
             } else {
                 dispatch(getSimilar(newGroup[0]));
                 dispatch(getNextScenes(newGroup, "full"));
                 dispatch(getInfo(newGroup[0]));
-                setDetailedScene(newGroup);
                 setOpenPopover(true);
-                setInitialImage(newGroup[0]);
+                if (newGroup[0] !== initialImage)
+                {
+                    setInitialImage(newGroup[0]);
+                }
             }
         },
-        [play]
+        [play, initialImage]
     );
 
     const closeEvent = useCallback((event, reason) => {
@@ -252,19 +249,15 @@ const Page = () => {
             horizontal: "center",
           }}
           onClose={closeEvent}
-          className={classes.popover}
+          TransitionComponent={Collapse}
         >
-          {openPopover && (
-            <EventPopover
-              shiftHeld={shiftHeld}
-              commandHeld={commandHeld}
-              openEvent={openEvent}
-              detailedScene={detailedScene}
-              initialImage={initialImage}
-            />
-          )}
+          <EventPopover
+            shiftHeld={shiftHeld}
+            commandHeld={commandHeld}
+            openEvent={openEvent}
+            initialImage={initialImage}
+          />
         </Popover>
-        
         <Snackbar
           open={openSnackBar}
           autoHideDuration={2000}

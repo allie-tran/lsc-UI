@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useRef, useEffect, forwardRef } from "react";
 import FilledInput from "@material-ui/core/FilledInput";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   searchBar: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    width: (props) => (props.type === "Find:" ? "85%" : "50%"),
+    width: (props) => (props.type === "Find:" ? "87.5%" : "50%"),
     height: 40,
     backgroundColor: "#3B3B3B",
     borderRadius: "15px",
@@ -39,15 +39,23 @@ const useStyles = makeStyles((theme) => ({
   },
   switch: {
     paddingLeft: 5,
-    color: "#FF6584",
+    color: "#F4CDD2",
   },
 }));
 
-const SearchBar = memo(function SearchBar({ open, type, submitQuery, changeQuestion, isQuestion}) {
+const SearchBar = memo(forwardRef(function SearchBar({ inputRef, open, type, submitQuery, changeQuestion, isQuestion}) {
   const classes = useStyles({ type, open });
   const keyPressed = (event) => {
     if (event.key === "Enter") submitQuery(true, 0);
   };
+
+   const handleBlur = () => {
+     // Move the cursor to the end of the input text
+     const input = inputRef.current;
+     if (input) {
+          input.scrollTo(input.scrollWidth, 0);
+     }
+   };
 
   const Time = () => {
     if (type !== "Find:") {
@@ -81,11 +89,18 @@ const SearchBar = memo(function SearchBar({ open, type, submitQuery, changeQuest
         disableUnderline={true}
         inputProps={{ className: classes.input }}
         onKeyDown={keyPressed}
+        inputRef={inputRef}
+        onBlur={handleBlur}
       />
       {type === "Find:" ? (
         <FormControlLabel
           className={classes.switch}
-          control={<Switch checked={isQuestion} onChange={changeQuestion} />}
+          control={
+            <Switch
+              checked={isQuestion}
+              onChange={changeQuestion}
+            />
+          }
           label="Question?"
         />
       ) : null}
@@ -102,7 +117,7 @@ const SearchBar = memo(function SearchBar({ open, type, submitQuery, changeQuest
       <Time type={type} />
     </div>
   );
-});
+}));
 
 SearchBar.whyDidYouRender = true;
 export default SearchBar;

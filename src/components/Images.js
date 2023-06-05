@@ -32,11 +32,11 @@ const RESIZE_FACTOR = 6;
 
 const gridStyles = makeStyles((theme) => ({
   grid: {
-    width: ({ isQuestion }) => (isQuestion ? "65%" : "80%"),
-    left: ({ isQuestion }) => (isQuestion ? "15%" : "0"),
+    width: ({ isQuestion }) => (isQuestion ? "70%" : "calc(82.5% + 5px)"),
+    left: ({ isQuestion }) => (isQuestion ? "12.5%" : "0"),
     height: `calc(100% - 90px)`,
     position: "absolute",
-    top: 90,
+    top: 60 + 42,
     display: "flex",
     flexDirection: "column",
     flexWrap: "nowrap",
@@ -138,13 +138,17 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
               }
             } else {
               console.log("Got", res.data.size);
-
+              
               const newDates = res.data.results;
               dispatch(setFinishedSearch(finished + res.data.size));
               dispatch(setQueryInfo(res.data.info));
               var isEqual = require("lodash.isequal");
               if (!isEqual(dates, newDates)) {
                 setDates(newDates);
+                var grid = document.getElementById("grid");
+                if (grid) {
+                  grid.scrollTo(0, 0);
+                }
                 dispatch(setMap(newDates));
                 setLoaded(Math.min(84, newDates.length));
               }
@@ -214,10 +218,11 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
         {dates.map((scene, id) =>
           id < loaded ? (
             scene === null ? (
-              <Hidden key={id} num={1} />
+              <Hidden key={id.toString() + "_null"} num={1} />
             ) : (
-              <Suspense key={id} fallback={<div />}>
+              <Suspense key={id.toString() + scene.group} fallback={<div />}>
                 <Event
+                  key={scene.group}
                   index={id}
                   group={scene}
                   openEvent={openEvent}
@@ -236,7 +241,12 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
         </Button>
         <SpeedDial
           ariaLabel="SpeedDial basic example"
-          sx={{ position: "fixed", bottom: 16, right: "calc(20% + 16px)" }}
+          sx={{
+            position: "fixed",
+            bottom: 16,
+            right: "calc(17.5% + 16px)",
+            zIndex: 10,
+          }}
           icon={<SpeedDialIcon />}
         >
           <SpeedDialAction
@@ -256,29 +266,6 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
     );
   }
 }, areEqual);
-
-// function useOnClickOutside(ref, handler) {
-//   useEffect(
-//     () => {
-//             const listener = event => {
-//             // Do nothing if clicking ref's element or descendent elements
-//             if (!ref.current || ref.current.includes(event.target)) {
-//             return;
-//             }
-//             handler(event);
-//             };
-
-//             document.addEventListener('mousedown', listener);
-//             document.addEventListener('touchstart', listener);
-
-//             return () => {
-//                 document.removeEventListener('mousedown', listener);
-//                 document.removeEventListener('touchstart', listener);
-//             };
-//     },
-//     [ref, handler]
-//   );
-// }
 
 ImageGrid.whyDidYouRender = true;
 export default ImageGrid;
