@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo, lazy, Suspense } from "react";
+import React, { useEffect, useState, memo, lazy, Suspense, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import { trackPromise, usePromiseTracker } from "react-promise-tracker";
@@ -41,6 +41,13 @@ const gridStyles = makeStyles((theme) => ({
     flexDirection: "column",
     flexWrap: "nowrap",
     overflowY: "auto",
+    paddingRight: "20%",
+  },
+  loading: {
+    width: ({ isQuestion }) => (isQuestion ? "70%" : "calc(82.5% + 5px)"),
+    left: ({ isQuestion }) => (isQuestion ? "12.5%" : "0"),
+    position: "absolute",
+    top: 60,
     paddingRight: "20%",
   },
   text: {
@@ -99,6 +106,7 @@ const areEqual = (prevProps, nextProps) => {
 const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
   const dispatch = useDispatch();
   const [dates, setDates] = useState([]);
+  const gridRef = useRef(null);
   const { promiseInProgress } = usePromiseTracker();
   const [more, setMore] = useState(false);
   const [moreText, setMoreText] = useState("");
@@ -145,10 +153,6 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
               var isEqual = require("lodash.isequal");
               if (!isEqual(dates, newDates)) {
                 setDates(newDates);
-                var grid = document.getElementById("grid");
-                if (grid) {
-                  grid.scrollTo(0, 0);
-                }
                 dispatch(setMap(newDates));
                 setLoaded(Math.min(84, newDates.length));
               }
@@ -168,6 +172,13 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
     }, // eslint-disable-next-line
     [collection]
   );
+
+  useEffect(() => {
+    var grid = gridRef.current;
+    if (!promiseInProgress && grid) {
+      grid.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+  }, [promiseInProgress, dates]);
 
   useEffect(() => {
     if (saveResponse) {
@@ -208,13 +219,13 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
 
   if (promiseInProgress && !more) {
     return (
-      <div className={classes.grid}>
+      <div className={classes.loading}>
         <LoadingIndicator />
       </div>
     );
   } else {
     return (
-      <div id="grid" className={classes.grid}>
+      <div id="grid" className={classes.grid} ref={gridRef}>
         {dates.map((scene, id) =>
           id < loaded ? (
             scene === null ? (

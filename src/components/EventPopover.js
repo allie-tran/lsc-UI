@@ -40,7 +40,7 @@ const popStyle = makeStyles((theme) => ({
     backgroundColor: "#272727",
     flexDirection: "row",
     height: "85%",
-    width: "77.5%",
+    width: "79.5%",
     top: "11.5%",
     left: "1.5%",
     zIndex: 5,
@@ -801,8 +801,23 @@ const EventPopover = memo(function EventPopper({
   // Scroll to highlighted IMAGE
   useEffect(() => {
     var timer;
-    console.log(initialImage);
     if (initialImage && highlightDetailedRef.current) {
+        const imageHeight =
+        ((IMAGE_HEIGHT / RESIZE_FACTOR) * window.innerWidth) * 2.25 / 1920 + 45.5;
+
+        const row =
+        10 + // first padding
+        detailed.indexOf(initialImage) * imageHeight;
+
+        var el = document.getElementById("detailedgrid");
+        if (el) {
+        el.scrollTo({
+            top: Math.floor(row - el.clientHeight / 2),
+            left: 0,
+            behavior: "instant",
+        });
+        }
+
       timer = setTimeout(
         (highlightDetailedRef) => {
           highlightDetailedRef.current.scrollIntoView({
@@ -810,7 +825,7 @@ const EventPopover = memo(function EventPopper({
             block: "center",
           });
         },
-        1500,
+        250,
         highlightDetailedRef
       );
     }

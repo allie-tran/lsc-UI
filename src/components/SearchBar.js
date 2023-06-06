@@ -43,18 +43,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SearchBar = memo(forwardRef(function SearchBar({ inputRef, open, type, submitQuery, changeQuestion, isQuestion}) {
+const SearchBar = memo(function SearchBar({inputRef, open, type, submitQuery, changeQuestion, isQuestion}) {
   const classes = useStyles({ type, open });
   const keyPressed = (event) => {
     if (event.key === "Enter") submitQuery(true, 0);
   };
 
-   const handleBlur = () => {
+   const handleBlur = (event) => {
      // Move the cursor to the end of the input text
-     const input = inputRef.current;
-     if (input) {
+        const input = event.target;
+        if (input) {
           input.scrollTo(input.scrollWidth, 0);
-     }
+        }
    };
 
   const Time = () => {
@@ -117,7 +117,7 @@ const SearchBar = memo(forwardRef(function SearchBar({ inputRef, open, type, sub
       <Time type={type} />
     </div>
   );
-}));
+});
 
 SearchBar.whyDidYouRender = true;
 export default SearchBar;

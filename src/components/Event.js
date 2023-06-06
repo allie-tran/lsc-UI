@@ -50,6 +50,7 @@ const eventStyles = makeStyles((theme) => ({
   score: {
     color: "#bbb",
     margin: 5,
+    paddingTop: 25,
     fontSize: 12,
   },
   info0: {
@@ -80,7 +81,6 @@ const eventStyles = makeStyles((theme) => ({
   icon: {
     padding: 10,
     margin: 5,
-    top: 8,
     backgroundColor: "#FF6584",
   },
 }));

@@ -24,8 +24,8 @@ const RESIZE_FACTOR = 5.05;
 
 const thumbnailStyles = makeStyles((theme) => ({
   image: {
-    width: (props) =>
-      ((IMAGE_WIDTH / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920,
+    // width: (props) =>
+    //   ((IMAGE_WIDTH / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920,
     height: (props) =>
       ((IMAGE_HEIGHT / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920,
     borderRadius: 8,
@@ -58,8 +58,11 @@ const thumbnailStyles = makeStyles((theme) => ({
     marginRight: 2,
     transition: "all 100ms ease-in",
     transformOrigin: "top left",
+    paddingBottom: 27,
     "&:hover, &:focus": {
       transform: (props) => (props.zoomed ? "scale(3.0)" : "scale(1.0)"),
+      backgroundColor: (props) => (props.zoomed ? "#272727" : "transparent"),
+      borderRadius: (props) => (props.zoomed ? 8 : 0),
       zIndex: 10000,
     },
   },
@@ -68,8 +71,7 @@ const thumbnailStyles = makeStyles((theme) => ({
     left: 5,
     top: (props) =>
       ((IMAGE_HEIGHT / RESIZE_FACTOR) * props.scale * window.innerWidth) /
-        1920 -
-      25,
+        1920 + 5,
     color: "rgba(255, 255, 255, 0.5)",
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 3,
@@ -82,13 +84,10 @@ const thumbnailStyles = makeStyles((theme) => ({
   },
   saveButton: {
     position: "absolute",
-    left: (props) =>
-      ((IMAGE_WIDTH / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920 -
-      25,
+    right: 5,
     top: (props) =>
       ((IMAGE_HEIGHT / RESIZE_FACTOR) * props.scale * window.innerWidth) /
-        1920 -
-      25,
+        1920 + 5,
     flexShrink: 0,
     color: "rgba(255, 255, 255, 0.5)",
     backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -106,11 +105,8 @@ const thumbnailStyles = makeStyles((theme) => ({
     left: 30,
     top: (props) =>
       ((IMAGE_HEIGHT / RESIZE_FACTOR) * props.scale * window.innerWidth) /
-        1920 -
-      25,
-    width: (props) =>
-      ((IMAGE_WIDTH / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920 -
-      60,
+        1920 + 5,
+    right: 30,
     color: "rgba(255, 255, 255, 0.5)",
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 3,
@@ -125,7 +121,7 @@ const thumbnailStyles = makeStyles((theme) => ({
     color: (props) => (props.scale > 1 ? "#eee" : props.dark ? "#444" : "#ccc"),
     fontSize: 13,
     paddingLeft: 5,
-    paddingTop: 2,
+    paddingTop: 25,
     whiteSpace: "pre-wrap",
   },
 }));

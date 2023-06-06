@@ -81,7 +81,10 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
     const classes = useStyles({ open, isQuestion });
     const [openLogin, setOpenLogin] = useState(false);
     const [sessionID, setSessionID] = useState("vbs");
-    const inputRef = useRef(null);
+    const currentRef = useRef(null);
+    const beforeRef = useRef(null);
+    const afterRef = useRef(null);
+    
     const dispatch = useDispatch();
 
     const handleClickOpen = () => {
@@ -97,8 +100,20 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
     );
     const [chips, setChips] = useState(visualisation);
 
-    const handleDelete = useCallback((indices, infoType, text) => {
-        var input = inputRef.current;
+    const handleDelete = useCallback((index, infoType, field, text) => {
+        var ref;
+        switch (field) {
+          case "current":
+            ref = currentRef;
+            break;
+          case "before":
+            ref = beforeRef;
+            break;
+          case "after":
+            ref = afterRef;
+            break;
+        }
+        var input = ref.current;
         if (input) {
           switch (infoType) {
             case "LOCATION":
@@ -107,23 +122,20 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
             case "REGION":
               input.value = input.value += " --disable-region " + text;
               break;
-            case "WEEKDAY":
+            default:
               input.value = input.value += " --disable-time " + text;
               break;
           }
           input.scrollTo(input.scrollWidth, 0);
           // remove chips[index1][index2]
           var newChips = [...chips];
-          newChips[indices[0]][1] = newChips[indices[0]][1].filter(
-            (_, i) => i !== indices[1]
+          newChips  = newChips.filter(
+            (_, i) => i !== index
           );
-          console.log("set chips")
           setChips(newChips);
         }
     }, [chips]);
 
-    
-    
     useEffect(() => {
         setChips(visualisation);
     }, [visualisation]);
@@ -131,15 +143,23 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
     return (
       <span>
         <AppBar key="1" className={classes.appBar}>
-          <SearchBar type="Before:" submitQuery={submitQuery} />
           <SearchBar
-            inputRef={inputRef}
+            inputRef={beforeRef}
+            type="Before:"
+            submitQuery={submitQuery}
+          />
+          <SearchBar
+            inputRef={currentRef}
             type="Find:"
             submitQuery={submitQuery}
             changeQuestion={changeQuestion}
             isQuestion={isQuestion}
           />
-          <SearchBar type="After:" submitQuery={submitQuery} />
+          <SearchBar
+            inputRef={afterRef}
+            type="After:"
+            submitQuery={submitQuery}
+          />
           <Tooltip title="Clear All" arrow>
             <span>
               <IconButton
@@ -180,24 +200,41 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
         <AppBar key="2" className={classes.appBar2}>
           <div className={classes.realSpace}>
             {chips
-              ? chips.map((text, index) =>
-                  text[1]? text[1].map((text2, index2) => (
-                    <Chip
-                      key={text[0] + ": " + text2}
-                      label={text[0] + ": " + text2}
-                      clickable={false}
-                      variant="outlined"
-                      className={classes.text}
-                      color="info"
-                      onDelete={
-                        ["LOCATION", "REGION", "WEEKDAY"].includes(text[0])
-                          ? () => handleDelete([index, index2], text[0], text2)
-                          : undefined
-                      }
-                    />
-                  )): null
-                )
-              : null}
+              ? chips.map((text, index) => {
+                    var color = text[1] === "current" ? "#ffd3dc" : "#eadfe1";
+                    return (
+                        <Chip
+                            key={text[0] + ": " + text[2]}
+                            label={text[0] + ": " + text[2]}
+                            clickable={false}
+                            variant="outlined"
+                            className={classes.text}
+                            sx={{
+                                bgcolor: "none",
+                                color: color,
+                                borderColor: color,
+                                marginLeft: 1, 
+                                marginRight: 1,
+                            }}
+                            onDelete={
+                                [
+                                "LOCATION",
+                                "REGION",
+                                "WEEKDAY",
+                                "DURATION",
+                                ].includes(text[0])
+                                ? () =>
+                                    handleDelete(
+                                        index,
+                                        text[0],
+                                        text[1],
+                                        text[2]
+                                    )
+                                : undefined
+                            }
+                        />)
+              }) : null
+            }
           </div>
         </AppBar>
         <Dialog open={openLogin} onClose={handleClose}>

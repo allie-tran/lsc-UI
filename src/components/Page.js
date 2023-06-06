@@ -140,9 +140,9 @@ const Page = () => {
     const changeQuestion = useCallback(
       (event) => {
         setQuestion(event.target.checked);
-        navigator.clipboard.writeText(
-        document.getElementById("Find:").value
-        );
+        // navigator.clipboard.writeText(
+        // document.getElementById("Find:").value
+        // );
       },
       []
     );

@@ -18,6 +18,9 @@ const theme = createTheme({
     secondary: { main: "#FF6584" },
     info: { main: "#e0e0e0" },
     dark: { main: "#272727" },
+    success: { main: "#4caf50" },
+    warning: { main: "#ff9800" },
+    error: { main: "#f44336" },
   },
   spacing: 4,
 });
