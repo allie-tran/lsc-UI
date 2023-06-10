@@ -14,29 +14,34 @@ import { saveScene, removeScene } from '../redux/actions/save'
 import { submitImage } from '../redux/actions/submit'
 import LazyLoad from 'react-lazy-load';
 import { LazyLoadComponent } from "react-lazy-load-image-component";
-
+import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 
 
 const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
-const RESIZE_FACTOR = 5.25;
+const RESIZE_FACTOR = 5.05;
 
 const thumbnailStyles = makeStyles((theme) => ({
   image: {
-    width: (props) =>
-      ((IMAGE_WIDTH / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920,
+    // width: (props) =>
+    //   ((IMAGE_WIDTH / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920,
     height: (props) =>
       ((IMAGE_HEIGHT / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920,
-    borderRadius: 2,
+    borderRadius: 8,
     flexShrink: 0,
     position: "relative",
-    border: "1px solid #E6E6E6",
+    border: "1px solid rgba(0, 0, 0, 0)",
     visibility: (props) => (props.hidden ? "hidden" : "visible"),
+    cursor: "pointer",
     "&$highlight": {
       border: "3px solid #FF6584",
       zIndex: 1,
       boxShadow: "3px 3px 3px rgba(0, 0, 0, 0.5)",
+    },
+    "&:hover, &:focus": {
+      borderRadius: 0,
+      border: "1px solid #ccc",
     },
   },
   highlight: {},
@@ -44,21 +49,20 @@ const thumbnailStyles = makeStyles((theme) => ({
     display: "flex",
   },
   card: {
-    width: (props) =>
-      ((IMAGE_WIDTH / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920,
-    height: (props) =>
-      ((IMAGE_HEIGHT / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920,
     display: "flex",
     flexDirection: "column",
     position: "relative",
     marginTop: 0,
     marginBottom: 0,
-    marginLeft: 4,
-    marginRight: 4,
+    marginLeft: 2,
+    marginRight: 2,
     transition: "all 100ms ease-in",
     transformOrigin: "top left",
+    paddingBottom: 27,
     "&:hover, &:focus": {
       transform: (props) => (props.zoomed ? "scale(3.0)" : "scale(1.0)"),
+      backgroundColor: (props) => (props.zoomed ? "#272727" : "transparent"),
+      borderRadius: (props) => (props.zoomed ? 8 : 0),
       zIndex: 10000,
     },
   },
@@ -67,8 +71,7 @@ const thumbnailStyles = makeStyles((theme) => ({
     left: 5,
     top: (props) =>
       ((IMAGE_HEIGHT / RESIZE_FACTOR) * props.scale * window.innerWidth) /
-        1920 -
-      25,
+        1920 + 5,
     color: "rgba(255, 255, 255, 0.5)",
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 3,
@@ -81,13 +84,10 @@ const thumbnailStyles = makeStyles((theme) => ({
   },
   saveButton: {
     position: "absolute",
-    left: (props) =>
-      ((IMAGE_WIDTH / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920 -
-      25,
+    right: 5,
     top: (props) =>
       ((IMAGE_HEIGHT / RESIZE_FACTOR) * props.scale * window.innerWidth) /
-        1920 -
-      25,
+        1920 + 5,
     flexShrink: 0,
     color: "rgba(255, 255, 255, 0.5)",
     backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -105,11 +105,8 @@ const thumbnailStyles = makeStyles((theme) => ({
     left: 30,
     top: (props) =>
       ((IMAGE_HEIGHT / RESIZE_FACTOR) * props.scale * window.innerWidth) /
-        1920 -
-      25,
-    width: (props) =>
-      ((IMAGE_WIDTH / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920 -
-      60,
+        1920 + 5,
+    right: 30,
     color: "rgba(255, 255, 255, 0.5)",
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 3,
@@ -124,7 +121,7 @@ const thumbnailStyles = makeStyles((theme) => ({
     color: (props) => (props.scale > 1 ? "#eee" : props.dark ? "#444" : "#ccc"),
     fontSize: 13,
     paddingLeft: 5,
-    paddingTop: 2,
+    paddingTop: 25,
     whiteSpace: "pre-wrap",
   },
 }));
@@ -138,56 +135,49 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
 
 	if (saved === undefined) {
 		return (
-            <div className={classes.card} onMouseLeave={() => setZoom(false)}>
-                <LazyLoadComponent
-                height={
-                    ((IMAGE_HEIGHT / RESIZE_FACTOR) * scale * window.innerWidth) /
-                    1920 +
-                    12
-                }
-                width={
-                    ((IMAGE_WIDTH / RESIZE_FACTOR) * scale * window.innerWidth) / 1920
-                }
-                offset={500}
-                >
-                <img
-                    loading="lazy"
-                    alt={img}
-                    src={
-                        configData.IMAGEHOST_URL +
-                        img.split(".")[0] +
-                        ".jpg"
-                    }
-                    className={clsx(classes.image, {
-                        [classes.highlight]: highlight,
-                    })}
-                    onClick={openEvent}
-                />
-                </LazyLoadComponent>
-                <IconButton
-                    onMouseEnter={() => setZoom(true)}
-                    className={classes.zoomButton}
-                >
-                    <ImageSearchIcon fontSize="small" />
-                </IconButton>
-                
-                <IconButton
-                    onClick={onButtonClick}
-                    className={classes.saveButton}
-                >
-                    <BookmarkBorderRoundedIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                    onClick={(e) => dispatch(submitImage(img, false))}
-                    className={classes.submitButton}
-                >
-                    <CheckRoundedIcon fontSize="small" />
-                </IconButton>
-                {relevance? info && (
-                    <Typography className={classes.info}>{info}</Typography>
-                ):null}
-            </div>
-        );
+      <div className={classes.card} onMouseLeave={() => setZoom(false)}>
+        <LazyLoadComponent
+          height={
+            ((IMAGE_HEIGHT / RESIZE_FACTOR) * scale * window.innerWidth) /
+              1920 +
+            12
+          }
+          width={
+            ((IMAGE_WIDTH / RESIZE_FACTOR) * scale * window.innerWidth) / 1920
+          }
+          offset={500}
+        >
+          <img
+            loading="lazy"
+            alt={img}
+            src={configData.IMAGEHOST_URL + img}
+            className={clsx(classes.image, {
+              [classes.highlight]: highlight,
+            })}
+            onClick={openEvent}
+          />
+        </LazyLoadComponent>
+        <IconButton
+          onMouseEnter={() => setZoom(true)}
+          className={classes.zoomButton}
+        >
+          <ImageSearchIcon fontSize="small" />
+        </IconButton>
+
+        <IconButton onClick={onButtonClick} className={classes.saveButton}>
+          <BookmarkBorderRoundedIcon fontSize="small" />
+        </IconButton>
+        <IconButton
+          onClick={(e) => dispatch(submitImage(img, false, false))}
+          className={classes.submitButton}
+        >
+          <CheckRoundedIcon fontSize="small" />
+        </IconButton>
+        {relevance
+          ? info && <Typography className={classes.info}>{info}</Typography>
+          : null}
+      </div>
+    );
 	}
 	return (
         <div className={classes.card}>
@@ -312,17 +302,21 @@ const Thumbnail = ({
           }
           offset={500}
         >
-          <ImageCard
-            onButtonClick={saved === undefined ? Save : Remove}
-            saved={saved}
-            hidden={hidden}
-            scale={relevance ? scale : scale * 0.8}
-            img={group[0]}
-            highlight={highlight}
-            openEvent={ownOpenEvent}
-            info={info}
-            relevance={relevance}
-          />
+          {/* <Tooltip title="Click to see Timeline" arrow> */}
+            {/* <span> */}
+              <ImageCard
+                onButtonClick={saved === undefined ? Save : Remove}
+                saved={saved}
+                hidden={hidden}
+                scale={relevance ? scale : scale * 0.8}
+                img={group[0]}
+                highlight={highlight}
+                openEvent={ownOpenEvent}
+                info={info}
+                relevance={relevance}
+              />
+            {/* </span> */}
+          {/* </Tooltip> */}
         </LazyLoad>
       );
     } else {

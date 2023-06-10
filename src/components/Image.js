@@ -17,7 +17,7 @@ import { submitImage } from '../redux/actions/submit'
 
 const IMAGE_WIDTH = 1024;
 const IMAGE_HEIGHT = 768;
-const RESIZE_FACTOR = 6;
+const RESIZE_FACTOR = 5.5;
 
 const imageStyles = makeStyles((theme) => ({
   image: {
@@ -25,7 +25,7 @@ const imageStyles = makeStyles((theme) => ({
       ((IMAGE_WIDTH / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920,
     height: (props) =>
       ((IMAGE_HEIGHT / RESIZE_FACTOR) * props.scale * window.innerWidth) / 1920,
-    borderRadius: 2,
+    borderRadius: 8,
     flexShrink: 0,
     marginTop: 0,
     marginBottom: 10,
@@ -34,9 +34,18 @@ const imageStyles = makeStyles((theme) => ({
       props.highlight
         ? "2px solid #FF6584"
         : props.dark
-        ? "1px solid black"
-        : "1px solid #E6E6E6",
+        ? "1px solid rgba(0, 0, 0, 0)"
+        : "1px solid rgba(0, 0, 0, 0)",
     transition: "all 100ms ease-in",
+    "&:hover, &:focus": {
+      borderRadius: 0,
+      border: (props) => 
+        props.highlight
+            ? "2px solid #FF6584"
+            : props.dark
+            ? "1px solid #eee"
+            : "1px solid #eee"
+    },
   },
   card: {
     width: (props) =>
@@ -145,29 +154,25 @@ const Image = forwardRef(function Image({ image, scale, info, onClick, openEvent
         className={classes.card}
       >
         <LazyLoadComponent
-        height={
+          height={
             ((IMAGE_HEIGHT / RESIZE_FACTOR) * scale * window.innerWidth) /
-            1920 +
-            12
-        }
-        width={
-            ((IMAGE_WIDTH / RESIZE_FACTOR) * scale * window.innerWidth) / 1920
-        }
-        offset={500}
+              1920 +
+            14 //border * 2 + textpadding + margin
+          }
+          width={
+            ((IMAGE_WIDTH / RESIZE_FACTOR) * scale * window.innerWidth) / 1920 +
+            2 * 2 // 2 is border
+          }
+          offset={500}
         >
-        <img
+          <img
             alt={image}
             src={
-            zoom || scale > 2
-                ? configData.IMAGEHOST_URL + image.split(".")[0] + ".jpg"
-                : configData.IMAGEHOST_URL +
-                "webp-images-lsc-2022-full/" +
-                image.split(".")[0] +
-                ".webp"
+                configData.IMAGEHOST_URL + image
             }
             className={classes.image}
             onClick={ownOnClick}
-        />
+          />
         </LazyLoadComponent>
         <IconButton
           onMouseEnter={() => setZoom(true)}
@@ -182,7 +187,8 @@ const Image = forwardRef(function Image({ image, scale, info, onClick, openEvent
           <BookmarkBorderRoundedIcon fontSize="small" />
         </IconButton>
         <IconButton
-          onClick={() => dispatch(submitImage(image, scene))}
+          //   onClick={() => dispatch(submitImage(image, scene, false))}
+          onClick={() => dispatch(submitImage(image, false, false))}
           className={classes.submitButton}
         >
           <CheckRoundedIcon fontSize="small" />

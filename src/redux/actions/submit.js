@@ -38,8 +38,8 @@ export function setTimer(time) {
     return {type: SET_TIMER, time}
 }
 
-export function submitImage(image, scene) {
-    return {type: SUBMIT_IMAGE, image, scene}
+export function submitImage(image, scene, qa_answer) {
+    return {type: SUBMIT_IMAGE, image, scene, qa_answer}
 }
 
 export function submitAll(saved) {

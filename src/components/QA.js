@@ -11,13 +11,15 @@ import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import { setTextAnswers } from "../redux/actions/qa";
+import { submitImage } from "../redux/actions/submit";
+
 
 const QAstyles = makeStyles((theme) => ({
   pane: {
-    width: ({ isQuestion }) => (isQuestion ? "calc(15% - 10px)" : "0"),
-    height: `calc(100% - 90px)`,
+    width: ({ isQuestion }) => (isQuestion ? "calc(12.55% - 10px)" : "0"),
+    height: `calc(100% - 60px)`,
     position: "absolute",
-    top: 90,
+    top: 60,
     left: 0,
     backgroundColor: "#272727",
     border: "5px solid #272727",
@@ -72,24 +74,24 @@ const QAPane = ({ isQuestion, changeQuestion }) => {
     [answerSceneResponse]
   );
 
-  return (
+  const keyPressed = (event) => {
+    if (event.key === "Enter") dispatch(submitImage(document.getElementById("answer").value, false, true));
+  };
+
+  return isQuestion ? (
     <div className={classes.pane}>
-      {isQuestion ? (
-        <Typography className={classes.info}>Some possible answers:</Typography>
-      ) : null}
-      {isQuestion ? (
-        <List>
-          {texts
-            ? texts.map((answer, id) => (
-                <ListItem disablePadding>
-                  <ListItemButton dense onClick={() => copyText(answer)}>
-                    <ListItemText className={classes.info} primary={answer} />
-                  </ListItemButton>
-                </ListItem>
-              ))
-            : null}
-        </List>
-      ) : null}
+      <Typography className={classes.info}>Some possible answers:</Typography>
+      <List>
+        {texts
+          ? texts.map((answer, id) => (
+              <ListItem disablePadding>
+                <ListItemButton dense onClick={() => copyText(answer)}>
+                  <ListItemText className={classes.info} primary={answer} />
+                </ListItemButton>
+              </ListItem>
+            ))
+          : null}
+      </List>
       <FilledInput
         className={classes.answer}
         id={"answer"}
@@ -100,21 +102,29 @@ const QAPane = ({ isQuestion, changeQuestion }) => {
         endAdornment={
           <InputAdornment position="end">
             <IconButton
-            //   onClick={handleClickShowPassword}
-            //   onMouseDown={handleMouseDownPassword}
+              onClick={() =>
+                dispatch(
+                  submitImage(
+                    document.getElementById("answer").value,
+                    false,
+                    true
+                  )
+                )
+              }
+              //   onMouseDown={handleMouseDownPassword}
               edge="end"
             >
-                <CheckRoundedIcon></CheckRoundedIcon>
+              <CheckRoundedIcon></CheckRoundedIcon>
             </IconButton>
           </InputAdornment>
         }
-        // onKeyDown={keyPressed}
+        onKeyDown={keyPressed}
       />
       {/* <MouseTooltip visible={isMouseTooltipVisible} offsetX={15} offsetY={10}>
         <div className={classes.mouse}>Copied!</div>
       </MouseTooltip> */}
     </div>
-  );
+  ) : null;
 };
 
 export default QAPane;

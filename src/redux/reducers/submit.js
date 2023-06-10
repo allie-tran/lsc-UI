@@ -12,7 +12,9 @@ export default function (state = submitState, action) {
             configData.BACKEND_URL + "submit?image_id=" +
                 action.image +
                 "&scene=" +
-                action.scene
+                action.scene +
+                "&qa_answer=" +
+                action.qa_answer
         );
         return {
             ...state,

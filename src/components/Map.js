@@ -13,37 +13,36 @@ import { makeStyles } from '@material-ui/core/styles';
 import { setQueryBound } from '../redux/actions/search';
 // import worldmap from '../worldmap'
 import commonPlace from '../commonplace'
-import ENV from "./env.json"
 
 var isEqual = require('lodash.isequal');
 
 const PRECISION = 5;
 const useStyles = makeStyles((theme) => ({
-	map: {
-		position: 'fixed',
-		left: (props) => (props.open ? '80%' : 'calc(97% + 5px)'),
-		width: '30%',
-		height: 'calc(70% - 60px)',
-        paddingLeft: 10,
-		borderRadius: 2,
-		filter: (props) => (props.open ? 'none' : 'brightness(25%)'),
-		zIndex: 3,
-		top: 115,
-		margin: 0,
-        border: "5px solid #272727",
-	},
-	icon: {
-		padding: 0,
-		backgroundColor: '#f7f7f7',
-		right: "0.5%",
-		top: 'calc(100px + 0.5%)',
-        position: "fixed",
-		zIndex: 4
-	},
-	insideIcon: {
-		color: '#272727',
-		fontSize: 36
-	}
+  map: {
+    position: "fixed",
+    left: (props) => (props.open ? "82.5%" : "calc(97% + 5px)"),
+    width: "17.5%",
+    height: "calc(70% - 60px)",
+    paddingLeft: 10,
+    borderRadius: 2,
+    filter: (props) => (props.open ? "none" : "brightness(25%)"),
+    zIndex: 3,
+    top: 115,
+    margin: 0,
+    border: "5px solid #272727",
+  },
+  icon: {
+    padding: 0,
+    backgroundColor: "#f7f7f7",
+    right: "0.5%",
+    top: "calc(125px + 0.5%)",
+    position: "fixed",
+    zIndex: 4,
+  },
+  insideIcon: {
+    color: "#272727",
+    fontSize: 36,
+  },
 }));
 
 var mainIcon = new L.Icon({
@@ -120,43 +119,6 @@ const Map = ({ open }) => {
     }).addTo(nameLayer.current);
   };
 
-  // Add Geoapify Address Search control
-  const addressSearchControl = L.control.addressSearch(ENV["API_KEY"], {
-        position: "bottomleft",
-        className: "autocomplete",
-        resultCallback: (address) => {
-          if (marker.current) {
-            marker.current.remove();
-          }
-
-          if (!address) {
-            return;
-          }
-
-          marker.current = L.marker([address.lat, address.lon]).addTo(
-            map.current
-          );
-          if (
-            address.bbox &&
-            address.bbox.lat1 !== address.bbox.lat2 &&
-            address.bbox.lon1 !== address.bbox.lon2
-          ) {
-            map.current.fitBounds(
-              [
-                [address.bbox.lat1, address.bbox.lon1],
-                [address.bbox.lat2, address.bbox.lon2],
-              ],
-              { padding: [100, 100] }
-            );
-          } else {
-            map.current.setView([address.lat, address.lon], 15);
-          }
-        },
-        suggestionsCallback: (suggestions) => {
-          console.log(suggestions);
-        },
-      })
-
   useEffect(() => {
     if (map.current) {
       return;
@@ -170,22 +132,10 @@ const Map = ({ open }) => {
       dispatch(setQueryBound(e.bounds.toBBoxString().split(",")));
     });
 
-    // L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
-    //   maxZoom: 18,
-    //   attribution:
-    //     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    // }).addTo(map.current);
-
-    var mapURL = L.Browser.retina
-      ? `https://maps.geoapify.com/v1/tile/{mapStyle}/{z}/{x}/{y}.png?apiKey={apiKey}`
-      : `https://maps.geoapify.com/v1/tile/{mapStyle}/{z}/{x}/{y}@2x.png?apiKey={apiKey}`;
-
-    L.tileLayer(mapURL, {
+    L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+      maxZoom: 18,
       attribution:
-        "Powered by Geoapify | © OpenMapTiles © OpenStreetMap contributors",
-      apiKey: ENV["API_KEY"],
-      mapStyle: "osm-bright-smooth", // More map styles on https://apidocs.geoapify.com/docs/maps/map-tiles/
-      maxZoom: 20,
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map.current);
 
     // L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
@@ -219,9 +169,8 @@ const Map = ({ open }) => {
       singleMarkerMode: true,
     });
 
-    // map.current.addControl(addressSearchControl);
-    L.control.zoom({ position: "bottomright" }).addTo(map.current);
-  }, [addressSearchControl]);
+    // L.control.zoom({ position: "bottomright" }).addTo(map.current);
+  }, []);
 
   useEffect(
     () => {

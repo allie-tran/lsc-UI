@@ -1,4 +1,4 @@
 {
     "BACKEND_URL": "https://mysceal-web.computing.dcu.ie/be/",
-    "IMAGEHOST_URL": "https://mysceal-web.computing.dcu.ie/images/"
+    "IMAGEHOST_URL": "/images/"
 }

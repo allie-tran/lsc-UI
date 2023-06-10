@@ -94,3 +94,7 @@ export function removeMustNot(keyword) {
 export function getSimilar(image) {
 	return { type: SIMILAR, image };
 }
+
+export function sortBy(sort) {
+    return { type: "SORT_BY", sort };
+}

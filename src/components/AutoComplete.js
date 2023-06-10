@@ -43,7 +43,7 @@ const ComboBox = () => {
             autoComplete
             id="tags-outlined"
             sx={{
-                width: "calc(20% - 10px)",
+                width: "calc(17.5% - 10px)",
                 top: 60,
                 right: 0,
                 position: "fixed",

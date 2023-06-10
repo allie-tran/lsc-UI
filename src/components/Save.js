@@ -15,8 +15,8 @@ import Button from "@material-ui/core/Button";
 const useStyles = makeStyles((theme) => ({
   section: {
     position: "fixed",
-    left: (props) => (props.open ? "80%" : "97%"),
-    width: "20%",
+    left: (props) => (props.open ? "82.5%" : "97%"),
+    width: "17.5%",
     height: "100%",
     filter: (props) => (props.open ? "none" : "brightness(70%)"),
     zIndex: 3,
@@ -94,7 +94,7 @@ const SaveSection = memo(function SaveSection({ open, openEvent }) {
           <BookmarkRoundedIcon />
         </Badge>
       </Typography>
-      <Button
+      {/* <Button
         onClick={() => {
           play();
           dispatch(clearSaved());
@@ -103,7 +103,7 @@ const SaveSection = memo(function SaveSection({ open, openEvent }) {
         className={classes.button}
       >
         Submit All
-      </Button>
+      </Button> */}
       <div className={classes.imageContainer} id="save-section">
         <div className={classes.list}>
           {/* {saved.length % 2 !== 0 ? <Hidden key="Hidden" /> : null} */}

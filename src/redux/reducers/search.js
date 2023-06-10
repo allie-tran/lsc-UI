@@ -221,6 +221,12 @@ export default function(state = searchState, action) {
                 stats: newStats,
             };
         }
+    } else if (action.type === 'SORT_BY') {
+        const response = axios.get(configData.BACKEND_URL + "sort/?by=" + action.sort)
+        return {
+          ...state,
+          collection: response
+        };
     }
 	return state;
 }
