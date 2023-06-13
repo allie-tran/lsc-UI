@@ -303,19 +303,19 @@ const Thumbnail = ({
           offset={500}
         >
           {/* <Tooltip title="Click to see Timeline" arrow> */}
-            {/* <span> */}
-              <ImageCard
-                onButtonClick={saved === undefined ? Save : Remove}
-                saved={saved}
-                hidden={hidden}
-                scale={relevance ? scale : scale * 0.8}
-                img={group[0]}
-                highlight={highlight}
-                openEvent={ownOpenEvent}
-                info={info}
-                relevance={relevance}
-              />
-            {/* </span> */}
+          {/* <span> */}
+          <ImageCard
+            onButtonClick={saved === undefined ? Save : Remove}
+            saved={saved}
+            hidden={hidden}
+            scale={relevance ? scale : scale * 0.8}
+            img={group[0]}
+            highlight={highlight}
+            openEvent={ownOpenEvent}
+            info={info}
+            relevance={relevance}
+          />
+          {/* </span> */}
           {/* </Tooltip> */}
         </LazyLoad>
       );

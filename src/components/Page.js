@@ -221,7 +221,7 @@ const Page = () => {
           isQuestion={isQuestion}
           changeQuestion={changeQuestion}
         />
-        <AutoComplete className={classes.autocomplete} />
+        {/* <AutoComplete className={classes.autocomplete} /> */}
         <Map open={true} />
         <QAPane isQuestion={isQuestion} />
         <SaveSection open={true} openEvent={openEvent} />

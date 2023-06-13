@@ -43,21 +43,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SearchBar = memo(function SearchBar({inputRef, open, type, submitQuery, changeQuestion, isQuestion}) {
-  const classes = useStyles({ type, open });
-  const keyPressed = (event) => {
-    if (event.key === "Enter") submitQuery(true, 0);
-  };
-
-   const handleBlur = (event) => {
-     // Move the cursor to the end of the input text
-        const input = event.target;
-        if (input) {
-          input.scrollTo(input.scrollWidth, 0);
-        }
-   };
-
-  const Time = () => {
+const Time = memo(function Time({type, keyPressed}) {
+  const classes = useStyles({ type });
     if (type !== "Find:") {
       return [
         <Typography key="text">when</Typography>,
@@ -76,7 +63,22 @@ const SearchBar = memo(function SearchBar({inputRef, open, type, submitQuery, ch
       ];
     }
     return null;
+});
+const SearchBar = memo(function SearchBar({inputRef, open, type, submitQuery, changeQuestion, isQuestion}) {
+  const classes = useStyles({ type, open });
+  const keyPressed = (event) => {
+    if (event.key === "Enter") submitQuery(true, 0);
   };
+
+   const handleBlur = (event) => {
+     // Move the cursor to the end of the input text
+        const input = event.target;
+        if (input) {
+          input.scrollTo(input.scrollWidth, 0);
+        }
+   };
+
+  
 
   return (
     <div className={classes.searchContainer}>
@@ -104,17 +106,7 @@ const SearchBar = memo(function SearchBar({inputRef, open, type, submitQuery, ch
           label="Question?"
         />
       ) : null}
-      {/* {isQuestion ? (
-        <FilledInput
-          id={"question"}
-          variant="filled"
-          className={classes.searchBar}
-          disableUnderline={true}
-          inputProps={{ className: classes.input }}
-          onKeyDown={keyPressed}
-        />
-      ) : null} */}
-      <Time type={type} />
+      <Time type={type} keyPressed={keyPressed} />
     </div>
   );
 });

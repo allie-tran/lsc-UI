@@ -87,7 +87,13 @@ const eventStyles = makeStyles((theme) => ({
 
 const areEqual = (prevProps, nextProps) => {
     var isEqual = require('lodash.isequal');
-    return isEqual(prevProps.scene, nextProps.scene) && prevProps.isQuestion === nextProps.isQuestion
+    return (
+      isEqual(prevProps.scene, nextProps.scene) &&
+      prevProps.isQuestion === nextProps.isQuestion &&
+      isEqual(prevProps.before, nextProps.before) &&
+      isEqual(prevProps.after, nextProps.after) &&
+      isEqual(prevProps.current, nextProps.current)
+    );
 }
 
 const SubEvent = ({
@@ -139,7 +145,6 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
     const dispatch = useDispatch();
     const classes = eventStyles({ index, numDisplay : 1 });
 
-
     return (
       <div className={classes.row}>
         <div className={classes.event}>
@@ -150,11 +155,11 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
             openEvent={openEvent}
             index={index}
             location={group.location_before}
-            scale={(isQuestion? 5/6 : 1)  * (group.after ? 0.5 : 0.8)}
+            scale={(isQuestion ? 70 / 82.5 : 1) * (group.after ? 0.6 : 0.8)}
             numDisplay={group.after ? 3 : 2}
           ></SubEvent>
           {group.before ? (
-            <Thumbnail key={"before"} scale={0.2} position="before" />
+            <Thumbnail key={"before"} scale={0.05} position="before" />
           ) : null}
           <SubEvent
             key={index + "current"}
@@ -163,7 +168,10 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
             openEvent={openEvent}
             index={index}
             location={group.location}
-            scale={(isQuestion? 5/6 : 1)  * (group.before && group.after ? 0.8 : 1)}
+            scale={
+              (isQuestion ? 70 / 82.5 : 1) *
+              (group.before && group.after ? 0.85 : 1)
+            }
             numDisplay={
               group.before && group.after
                 ? 3
@@ -173,7 +181,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
             }
           ></SubEvent>
           {group.after ? (
-            <Thumbnail key={"after"} scale={0.2} position="after" />
+            <Thumbnail key={"after"} scale={0.05} position="after" />
           ) : null}
           <SubEvent
             key={index + "after"}
@@ -182,7 +190,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
             openEvent={openEvent}
             index={index}
             location={group.location_after}
-            scale={(isQuestion? 5/6 : 1)  * (group.before ? 0.5 : 0.8)}
+            scale={(isQuestion ? 70 / 82.5 : 1) * (group.before ? 0.6 : 0.8)}
             numDisplay={group.before ? 3 : 2}
           ></SubEvent>
         </div>

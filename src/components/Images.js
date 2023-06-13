@@ -152,6 +152,10 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
               dispatch(setQueryInfo(res.data.info));
               var isEqual = require("lodash.isequal");
               if (!isEqual(dates, newDates)) {
+                var grid = gridRef.current;
+                if (grid) {
+                  grid.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                }
                 setDates(newDates);
                 dispatch(setMap(newDates));
                 setLoaded(Math.min(84, newDates.length));
@@ -173,12 +177,12 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
     [collection]
   );
 
-  useEffect(() => {
-    var grid = gridRef.current;
-    if (!promiseInProgress && grid) {
-      grid.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    }
-  }, [promiseInProgress, dates]);
+//   useEffect(() => {
+//     var grid = gridRef.current;
+//     if (!promiseInProgress && grid) {
+//       grid.scrollTo({ top: 0, left: 0, behavior: "instant" });
+//     }
+//   }, [promiseInProgress, dates]);
 
   useEffect(() => {
     if (saveResponse) {

@@ -208,7 +208,7 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
                             label={text[0] + ": " + text[2]}
                             clickable={false}
                             variant="outlined"
-                      className={classes.text}
+                            className={classes.text}
                             sx={{
                                 bgcolor: "none",
                                 color: color,

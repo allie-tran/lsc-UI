@@ -36,6 +36,9 @@ const QAstyles = makeStyles((theme) => ({
   input: {
     padding: 15,
     color: "#000",
+    "&:hover, &:focus": {
+      color: "#fff",
+    },
   },
   info: {
     padding: 10,
