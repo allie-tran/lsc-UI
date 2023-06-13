@@ -145,6 +145,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
     const dispatch = useDispatch();
     const classes = eventStyles({ index, numDisplay : 1 });
 
+
     return (
       <div className={classes.row}>
         <div className={classes.event}>

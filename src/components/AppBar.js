@@ -84,7 +84,7 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
     const currentRef = useRef(null);
     const beforeRef = useRef(null);
     const afterRef = useRef(null);
-
+    
     const dispatch = useDispatch();
 
     const handleClickOpen = () => {
@@ -94,7 +94,6 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
     const handleClose = () => {
       setOpenLogin(false);
     };
-    
     const visualisation = useSelector((state) =>
       state.search.info ? state.search.info.query_visualisation : null
     );
@@ -202,7 +201,11 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
             {chips
               ? chips.map((text, index) => {
                     var color = text[1] === "current" ? "#ffd3dc" : "#eadfe1";
+<<<<<<< HEAD
                   return (
+=======
+                    return (
+>>>>>>> 0776a439997e59345d6701a161059d527cc74fb8
                         <Chip
                             key={text[0] + ": " + text[2]}
                             label={text[0] + ": " + text[2]}

@@ -12,8 +12,8 @@ import configureStore from './redux/configureStore';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 const theme = createTheme({
-    palette: {
-        type: "dark",
+  palette: {
+    type: "dark",
     primary: { main: "#6c63ff" },
     secondary: { main: "#FF6584" },
     info: { main: "#e0e0e0" },
@@ -21,8 +21,8 @@ const theme = createTheme({
     success: { main: "#4caf50" },
     warning: { main: "#ff9800" },
     error: { main: "#f44336" },
-    },
-    spacing: 4,
+  },
+  spacing: 4,
 });
 const store = configureStore();
 

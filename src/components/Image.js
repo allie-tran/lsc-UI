@@ -168,7 +168,12 @@ const Image = forwardRef(function Image({ image, scale, info, onClick, openEvent
           <img
             alt={image}
             src={
-                configData.IMAGEHOST_URL + image
+              zoom || scale > 2
+                ? configData.IMAGEHOST_URL + image
+                : configData.IMAGEHOST_URL +
+                  "webp-images-lsc-2022-full/" +
+                  image.split(".")[0] +
+                  ".webp"
             }
             className={classes.image}
             onClick={ownOnClick}

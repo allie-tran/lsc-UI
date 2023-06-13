@@ -185,6 +185,13 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
 //   }, [promiseInProgress, dates]);
 
   useEffect(() => {
+    var grid = gridRef.current;
+    if (!promiseInProgress && grid) {
+      grid.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+  }, [promiseInProgress, dates]);
+
+  useEffect(() => {
     if (saveResponse) {
       trackPromise(
         saveResponse.then((res) => {
