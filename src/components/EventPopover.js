@@ -82,13 +82,16 @@ const popStyle = makeStyles((theme) => ({
   },
   fixedbutton: {
     position: "fixed",
-    left: "51%",
+    right: "45%",
     top: "calc(15% - 16px)",
     padding: 10,
     height: 32,
     color: "#ff6584",
     zIndex: 100,
     fontSize: 14,
+    "&:hover": {
+      background: "#ff658420",
+    },
   },
 }));
 
@@ -213,6 +216,10 @@ const gridStyle = makeStyles((theme) => ({
     padding: 10,
     height: 32,
     flexShrink: 0,
+    color: "#6c63ff",
+    "&:hover": {
+        background: "#6c63ff20",
+    }
   },
 }));
 
@@ -279,11 +286,11 @@ const SceneGrid = memo(
           <Button
             className={classes.morebutton}
             onClick={moreTop}
-            color="primary"
+            color="secondary"
             variant="text"
           >
             {" "}
-            MORE{" "}
+            ⇧ MORE BEFORE{" "}
           </Button>
           {scenes
             ? scenes.map((group, id) => (
@@ -320,11 +327,11 @@ const SceneGrid = memo(
           <Button
             className={classes.morebutton}
             onClick={moreBottom}
-            color="primary"
+            color="secondary"
             variant="text"
           >
             {" "}
-            MORE{" "}
+            ⇩ MORE AFTER{" "}
           </Button>
         </div>
       </div>
@@ -466,7 +473,7 @@ const DetailGrid = memo(
 const areEqual = (prevProps, nextProps) => {
   return (
     isEqual(prevProps.scenes, nextProps.scenes) &&
-    isEqual(prevProps.similarScenes, nextProps.similarScenes) &&
+    // isEqual(prevProps.similarScenes, nextProps.similarScenes) &&
     isEqual(prevProps.detailed, nextProps.detailed) &&
     isEqual(prevProps.firstScene, nextProps.firstScene) &&
     prevProps.info === nextProps.info &&
@@ -491,7 +498,7 @@ const EventPopover = memo(function EventPopper({
   const [currentImage, setCurrentImage] = useState();
   const [info, setInfo] = useState("");
   const [detailed, setDetailed] = useState(null);
-  const [similarScene, setSimilarScene] = useState(null);
+//   const [similarScene, setSimilarScene] = useState(null);
   const [scenes, setScenes] = useState(null);
 
   const [line, setLine] = useState(-1);
@@ -506,7 +513,7 @@ const EventPopover = memo(function EventPopper({
   const moreSceneResponse = useSelector(
     (state) => state.search.moreSceneResponse
   );
-  const similarResponse = useSelector((state) => state.search.similarResponse);
+//   const similarResponse = useSelector((state) => state.search.similarResponse);
   const infoResponse = useSelector((state) => state.search.infoResponse);
 
   const moreTop = useCallback(() => {
@@ -532,7 +539,7 @@ const EventPopover = memo(function EventPopper({
       fetchedScenes.current = true;
       fetchedMore.current = true;
       setScenes(null);
-      setSimilarScene(null);
+    //   setSimilarScene(null);
       setDetailed(null);
       dispatch(clearNextEvents());
       firstTime.current = true;
@@ -657,15 +664,15 @@ const EventPopover = memo(function EventPopper({
     }
   }, [moreSceneResponse, scenes]);
 
-  useEffect(() => {
-    if (similarResponse) {
-      similarResponse.then((res) => {
-        if (!isEqual(similarScene, res.data.scenes)) {
-          setSimilarScene(res.data.scenes);
-        }
-      });
-    }
-  }, [similarResponse, similarScene]);
+//   useEffect(() => {
+//     if (similarResponse) {
+//       similarResponse.then((res) => {
+//         if (!isEqual(similarScene, res.data.scenes)) {
+//           setSimilarScene(res.data.scenes);
+//         }
+//       });
+//     }
+//   }, [similarResponse, similarScene]);
 
   useEffect(() => {
     var el = document.getElementById("scenegrid");
@@ -712,7 +719,7 @@ const EventPopover = memo(function EventPopper({
         playSave();
         dispatch(saveScene(images));
       } else {
-        dispatch(getSimilar(images[0]));
+        // dispatch(getSimilar(images[0]));
         if (!isEqual(detailed, images)) {
           setDetailed(images);
           setCurrentScene(scene_id);
@@ -763,7 +770,7 @@ const EventPopover = memo(function EventPopper({
           playSave();
           dispatch(saveScene([image]));
         } else {
-          dispatch(getSimilar(image));
+        //   dispatch(getSimilar(image));
           dispatch(getInfo(image));
         }
       }
@@ -878,7 +885,7 @@ const EventPopover = memo(function EventPopper({
     <Paper id="popover" elevation={4} className={classes.paper}>
       <Button className={classes.fixedbutton} onClick={reset}>
         {" "}
-        Reset{" "}
+        ⤿ Back to chosen image{" "}
       </Button>
       <div className={classes.horizontal}>
         <div className={classes.vertical}>
@@ -886,7 +893,7 @@ const EventPopover = memo(function EventPopper({
             name={"ALL SCENES on " + info}
             scenes={scenes}
             scale={1.0}
-            height="70%"
+            height="100%"
             width="100%"
             color={"#272727"}
             borderColor={"#6c63ff"}
@@ -898,7 +905,7 @@ const EventPopover = memo(function EventPopper({
             moreTop={moreTop}
             moreBottom={moreBottom}
           />
-          <SimilarGrid
+          {/* <SimilarGrid
             name={"SIMILAR scenes"}
             scenes={similarScene}
             scale={1.0}
@@ -909,10 +916,14 @@ const EventPopover = memo(function EventPopper({
             color={"#bebac6"}
             zIndex={2}
             onClick={setTime}
-          />
+          /> */}
         </div>
         <DetailGrid
-          name={"IMAGES of the selected scene"}
+          name={
+            "IMAGES of the selected key image"+
+           (detailed? " (" + detailed.length.toString() +
+            " total)" : "")
+          }
           scenes={detailed}
           scale={2.25}
           zIndex={0}

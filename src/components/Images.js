@@ -267,7 +267,7 @@ const ImageGrid = memo(function ImageGrid({ openEvent, isQuestion }) {
             position: "fixed",
             bottom: 16,
             right: "calc(17.5% + 16px)",
-            zIndex: 10,
+            zIndex: 20000,
           }}
           icon={<SpeedDialIcon />}
         >

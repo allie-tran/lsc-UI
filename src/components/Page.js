@@ -136,7 +136,7 @@ const Page = () => {
         []
     );
 
-    const [isQuestion, setQuestion] = useState(false);
+    const [isQuestion, setQuestion] = useState(true);
     const changeQuestion = useCallback(
       (event) => {
         setQuestion(event.target.checked);

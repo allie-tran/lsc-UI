@@ -128,13 +128,30 @@ const thumbnailStyles = makeStyles((theme) => ({
 
 
 
-const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonClick, info, relevance }) => {
-    const [zoom, setZoom] = useState(false);
-	const classes = thumbnailStyles({ hidden, scale, saved, highlight, zoomed:zoom });
-    const dispatch = useDispatch()
+const ImageCard = ({
+  saved,
+  hidden,
+  scale,
+  highlight,
+  img,
+  openEvent,
+  onButtonClick,
+  info,
+  relevance,
+  isQuestion,
+}) => {
+  const [zoom, setZoom] = useState(false);
+  const classes = thumbnailStyles({
+    hidden,
+    scale,
+    saved,
+    highlight,
+    zoomed: zoom,
+  });
+  const dispatch = useDispatch();
 
-	if (saved === undefined) {
-		return (
+  if (saved === undefined) {
+    return (
       <div className={classes.card} onMouseLeave={() => setZoom(false)}>
         <LazyLoadComponent
           height={
@@ -167,49 +184,46 @@ const ImageCard = ({ saved, hidden, scale, highlight, img, openEvent, onButtonCl
         <IconButton onClick={onButtonClick} className={classes.saveButton}>
           <BookmarkBorderRoundedIcon fontSize="small" />
         </IconButton>
+        {isQuestion? 
         <IconButton
           onClick={(e) => dispatch(submitImage(img, false, false))}
           className={classes.submitButton}
         >
           <CheckRoundedIcon fontSize="small" />
-        </IconButton>
+        </IconButton>: null}
         {relevance
           ? info && <Typography className={classes.info}>{info}</Typography>
           : null}
       </div>
     );
-	}
-	return (
-        <div className={classes.card}>
-            <IconButton onClick={onButtonClick} className={classes.saveButton}>
-                <DeleteOutlineRoundedIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-                onClick={(e) => dispatch(submitImage(img))}
-                className={classes.submitButton}
-            >
-                <CheckRoundedIcon fontSize="small" />
-            </IconButton>
-            {hidden ? (
-                <img
-                    alt={img}
-                    className={classes.image}
-                    onClick={(e) => dispatch(submitImage(img))}
-                />
-            ) : (
-                <img
-                    alt={img}
-                    src={
-                        configData.IMAGEHOST_URL +
-                        img.split(".")[0] +
-                        ".jpg"
-                    }
-                    className={classes.image}
-                    onClick={openEvent}
-                />
-            )}
-        </div>
-    );
+  }
+  return (
+    <div className={classes.card}>
+      <IconButton onClick={onButtonClick} className={classes.saveButton}>
+        <DeleteOutlineRoundedIcon fontSize="small" />
+      </IconButton>
+      <IconButton
+        onClick={(e) => dispatch(submitImage(img))}
+        className={classes.submitButton}
+      >
+        <CheckRoundedIcon fontSize="small" />
+      </IconButton>
+      {hidden ? (
+        <img
+          alt={img}
+          className={classes.image}
+          onClick={(e) => dispatch(submitImage(img))}
+        />
+      ) : (
+        <img
+          alt={img}
+          src={configData.IMAGEHOST_URL + img.split(".")[0] + ".jpg"}
+          className={classes.image}
+          onClick={openEvent}
+        />
+      )}
+    </div>
+  );
 };
 
 const hiddenStyles = makeStyles((theme) => ({
@@ -249,14 +263,15 @@ var isEqual = require("lodash.isequal");
 
 const areEqual = (prevProps, nextProps) => {
 	return (
-        prevProps.hidden === nextProps.hidden &&
-        prevProps.highlight === nextProps.highlight &&
-        isEqual(prevProps.group, nextProps.group) &&
-        prevProps.scale === nextProps.scale &&
-        prevProps.index === nextProps.index &&
-        prevProps.saved === nextProps.saved &&
-        prevProps.position === nextProps.position
-    );
+    prevProps.hidden === nextProps.hidden &&
+    prevProps.highlight === nextProps.highlight &&
+    isEqual(prevProps.group, nextProps.group) &&
+    prevProps.scale === nextProps.scale &&
+    prevProps.index === nextProps.index &&
+    prevProps.saved === nextProps.saved &&
+    prevProps.position === nextProps.position &&
+    prevProps.isQuestion === nextProps.isQuestion
+  );
 };
 
 const Thumbnail = ({
@@ -269,6 +284,7 @@ const Thumbnail = ({
     position,
     openEvent,
     info,
+    isQuestion,
     relevance
 }) => {
     // const [rendered, setRendered] = useState(false)
@@ -312,6 +328,7 @@ const Thumbnail = ({
             img={group[0]}
             highlight={highlight}
             openEvent={ownOpenEvent}
+            isQuestion={isQuestion}
             info={info}
             relevance={relevance}
           />

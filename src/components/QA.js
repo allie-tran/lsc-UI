@@ -83,7 +83,9 @@ const QAPane = ({ isQuestion, changeQuestion }) => {
 
   return isQuestion ? (
     <div className={classes.pane}>
-      <Typography className={classes.info}>Some possible answers:</Typography>
+      {texts && texts.length ? (
+        <Typography className={classes.info}>Some possible answers:</Typography>
+      ) : null}
       <List>
         {texts
           ? texts.map((answer, id) => (

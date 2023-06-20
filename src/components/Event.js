@@ -104,16 +104,23 @@ const SubEvent = ({
   location,
   scale,
   numDisplay,
+  isQuestion
 }) => {
   const classes = eventStyles({ index, numDisplay, scale });
 
   if (group) {
     return (
       <div className={classes.subrow}>
-        {location ? (location.map((loc, ind) => (
-            <Typography key={ind.toString() + "_" + loc}
-                        className={classes["info" + ind.toString()]}>{loc}</Typography>
-        ))) : null}
+        {location
+          ? location.map((loc, ind) => (
+              <Typography
+                key={ind.toString() + "_" + loc}
+                className={classes["info" + ind.toString()]}
+              >
+                {loc}
+              </Typography>
+            ))
+          : null}
         {/* <Typography className={classes.info}>{location}</Typography> */}
         <div className={classes.event}>
           {group
@@ -123,6 +130,7 @@ const SubEvent = ({
                     index={index}
                     group={[img[0]]}
                     scale={scale}
+                    isQuestion={isQuestion}
                     position={name}
                     openEvent={openEvent}
                     relevance={img[2]}
@@ -156,6 +164,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
             openEvent={openEvent}
             index={index}
             location={group.location_before}
+            isQuestion={isQuestion}
             scale={(isQuestion ? 70 / 82.5 : 1) * (group.after ? 0.6 : 0.8)}
             numDisplay={group.after ? 3 : 2}
           ></SubEvent>
@@ -168,6 +177,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
             name="current"
             openEvent={openEvent}
             index={index}
+            isQuestion={isQuestion}
             location={group.location}
             scale={
               (isQuestion ? 70 / 82.5 : 1) *
@@ -189,6 +199,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
             group={group.after}
             name="after"
             openEvent={openEvent}
+            isQuestion={isQuestion}
             index={index}
             location={group.location_after}
             scale={(isQuestion ? 70 / 82.5 : 1) * (group.before ? 0.6 : 0.8)}
