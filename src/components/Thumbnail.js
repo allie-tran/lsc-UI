@@ -63,7 +63,7 @@ const thumbnailStyles = makeStyles((theme) => ({
       transform: (props) => (props.zoomed ? "scale(3.0)" : "scale(1.0)"),
       backgroundColor: (props) => (props.zoomed ? "#272727" : "transparent"),
       borderRadius: (props) => (props.zoomed ? 8 : 0),
-      zIndex: 10000,
+      zIndex: 1000,
     },
   },
   zoomButton: {

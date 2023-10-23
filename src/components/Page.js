@@ -41,7 +41,6 @@ const popoverStyles = makeStyles((theme) => ({
   },
   snackbar: {
     whiteSpace: "pre-wrap",
-    zIndex: 10,
   },
   buttons: {
     position: "absolute",
@@ -136,7 +135,7 @@ const Page = () => {
         []
     );
 
-    const [isQuestion, setQuestion] = useState(true);
+    const [isQuestion, setQuestion] = useState(false);
     const changeQuestion = useCallback(
       (event) => {
         setQuestion(event.target.checked);
@@ -256,6 +255,7 @@ const Page = () => {
             commandHeld={commandHeld}
             openEvent={openEvent}
             initialImage={initialImage}
+            isQuestion={isQuestion}
           />
         </Popover>
         <Snackbar

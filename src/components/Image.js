@@ -137,11 +137,12 @@ const areEqual = (prevProps, nextProps) => {
 		prevProps.image === nextProps.image &&
 		prevProps.scale === nextProps.scale &&
 		prevProps.info === nextProps.info &&
-        prevProps.highlight === nextProps.highlight
+        prevProps.highlight === nextProps.highlight &&
+        prevProps.isQuestion === nextProps.isQuestion
 	);
 };
 
-const Image = forwardRef(function Image({ image, scale, info, onClick, openEvent, zoomed, disableLazyLoad, highlight, dark, scene}, ref) {
+const Image = forwardRef(function Image({ image, scale, info, onClick, openEvent, zoomed, disableLazyLoad, highlight, dark, scene, isQuestion}, ref) {
     const [zoom, setZoom] = useState(false);
     const classes = imageStyles({ scale, highlight, zoomed: zoom, dark});
     const ownOnClick = () =>
@@ -185,12 +186,13 @@ const Image = forwardRef(function Image({ image, scale, info, onClick, openEvent
         >
           <ImageSearchIcon fontSize="small" />
         </IconButton>
+        {isQuestion?
         <IconButton
           onClick={() => dispatch(saveScene([image]))}
           className={classes.saveButton}
         >
           <BookmarkBorderRoundedIcon fontSize="small" />
-        </IconButton>
+        </IconButton> : null}
         <IconButton
           //   onClick={() => dispatch(submitImage(image, scene, false))}
           onClick={() => dispatch(submitImage(image, false, false))}

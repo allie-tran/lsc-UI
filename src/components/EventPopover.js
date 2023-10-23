@@ -228,7 +228,8 @@ const areSceneEqual = (prevProps, nextProps) => {
     isEqual(prevProps.scenes, nextProps.scenes) &&
     isEqual(prevProps.onClick, nextProps.onClick) &&
     prevProps.highlight === nextProps.highlight &&
-    prevProps.name === nextProps.name
+    prevProps.name === nextProps.name &&
+    prevProps.isQuestion === nextProps.isQuestion
   );
 };
 const SceneGrid = memo(
@@ -239,6 +240,7 @@ const SceneGrid = memo(
       scenes,
       height,
       width,
+      isQuestion,
       scale,
       color,
       onClick,
@@ -316,6 +318,7 @@ const SceneGrid = memo(
                             scale={scale}
                             highlight={highlight === scene[0]}
                             onClick={ownOnClick}
+                            isQuestion={isQuestion}
                             scene={true}
                           />
                         ))
@@ -429,6 +432,7 @@ const DetailGrid = memo(
       zIndex,
       onClick,
       initialImage,
+      isQuestion
     },
     ref
   ) {
@@ -457,6 +461,7 @@ const DetailGrid = memo(
                   scale={scale}
                   zoomed
                   onClick={onClick}
+                  isQuestion={isQuestion}
                   scene={false}
                   info={image}
                   highlight={initialImage === image}
@@ -488,6 +493,7 @@ const EventPopover = memo(function EventPopper({
   openEvent,
   shiftHeld,
   commandHeld,
+  isQuestion
 }) {
   const classes = popStyle();
   const [play] = useSound(sfxSound);
@@ -904,6 +910,7 @@ const EventPopover = memo(function EventPopper({
             ref={highlightRef}
             moreTop={moreTop}
             moreBottom={moreBottom}
+            isQuestion={isQuestion}
           />
           {/* <SimilarGrid
             name={"SIMILAR scenes"}
@@ -920,9 +927,8 @@ const EventPopover = memo(function EventPopper({
         </div>
         <DetailGrid
           name={
-            "IMAGES of the selected key image"+
-           (detailed? " (" + detailed.length.toString() +
-            " total)" : "")
+            "IMAGES of the selected key image" +
+            (detailed ? " (" + detailed.length.toString() + " total)" : "")
           }
           scenes={detailed}
           scale={2.25}
@@ -933,6 +939,7 @@ const EventPopover = memo(function EventPopper({
           onClick={findSimilar}
           ref={highlightDetailedRef}
           initialImage={initialImage}
+          isQuestion={isQuestion}
         />
       </div>
     </Paper>

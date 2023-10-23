@@ -207,7 +207,7 @@ const Event = memo(function Event({ index, group, openEvent, location, location_
           ></SubEvent>
         </div>
         {isQuestion ? (
-          <Tooltip title="Answer Question" arrow>
+          <Tooltip title="Refine suggested answers to this event" arrow>
             <span>
               <IconButton
                 size="small"
