@@ -245,7 +245,7 @@ const Bar = memo( function Bar({ open, submitQuery, isQuestion, changeQuestion})
               id="login"
               label="session_id"
               variant="standard"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              onChange={(event) => {
                 setSessionID(event.target.value);
               }}
               value={sessionID}

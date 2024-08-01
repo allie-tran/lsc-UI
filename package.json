@@ -1,5 +1,5 @@
 {
-    "name": "ui",
+    "name": "MyEachtra",
     "version": "0.1.0",
     "private": true,
     "dependencies": {
@@ -11,10 +11,18 @@
         "@material-ui/styles": "^4.9.0",
         "@mui/icons-material": "^5.5.0",
         "@mui/material": "^5.5.0",
+        "@reduxjs/toolkit": "^2.2.2",
         "@testing-library/jest-dom": "^4.2.4",
         "@testing-library/react": "^9.4.1",
         "@testing-library/user-event": "^7.2.1",
-        "@welldone-software/why-did-you-render": "^6.2.1",
+        "@types/jest": "^29.5.12",
+        "@types/node": "^20.11.30",
+        "@types/react": "^18.2.73",
+        "@types/react-dom": "^18.2.23",
+        "@types/react-redux": "^7.1.33",
+        "@typescript-eslint/eslint-plugin": "^7.4.0",
+        "@typescript-eslint/parser": "^7.4.0",
+        "@welldone-software/why-did-you-render": "^8.0.1",
         "antd": "^4.18.8",
         "autosuggest-highlight": "^3.2.1",
         "axios": "^0.19.2",
@@ -23,6 +31,7 @@
         "leaflet-polylinedecorator": "^1.6.0",
         "leaflet.markercluster": "^1.4.1",
         "lodash.isequal": "^4.5.0",
+        "prettier": "^3.2.5",
         "react": "^17.0.0",
         "react-app-rewired": "^2.1.5",
         "react-chrono": "^1.14.0",
@@ -43,16 +52,23 @@
         "redux-axios-middleware": "^4.0.1",
         "redux-thunk": "^2.3.0",
         "typeface-roboto": "0.0.75",
-        "use-sound": "^4.0.1"
+        "typescript": "^5.4.3",
+        "use-sound": "^4.0.1",
+        "yarn": "^1.22.22"
     },
     "scripts": {
-        "start": "PORT=3001 react-scripts --openssl-legacy-provider start",
-        "build": "react-scripts --openssl-legacy-provider build",
+        "start": "PORT=3000 react-scripts --openssl-legacy-provider start",
+        "build": "GENERATE_SOURCEMAP=false react-scripts --openssl-legacy-provider build",
         "test": "react-scripts test",
         "eject": "react-scripts eject"
     },
     "eslintConfig": {
         "extends": "react-app"
+    },
+    "prettier": {
+        "singleQuote": true,
+        "trailingComma": "es5",
+        "tabWidth": 4
     },
     "browserslist": {
         "production": [
@@ -64,6 +80,46 @@
             "last 1 chrome version",
             "last 1 firefox version",
             "last 1 safari version"
+        ]
+    },
+    "tsconfig": {
+        "compilerOptions": {
+            "target": "es5",
+            "lib": [
+                "dom",
+                "dom.iterable",
+                "esnext"
+            ],
+            "allowJs": true,
+            "skipLibCheck": true,
+            "esModuleInterop": true,
+            "allowSyntheticDefaultImports": true,
+            "strict": true,
+            "forceConsistentCasingInFileNames": true,
+            "module": "esnext",
+            "moduleResolution": "node",
+            "resolveJsonModule": true,
+            "isolatedModules": true,
+            "noEmit": true,
+            "jsx": "react-jsx",
+            "baseUrl": "./src",
+            "paths": {
+                "*": [
+                    "src/*"
+                ],
+                "@components/*": [
+                    "src/components/*"
+                ],
+                "@application/*": [
+                    "src/application/*"
+                ],
+                "@assets/*": [
+                    "src/assets/*"
+                ]
+            }
+        },
+        "include": [
+            "src"
         ]
     }
 }
